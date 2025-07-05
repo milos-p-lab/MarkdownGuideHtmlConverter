@@ -45,6 +45,7 @@ namespace m.format.conv
                 "<!DOCTYPE html>\n" +
                 $"<html lang=\"{lang}\">\n" +
                 "<head>\n" +
+                "<meta charset=\"utf-8\">" +
                 (meta.Length > 0 ? meta.ToString() : "") +
                 (head ?? "") +
                 "</head>\n" +

@@ -51,6 +51,7 @@ namespace m.format.conv
                 "<!DOCTYPE html>\n" +
                 $"<html lang=\"{lang}\">\n" +
                 "<head>\n" +
+                "<meta charset=\"utf-8\">" +
                 (meta.Length > 0 ? meta.ToString() : "") +
                 (head ?? "") +
                 "</head>\n" +
@@ -158,7 +159,7 @@ namespace m.format.conv
                             }
                         }
                     }
-                    startLine = end;
+                    startLine = end + 1;
                 }
             }
 
@@ -1315,7 +1316,7 @@ namespace m.format.conv
 
         #region Parsing markdown table
 
-        private static string ParseMarkdownTable(string[] lines, int startLineIndex, out int linesConsumed)
+        private string ParseMarkdownTable(string[] lines, int startLineIndex, out int linesConsumed)
         {
             linesConsumed = 0;
 
@@ -1346,7 +1347,7 @@ namespace m.format.conv
             {
                 string align = alignments[i];
                 string style = string.IsNullOrEmpty(align) ? "" : $" style=\"text-align:{align}\"";
-                sb.AppendLine($"      <th{style}>{EscapeHtml(headerCells[i])}</th>");
+                sb.AppendLine($"      <th{style}>{ParseInlineStyles(headerCells[i])}</th>");
             }
             sb.AppendLine("    </tr>");
             sb.AppendLine("  </thead>");
@@ -1362,7 +1363,7 @@ namespace m.format.conv
                     string cell = i < rowCells.Count ? rowCells[i] : "";
                     string align = alignments[i];
                     string style = string.IsNullOrEmpty(align) ? "" : $" style=\"text-align:{align}\"";
-                    sb.AppendLine($"      <td{style}>{EscapeHtml(cell)}</td>");
+                    sb.AppendLine($"      <td{style}>{ParseInlineStyles(cell)}</td>");
                 }
                 sb.AppendLine("    </tr>");
                 current++;
