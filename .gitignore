@@ -1,0 +1,56 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code settings
+.vscode/
+
+# Visual Studio working folders
+*.vsp
+*.vspx
+*.vspscc
+*.vssscc
+*.cache
+*.dbmdl
+*.pidb
+*.sdf
+*.opensdf
+*.VC.db
+*.psess
+*.ncb
+*.log
+
+# IIS Express
+.vs/
+*.vs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# NuGet
+*.nupkg
+packages/
+*.snupkg
+
+# Dotnet-specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.deps.json
+
+# Rider (ako neko koristi JetBrains)
+.idea/
+
+# Others
+TestResults/
+*.Publish.xml
