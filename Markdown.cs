@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -10,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.0.0</version>
-    /// <date>2025-07-05</date>
+    /// <version>1.0.1</version>
+    /// <date>2025-07-06</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -380,22 +381,21 @@ namespace m.format.conv
                 }
             }
 
-            if (usedFootnotes.Count > 0)
+            if (UsedFootnotes.Count > 0)
             {
-                Body.Append("<div class=\"footnotes\">\n<ol>\n");
+                Body.Append("<div class=\"footnotes\">\n<ul>\n");
 
-                foreach (string id in usedFootnotes)
+                foreach (string id in UsedFootnotes)
                 {
                     if (!FootnoteDefinitions.TryGetValue(id, out string text))
                     {
                         continue; // footnote is not defined, skip
                     }
-
                     // Create footnote with link back to reference
-                    Body.Append($"<li id=\"fn{id}\">{ParseInlineStyles(text)} <a href=\"#ref{id}\" class=\"footnote-backref\">↩</a></li>\n");
+                    Body.Append($"<li id=\"fn{id}\"><sup>{id}</sup> {ParseInlineStyles(text)} <a href=\"#ref{id}\" class=\"footnote-backref\">↩</a></li>\n");
                 }
 
-                Body.Append("</ol>\n</div>\n");
+                Body.Append("</ul>\n</div>\n");
             }
 
             sw.Stop();
@@ -406,7 +406,7 @@ namespace m.format.conv
         }
 
         // Set of known self-closing tags
-        private static readonly HashSet<string> selfClosingTags = new HashSet<string> {
+        private static readonly HashSet<string> SelfClosingTags = new HashSet<string> {
             "br", "img", "hr", "input", "link", "meta", "source", "track", "wbr",
             "area", "base", "col", "embed", "param", "command"
         };
@@ -417,7 +417,7 @@ namespace m.format.conv
         private static bool IsSelfClosing(string tag)
         {
             string name = GetTagName(tag).ToLowerInvariant();
-            return tag.EndsWith("/>") || selfClosingTags.Contains(name);
+            return tag.EndsWith("/>") || SelfClosingTags.Contains(name);
         }
 
         /// <summary>
@@ -504,7 +504,6 @@ namespace m.format.conv
             for (int i = 0; i < len; i++)
             {
                 char c = line[i];
-                bool skip = false;
 
                 // Escape character
                 if (c == '\\' && i + 1 < len)
@@ -528,33 +527,48 @@ namespace m.format.conv
                         {
                             sb.Append(entity);
                             i += entity.Length - 1;
-                            skip = true;
+                            continue;
                         }
                     }
-                    if (!skip)
-                    {
-                        sb.Append("&amp;");
-                        skip = true;
-                    }
+                    sb.Append("&amp;");
+                    continue;
                 }
                 // Less-than sign
                 else if (c == '<')
                 {
+                    int tagStart = i;
+                    int j = i + 1;
+
+                    // Go to the end of the potential tag
+                    while (j < line.Length && line[j] != '>') { j++; }
+
+                    if (j < line.Length && line[j] == '>')
+                    {
+                        string tagCandidate = line.Substring(tagStart, j - tagStart + 1);
+
+                        // Check if the tag is allowed
+                        if (IsAllowedHtmlTag(tagCandidate))
+                        {
+                            sb.Append(tagCandidate);
+                            i = j;
+                            continue;
+                        }
+                    }
                     sb.Append("&lt;");
-                    skip = true;
+                    continue;
                 }
                 // Greater-than sign
                 else if (c == '>')
                 {
                     sb.Append("&gt;");
-                    skip = true;
+                    continue;
                 }
 
                 // Footnotes and links
                 else if (c == '[')
                 {
                     // Footnotes
-                    if (line[i] == '[' && i + 1 < line.Length && line[i + 1] == '^')
+                    if (line[i] == '[' && i + 1 < len && line[i + 1] == '^')
                     {
                         int end = line.IndexOf(']', i);
                         if (end > -1)
@@ -570,57 +584,50 @@ namespace m.format.conv
 
                             if (FootnoteDefinitions.ContainsKey(id))
                             {
-                                usedFootnotes.Add(id);
-
+                                UsedFootnotes.Add(id);
                                 string tooltip = "";
-
                                 // Add or get the existing footnote number
-                                if (!footnoteNumbers.TryGetValue(id, out int number))
+                                if (!FootnoteNumbers.TryGetValue(id, out _))
                                 {
-                                    number = nextFootnoteNumber++;
-                                    footnoteNumbers[id] = number;
+                                    FootnoteNumbers[id] = NextFootnoteNumber++;
                                     tooltip = FootnoteDefinitions[id].Replace("\"", "&quot;");
                                 }
-
                                 // HTML link in the text uses href to "fn" and id "ref"
-                                sb.Append($"<a href=\"#fn{id}\" id=\"ref{id}\" title=\"{tooltip}\">[{number}]</a>");
-
+                                sb.Append($"<sup><a href=\"#fn{id}\" id=\"ref{id}\" title=\"{tooltip}\">{id}</a></sup>");
                                 i = end; // skip the parsed part
                                 continue;
                             }
                         }
                     }
                     // Links
-                    else if (TryParseLink(line, i, out string linkText, out string url, out string title, out int endIndex))
+                    else if (TryParseLink(line, i, out string linkText, out string url, out string title, out int end))
                     {
-                        i = endIndex;
                         sb.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
-                        skip = true;
+                        i = end; // skip the parsed part
+                        continue;
                     }
                 }
 
                 // Image
                 else if (c == '!' && i + 1 < len && line[i + 1] == '[')
                 {
-                    if (TryParseImage(line, i, out string altText, out string url, out string title, out int endIndex))
+                    if (TryParseImage(line, i, out string altText, out string url, out string title, out int end))
                     {
-                        i = endIndex + 1;
                         sb.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $"\" title=\"{title}")}>");
+                        i = end; // skip the parsed part
+                        continue;
                     }
                 }
 
                 // Inline code
                 else if (c == '`')
                 {
-                    if (TryParseInlineCode(line, i, out int endIndex, out string codeContent))
+                    if (TryParseInlineCode(line, i, out int end, out string codeContent))
                     {
                         // HTML-escape the content
                         string html = $"<code>{WebUtility.HtmlEncode(codeContent)}</code>";
-
-                        // Add the HTML to the result
                         sb.Append(html);
-
-                        i = endIndex; // skip the parsed part
+                        i = end; // skip the parsed part
                         continue;
                     }
                 }
@@ -687,7 +694,7 @@ namespace m.format.conv
                     sb.Append(sty);
                 }
 
-                if (!skip && i < len)
+                if (i < len)
                 {
                     sb.Append(line[i]);
                 }
@@ -715,6 +722,37 @@ namespace m.format.conv
             } while (k > -1);
 
             return s;
+        }
+
+        /// <summary>
+        /// List of allowed inline HTML tags
+        /// </summary>
+        private static readonly string[] AllowedInlineHtmlTags = { "sup", "sub", "span", "br" };
+
+        /// <summary>
+        /// Checks if the given HTML tag is allowed.
+        /// </summary>
+        private static bool IsAllowedHtmlTag(string tag)
+        {
+            // Parse the tag name (e.g., "sup", "/sup", "span", etc.)
+            int i = 1; // skip '<'
+            if (tag[i] == '/') { i++; }
+
+            int start = i;
+            while (i < tag.Length && (char.IsLetterOrDigit(tag[i]) || tag[i] == '-' || tag[i] == ':'))
+            {
+                i++;
+            }
+
+            string tagName = tag.Substring(start, i - start).ToLowerInvariant();
+
+            if (!AllowedInlineHtmlTags.Contains(tagName))
+            {
+                return false;
+            }
+
+            // Check if the tag is properly closed
+            return tag.EndsWith(">");
         }
 
         /// <summary>
@@ -1249,12 +1287,12 @@ namespace m.format.conv
         #region Footnotes
 
         // Footnote numbers and tracking
-        private readonly Dictionary<string, int> footnoteNumbers = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> FootnoteNumbers = new Dictionary<string, int>();
 
-        private int nextFootnoteNumber = 1;
+        private int NextFootnoteNumber = 1;
 
         // Set of used footnotes to avoid duplicates in the output
-        private readonly HashSet<string> usedFootnotes = new HashSet<string>();
+        private readonly HashSet<string> UsedFootnotes = new HashSet<string>();
 
         public Dictionary<string, string> FootnoteDefinitions { get; } = new Dictionary<string, string>();
 
