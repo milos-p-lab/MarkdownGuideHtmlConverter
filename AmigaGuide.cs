@@ -173,7 +173,7 @@ namespace m.format.conv
                                         if (args.Length > 1 && !nodeMain)
                                         {
                                             string s = args[1] ?? args[0];
-                                            body.Append("<h2>" + s + "</h2>");
+                                            body.Append($"<h2>{s}</h2>");
                                         }
                                     }
                                 }
@@ -218,7 +218,7 @@ namespace m.format.conv
                                     else
                                     {
                                         // Unknown command is passed as a comment.
-                                        body.Append("<!--@" + cmd + (argLine.Length > 0 ? " " + WebUtility.HtmlEncode(argLine) : "") + "-->\n");
+                                        body.Append($"<!--@{cmd}{(argLine.Length > 0 ? " " + WebUtility.HtmlEncode(argLine) : "")}-->\n");
                                     }
                                 }
                             }

@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.0.1</version>
-    /// <date>2025-07-06</date>
+    /// <version>1.0.2</version>
+    /// <date>2025-07-07</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -86,6 +86,16 @@ namespace m.format.conv
         private string[] Lines;
 
         /// <summary>
+        /// Number of lines in the markdown text.
+        /// </summary>
+        private int LinesCount;
+
+        /// <summary>
+        /// Current line number.
+        /// </summary>
+        private int LineNum;
+
+        /// <summary>
         /// HTML body content.
         /// This is where the converted HTML will be stored.
         /// </summary>
@@ -97,6 +107,10 @@ namespace m.format.conv
         /// </summary>
         private State CurrState;
 
+        /// <summary>
+        /// Previous state of Markdown parsing.
+        /// This is used to remember the last state before the current one, allowing for proper context handling
+        /// </summary>
         private State PrevState = State.Empty;
 
         // List states
@@ -112,6 +126,10 @@ namespace m.format.conv
         /// </summary>
         private readonly Queue ListClosingTags = new Queue(10);
 
+        /// <summary>
+        /// Escapes HTML special characters in the input string.
+        /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.
+        /// </summary>
         private static string EscapeHtml(string input) => input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
         /// <summary>
@@ -125,14 +143,14 @@ namespace m.format.conv
             Stopwatch sw = Stopwatch.StartNew();
 
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-            int linesCount = Lines.Length;
+            LinesCount = Lines.Length;
             metadata = new Dictionary<string, string>();
 
             int startLine = 0;
             int emptyCnt = 0;
 
             // Detect YAML Front Matter
-            if (linesCount > 0 && Lines[0].Trim() == "---")
+            if (LinesCount > 0 && Lines[0].Trim() == "---")
             {
                 int end = Array.FindIndex(Lines, 1, l => l.Trim() == "---");
                 if (end > 0)
@@ -164,11 +182,11 @@ namespace m.format.conv
                 }
             }
 
-            ParseFootnotes(Lines, Math.Max(0, linesCount - FootnoteScanLines));
+            ParseFootnotes(Lines, Math.Max(0, LinesCount - FootnoteScanLines));
 
-            for (int lineNum = startLine; lineNum < linesCount; lineNum++)
+            for (LineNum = startLine; LineNum < LinesCount; LineNum++)
             {
-                string line = Lines[lineNum];
+                string line = Lines[LineNum];
                 string trimLine = line.Trim();
 
                 // Empty line
@@ -297,9 +315,9 @@ namespace m.format.conv
                         CloseBlock();
                         Body.Append($"<pre><code class=\"{lang}\">\n");
                         bool endBlock = false;
-                        while (!endBlock && ++lineNum < linesCount)
+                        while (!endBlock && ++LineNum < LinesCount)
                         {
-                            line = Lines[lineNum];
+                            line = Lines[LineNum];
                             if (IsFenceClosingLine(line, CodeFenceSeq))
                             {
                                 Body.Append("</code></pre>\n");
@@ -316,51 +334,21 @@ namespace m.format.conv
                 }
 
                 // Raw HTML
-                else if (trimLine.StartsWith("<"))
+                else if (ProcessRawHtml(line, trimLine, out State state))
                 {
-                    int k = trimLine.IndexOf('>');
-                    if (k > 1)
-                    {
-                        CurrState = State.RawHtmlCode;
-                        string tag = trimLine.Substring(0, k + 1);
-
-                        if (IsSelfClosing(tag))
-                        {
-                            Body.AppendLine(line);
-                            continue;
-                        }
-                        else
-                        {
-                            string tagName = GetTagName(tag);
-                            string endTag = "</" + tagName + ">";
-
-                            do
-                            {
-                                Body.AppendLine(Lines[lineNum]);
-                                if (++lineNum >= linesCount) { break; }
-                            } while (Lines[lineNum].IndexOf(endTag, StringComparison.OrdinalIgnoreCase) < 0);
-
-                            if (lineNum < linesCount) { Body.AppendLine(Lines[lineNum]); }
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        CurrState = State.Paragraph;
-                        line = ParseInlineStyles(line);
-                    }
+                    CurrState = state;
+                    continue;
                 }
 
                 // Tables
-                else if (trimLine.StartsWith("|") && lineNum < linesCount - 2 && IsTableHeaderSeparator(Lines[lineNum + 1]))
+                else if (trimLine.StartsWith("|") && LineNum < LinesCount - 2 && IsTableHeaderSeparator(Lines[LineNum + 1]))
                 {
                     CurrState = State.Table;
                     CloseBlock();
-                    string table = ParseMarkdownTable(Lines, lineNum, out int linesConsumed);
+                    string table = ParseMarkdownTable(Lines, LineNum, out int linesConsumed);
                     Body.Append(table);
                     line = "";
-                    lineNum = linesConsumed + lineNum - 1;
+                    LineNum = linesConsumed + LineNum - 1;
                 }
 
                 // Paragraph
@@ -368,7 +356,7 @@ namespace m.format.conv
                 {
                     CurrState = State.Paragraph;
                     CloseBlock();
-                    line = ParseInlineStyles(line);
+                    line = ParseInlineStyles(line.TrimEnd());
                 }
 
                 PrevState = CurrState;
@@ -381,6 +369,7 @@ namespace m.format.conv
                 }
             }
 
+            // Add footnote definitions at the end of the document
             if (UsedFootnotes.Count > 0)
             {
                 Body.Append("<div class=\"footnotes\">\n<ul>\n");
@@ -405,7 +394,9 @@ namespace m.format.conv
             return Body.ToString();
         }
 
-        // Set of known self-closing tags
+        /// <summary>
+        /// Set of known self-closing tags.
+        /// </summary>
         private static readonly HashSet<string> SelfClosingTags = new HashSet<string> {
             "br", "img", "hr", "input", "link", "meta", "source", "track", "wbr",
             "area", "base", "col", "embed", "param", "command"
@@ -449,7 +440,22 @@ namespace m.format.conv
 
             if (CurrState == State.Paragraph)
             {
-                line = PrevState != State.Paragraph ? "\n<p>" : " ";
+                if (PrevState == State.Paragraph)
+                {
+                    if (LineNum > 0 && Lines[LineNum - 1].EndsWith("  "))
+                    {
+                        // If the previous line of the paragraph ends with two spaces, add a <br>
+                        line = "<br>";
+                    }
+                    else
+                    {
+                        line = " ";
+                    }
+                }
+                else
+                {
+                    line = "\n<p>";
+                }
             }
             else if (PrevState == State.Paragraph)
             {
@@ -599,7 +605,7 @@ namespace m.format.conv
                             }
                         }
                     }
-                    // Links
+                    // Links. Example: [link](https://example.com)
                     else if (TryParseLink(line, i, out string linkText, out string url, out string title, out int end))
                     {
                         sb.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
@@ -608,7 +614,15 @@ namespace m.format.conv
                     }
                 }
 
-                // Image
+                // Autolinks. Example: https://example.com, <https://example.com>, user@example.com, <user@example.com>
+                else if (TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
+                {
+                    sb.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
+                    i = end2; // skip the parsed part
+                    continue;
+                }
+
+                // Image. Example: ![Logo za HTML 5](https://www.w3schools.com/html/html5.gif \"HTML 5 Logo\")
                 else if (c == '!' && i + 1 < len && line[i + 1] == '[')
                 {
                     if (TryParseImage(line, i, out string altText, out string url, out string title, out int end))
@@ -725,7 +739,7 @@ namespace m.format.conv
         }
 
         /// <summary>
-        /// List of allowed inline HTML tags
+        /// List of allowed inline HTML tags.
         /// </summary>
         private static readonly string[] AllowedInlineHtmlTags = { "sup", "sub", "span", "br" };
 
@@ -924,6 +938,119 @@ namespace m.format.conv
             endIndex = i < len ? i : len - 1;
 
             return true;
+        }
+
+        /// <summary>
+        /// Tries to parse an auto-link or plain URL or email from the input string.
+        /// </summary>
+        private static bool TryParseAutoLink(string input, int startIndex, out string linkText, out string url, out string title, out string cls, out int endIndex)
+        {
+            linkText = null;
+            url = null;
+            title = null;
+            endIndex = startIndex;
+
+            int len = input.Length;
+
+            // --- 1. Autolink: <https://example.com>, <user@example.com> ---
+            if (input[startIndex] == '<')
+            {
+                int close = input.IndexOf('>', startIndex + 1);
+                if (close != -1)
+                {
+                    string candidate = input.Substring(startIndex + 1, close - startIndex - 1).Trim();
+                    if (IsValidEmail(candidate))
+                    {
+                        linkText = candidate;
+                        url = "mailto:" + candidate;
+                        cls = " class=\"email-link\"";
+                        endIndex = close;
+                        return true;
+                    }
+                    if (IsValidUrl(candidate))
+                    {
+                        linkText = candidate;
+                        url = candidate;
+                        cls = "";
+                        endIndex = close;
+                        return true;
+                    }
+                }
+            }
+
+            // --- 2. Plain URL: http://example.com, user@example.com ---
+            if (IsUrlPrefix(input, startIndex) || IsEmailPrefix(input, startIndex))
+            {
+                int i = startIndex;
+                while (i < len && !char.IsWhiteSpace(input[i]) && input[i] != ')')
+                {
+                    i++;
+                }
+
+                string candidate = input.Substring(startIndex, i - startIndex);
+                if (IsValidEmail(candidate))
+                {
+                    linkText = candidate;
+                    url = "mailto:" + candidate;
+                    cls = " class=\"email-link\"";
+                    endIndex = i - 1;
+                    return true;
+                }
+                if (IsValidUrl(candidate))
+                {
+                    linkText = candidate;
+                    url = candidate;
+                    cls = "";
+                    endIndex = i - 1;
+                    return true;
+                }
+            }
+
+            cls = "";
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the input string starts with a URL prefix.
+        /// </summary>
+        private static bool IsUrlPrefix(string input, int index)
+        {
+            return input.Substring(index).StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || input.Substring(index).StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                || input.Substring(index).StartsWith("ftp://", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Checks if the input string starts with a URL prefix.
+        /// </summary>
+        private static bool IsValidUrl(string candidate)
+        {
+            return Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeFtp);
+        }
+
+        /// <summary>
+        /// Checks if the input string starts with an email prefix.
+        /// </summary>
+        private static bool IsEmailPrefix(string input, int index)
+        {
+            return input.Substring(index).Contains("@");
+        }
+
+        /// <summary>
+        /// Checks if the input string is a valid email address.
+        /// </summary>
+        private static bool IsValidEmail(string input)
+        {
+            try
+            {
+                System.Net.Mail.MailAddress addr = new System.Net.Mail.MailAddress(input);
+                return addr.Address == input;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -1280,6 +1407,54 @@ namespace m.format.conv
 
             // Check if afterFence contains only whitespace
             return string.IsNullOrWhiteSpace(afterFence);
+        }
+
+        /// <summary>
+        /// Processes raw HTML content in the markdown document.
+        /// If the line starts with a '<', it is treated as raw HTML.
+        /// </summary>
+        private bool ProcessRawHtml(string line, string trimLine, out State state)
+        {
+            if (trimLine.StartsWith("<"))
+            {
+                int k = trimLine.IndexOf('>');
+                if (k > 1)
+                {
+                    string tag = trimLine.Substring(0, k + 1);
+
+                    if (TryParseAutoLink(tag, 0, out string linkText, out string url, out string title, out string cls, out int _))
+                    {
+                        Body.Append($"<p><a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a></p>\n");
+                        state = State.Paragraph;
+                        return true;
+                    }
+
+                    if (IsSelfClosing(tag))
+                    {
+                        Body.AppendLine(line);
+                        state = State.RawHtmlCode;
+                        return true;
+                    }
+                    else
+                    {
+                        string tagName = GetTagName(tag);
+                        string endTag = $"</{tagName}>";
+
+                        do
+                        {
+                            Body.AppendLine(Lines[LineNum]);
+                            if (++LineNum >= LinesCount) { break; }
+                        } while (Lines[LineNum].IndexOf(endTag, StringComparison.OrdinalIgnoreCase) < 0);
+
+                        if (LineNum < LinesCount) { Body.AppendLine(Lines[LineNum]); }
+
+                        state = State.RawHtmlCode;
+                        return true;
+                    }
+                }
+            }
+            state = State.Empty;
+            return false;
         }
 
         #endregion
