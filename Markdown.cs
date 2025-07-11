@@ -5,14 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace m.format.conv
 {
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.0.2</version>
-    /// <date>2025-07-07</date>
+    /// <version>1.0.3</version>
+    /// <date>2025-07-11</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -130,7 +131,21 @@ namespace m.format.conv
         /// Escapes HTML special characters in the input string.
         /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.
         /// </summary>
-        private static string EscapeHtml(string input) => input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+        private static string EscapeHtml(string input)
+        {
+            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+        }
+
+        private static string FullyDecode(string value)
+        {
+            if (value == null) { return ""; }
+
+            // Prvo HTML decode
+            string htmlDecoded = WebUtility.HtmlDecode(value);
+
+            // Zatim URL decode
+            return Uri.UnescapeDataString(htmlDecoded.Replace("+", " "));
+        }
 
         /// <summary>
         /// Converts Markdown document to HTML.
@@ -395,23 +410,6 @@ namespace m.format.conv
         }
 
         /// <summary>
-        /// Set of known self-closing tags.
-        /// </summary>
-        private static readonly HashSet<string> SelfClosingTags = new HashSet<string> {
-            "br", "img", "hr", "input", "link", "meta", "source", "track", "wbr",
-            "area", "base", "col", "embed", "param", "command"
-        };
-
-        /// <summary>
-        /// Determines whether the specified HTML or XML tag is self-closing.
-        /// </summary>
-        private static bool IsSelfClosing(string tag)
-        {
-            string name = GetTagName(tag).ToLowerInvariant();
-            return tag.EndsWith("/>") || SelfClosingTags.Contains(name);
-        }
-
-        /// <summary>
         /// Extracts the tag name from a given HTML or XML tag.
         /// </summary>
         private static string GetTagName(string tag)
@@ -553,7 +551,7 @@ namespace m.format.conv
                         string tagCandidate = line.Substring(tagStart, j - tagStart + 1);
 
                         // Check if the tag is allowed
-                        if (IsAllowedHtmlTag(tagCandidate))
+                        if (!IsDangerousTag(tagCandidate) && IsAllowedHtmlTag(tagCandidate))
                         {
                             sb.Append(tagCandidate);
                             i = j;
@@ -929,6 +927,11 @@ namespace m.format.conv
             if (urlEnd == -1) { return false; } // No closing ')'
 
             url = input.Substring(urlStart, urlEnd - urlStart).Trim();
+
+            if (IsDangerousTag(url))
+            {
+                url = "";
+            }
 
             if (titleStarted && titleStart != -1 && titleEnd != -1)
             {
@@ -1422,38 +1425,130 @@ namespace m.format.conv
                 {
                     string tag = trimLine.Substring(0, k + 1);
 
-                    if (TryParseAutoLink(tag, 0, out string linkText, out string url, out string title, out string cls, out int _))
+                    if (IsDangerousTag(tag) || trimLine.StartsWith("<!-->"))
                     {
-                        Body.Append($"<p><a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a></p>\n");
-                        state = State.Paragraph;
-                        return true;
-                    }
-
-                    if (IsSelfClosing(tag))
-                    {
-                        Body.AppendLine(line);
+                        Body.AppendLine(EscapeHtml(Lines[LineNum]));
                         state = State.RawHtmlCode;
                         return true;
                     }
                     else
                     {
-                        string tagName = GetTagName(tag);
-                        string endTag = $"</{tagName}>";
-
-                        do
+                        if (TryParseAutoLink(tag, 0, out string linkText, out string url, out string title, out string cls, out int _))
                         {
-                            Body.AppendLine(Lines[LineNum]);
-                            if (++LineNum >= LinesCount) { break; }
-                        } while (Lines[LineNum].IndexOf(endTag, StringComparison.OrdinalIgnoreCase) < 0);
+                            Body.Append($"<p><a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a></p>\n");
+                            state = State.Paragraph;
+                            return true;
+                        }
 
-                        if (LineNum < LinesCount) { Body.AppendLine(Lines[LineNum]); }
+                        if (IsSelfClosing(tag))
+                        {
+                            Body.AppendLine(line);
+                            state = State.RawHtmlCode;
+                            return true;
+                        }
+                        else
+                        {
+                            string tagName = GetTagName(tag);
+                            string endTag = $"</{tagName}>";
 
-                        state = State.RawHtmlCode;
-                        return true;
+                            if (!trimLine.EndsWith(endTag) && !trimLine.StartsWith("<!-->"))
+                            {
+                                do
+                                {
+                                    Body.AppendLine(Lines[LineNum]);
+                                    if (++LineNum >= LinesCount) { break; }
+                                } while (Lines[LineNum].IndexOf(endTag, StringComparison.OrdinalIgnoreCase) < 0);
+                            }
+                            if (LineNum < LinesCount) { Body.AppendLine(Lines[LineNum]); }
+
+                            state = State.RawHtmlCode;
+                            return true;
+                        }
                     }
                 }
             }
             state = State.Empty;
+            return false;
+        }
+
+        /// <summary>
+        /// Set of known self-closing tags.
+        /// </summary>
+        private static readonly HashSet<string> SelfClosingTags = new HashSet<string> {
+            "br", "img", "hr", "input", "link", "meta", "source", "track", "wbr",
+            "area", "base", "col", "embed", "param", "command"
+        };
+
+        /// <summary>
+        /// Determines whether the specified HTML or XML tag is self-closing.
+        /// </summary>
+        private static bool IsSelfClosing(string tag)
+        {
+            string name = GetTagName(tag).ToLowerInvariant();
+            return tag.EndsWith("/>") || SelfClosingTags.Contains(name);
+        }
+
+        private static readonly HashSet<string> DangerTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "script", "iframe", "object", "embed", "svg", "math", "link", "meta"
+        };
+
+        private static readonly HashSet<string> DangerAttrPrefixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "on" // onerror, onclick itd.
+        };
+
+        private static readonly string[] DangerousAttrValues = new[]
+        {
+            "javascript:", "data:text/html", "vbscript:", "expression("
+        };
+
+        /// <summary>
+        /// Checks if the given HTML tag is dangerous. (XSS, phishing, etc.)
+        /// </summary>
+        public static bool IsDangerousTag(string tagHtml)
+        {
+            if (string.IsNullOrWhiteSpace(tagHtml)) { return false; }
+
+            Match tagNameMatch = Regex.Match(tagHtml, @"<\s*/?\s*([a-zA-Z0-9]+)", RegexOptions.IgnoreCase);
+            if (!tagNameMatch.Success) { return false; }
+
+            string tagName = tagNameMatch.Groups[1].Value;
+
+            if (DangerTags.Contains(tagName)) { return true; }
+
+            Regex attrRegex = new Regex(@"([a-zA-Z0-9:-]+)\s*=\s*(""([^""]*)""|'([^']*)'|([^\s>]+))", RegexOptions.IgnoreCase);
+
+            foreach (Match m in attrRegex.Matches(tagHtml))
+            {
+                string attrName = m.Groups[1].Value;
+                string attrValue = m.Groups[3].Success
+                    ? m.Groups[3].Value
+                    : (m.Groups[4].Success ? m.Groups[4].Value : m.Groups[5].Value);
+
+                // Decode HTML entities
+                string htmlDecoded = WebUtility.HtmlDecode(attrValue);
+                // Decode URL encoding
+                string fullyDecoded = FullyDecode(htmlDecoded).ToLowerInvariant();
+
+                // Check attribute name
+                if (DangerAttrPrefixes.Any(prefix => attrName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+
+                // Check attribute value
+                if (attrName.Equals("href", StringComparison.OrdinalIgnoreCase) ||
+                    attrName.Equals("src", StringComparison.OrdinalIgnoreCase) ||
+                    attrName.Equals("style", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (DangerousAttrValues.Any(d => fullyDecoded.Contains(d)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 
