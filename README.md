@@ -11,10 +11,22 @@ This project contains two simple yet powerful C# classes that convert Markdown a
 > ✍️ **Author:** Miloš Perunović  
 > 🗓️ **Date:** 2025-07-11
 
+### 🚀 Introducing the Markdown to HTML Converter You Didn’t Think Was Possible
+
+> “If you’d told me a year ago that it’s possible to build a faster and fully standards-compliant Markdown-to-HTML converter than Pandoc—in a single C# file, with built-in XSS protection, working on both .NET Framework and .NET 7/8/9—I honestly wouldn’t have believed it myself. So I built it to prove it can be done.”
+
+I’ve always admired tools like Pandoc for their power. But I wanted:
+- Blazing fast conversion speed, even for documents hundreds of pages long.
+- Smaller footprint, without pulling in hundreds of MB of dependencies.
+- Full compatibility across .NET Framework and modern .NET versions.
+- W3C-valid HTML output—no broken markup, no surprises.
+- Built-in security, to make sure no malicious Markdown can slip through and cause XSS vulnerabilities.
+- No external tools, no native binaries, no complex installs.
+
 ### ✅ Supported Features
 
 - Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
-- Basic text styles (**bold**, *italic*, ~~strikethrough~~)
+- Basic text styles (**bold**, *italic*)
 - Multi-level **ordered lists**
 - Multi-level **unordered lists**
 - Mixed nesting of **ordered and unordered lists**
