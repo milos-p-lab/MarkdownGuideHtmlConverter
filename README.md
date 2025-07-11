@@ -9,7 +9,7 @@ This project contains two simple yet powerful C# classes that convert Markdown a
 ## 📄 C# Markdown to HTML Converter
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-04
+> 🗓️ **Date:** 2025-07-11
 
 ### ✅ Supported Features
 
@@ -38,6 +38,18 @@ This project contains two simple yet powerful C# classes that convert Markdown a
 - Minimal footprint (just a few tens of KB)
 - Supports custom CSS themes for beautiful HTML rendering
 - No dependencies on external DLLs or tools like Pandoc
+- 🛡️ **Built-in XSS protection** — automatically detects dangerous tags, attributes, and obfuscated payloads for safer HTML output
+
+### 🔐 Security Considerations
+
+This converter includes built-in logic to detect and sanitize potentially dangerous HTML input:
+
+- Detects and blocks tags such as `<script>`, `<iframe>`, `<object>`, and other potentially unsafe HTML elements.
+- Blocks dangerous attributes like `onerror`, `onclick`, `onload`, etc.
+- Decodes and analyzes **HTML entity encoding** (e.g. `&#106;...`) and **URL encoding** (e.g. `%6a%61...`) to prevent obfuscated XSS attacks.
+- Automatically escapes or rejects unsafe input during conversion, ensuring that even cleverly encoded payloads cannot slip through unnoticed.
+
+No external libraries or HTML sanitizers are required — the security logic is fully self-contained and works in both .NET Framework 4.x and modern .NET versions.
 
 ---
 
