@@ -57,7 +57,7 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 
 ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
-### ⚙️ Additional Benefits
+### 🌟 Additional Benefits
 
 - Fast conversion (e.g. a ~100-page book converts in milliseconds on a standard PC)
 - Compatible with both .NET Framework and .NET 7/8/9
@@ -122,7 +122,7 @@ No installation required — these are pure C# classes that you can simply add t
 
 ---
 
-## 📝 Usage
+## ⚙️ Usage
 
 Example usage for Markdown:
 
@@ -131,6 +131,8 @@ string mdContent = File.ReadAllText("document.md");
 string html = Markdown.ToHtml(mdContent);
 ```
 
+---
+
 ## 💡 Why?
 
 I developed these converters because:
@@ -138,12 +140,16 @@ I developed these converters because:
 - I didn’t want to depend on large tools like Pandoc
 - I love the retro world of Amiga and wanted native support for .guide files
 
-## 💬 Contributing
+---
+
+## 🤝 Contributing
 
 - Contributions are very welcome!
 - If you have ideas for new features or optimizations, please open an Issue.
 - If you’d like to improve the code, feel free to create a Pull Request.
 - Share any Markdown or AmigaGuide documents that could help with further testing and improvements.
+
+---
 
 ## Keywords
 
@@ -155,7 +161,9 @@ I developed these converters because:
 - C Sharp
 - .NET
 
-## 📄 License
+---
+
+## 📜 License
 
 MIT License – © 2025 Miloš Perunović
 
