@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.0.3</version>
-    /// <date>2025-07-11</date>
+    /// <version>1.0.4</version>
+    /// <date>2025-07-12</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -122,10 +121,10 @@ namespace m.format.conv
         private string CodeFenceSeq;
 
         /// <summary>
-        /// Stack for closing tags.
-        /// This is used to keep track of the tags that need to be closed when leaving a list or block context.
+        /// LIFO stack for closing tags in lists.
+        /// This stack is used to keep track of the closing tags for lists (ordered and unordered lists).
         /// </summary>
-        private readonly Queue ListClosingTags = new Queue(10);
+        private readonly Stack<string> ListClosingTags = new Stack<string>();
 
         /// <summary>
         /// Escapes HTML special characters in the input string.
@@ -134,17 +133,6 @@ namespace m.format.conv
         private static string EscapeHtml(string input)
         {
             return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-        }
-
-        private static string FullyDecode(string value)
-        {
-            if (value == null) { return ""; }
-
-            // Prvo HTML decode
-            string htmlDecoded = WebUtility.HtmlDecode(value);
-
-            // Zatim URL decode
-            return Uri.UnescapeDataString(htmlDecoded.Replace("+", " "));
         }
 
         /// <summary>
@@ -248,7 +236,7 @@ namespace m.format.conv
                         for (int j = 0; j < level - ListLastLevel; j++)
                         {
                             line = $"<ul>\n{ind}<li>{inputBox}{content}";
-                            ListClosingTags.Enqueue("</ul>\n");
+                            ListClosingTags.Push("</ul>\n");
                         }
                     }
                     else if (level < ListLastLevel)
@@ -277,7 +265,7 @@ namespace m.format.conv
                         for (int j = 0; j < level - ListLastLevel; j++)
                         {
                             line = $"<ol>\n{ind}<li>{content}";
-                            ListClosingTags.Enqueue("</ol>\n");
+                            ListClosingTags.Push("</ol>\n");
                         }
                     }
                     else if (level < ListLastLevel)
@@ -410,16 +398,6 @@ namespace m.format.conv
         }
 
         /// <summary>
-        /// Extracts the tag name from a given HTML or XML tag.
-        /// </summary>
-        private static string GetTagName(string tag)
-        {
-            int end = tag.IndexOfAny(new[] { ' ', '>' }, 1);
-            if (end == -1) { end = tag.Length; }
-            return tag.Substring(1, end - 1);
-        }
-
-        /// <summary>
         /// Closes the current block in the HTML document.
         /// </summary>
         private void CloseBlock()
@@ -475,7 +453,7 @@ namespace m.format.conv
 
             for (int j = 0; j < ListLastLevel - level; j++)
             {
-                string tag = ListClosingTags.Dequeue().ToString();
+                string tag = ListClosingTags.Pop();
                 Body.Append(tag);
             }
 
@@ -1472,6 +1450,16 @@ namespace m.format.conv
         }
 
         /// <summary>
+        /// Extracts the tag name from a given HTML or XML tag.
+        /// </summary>
+        private static string GetTagName(string tag)
+        {
+            int end = tag.IndexOfAny(new[] { ' ', '>' }, 1);
+            if (end == -1) { end = tag.Length; }
+            return tag.Substring(1, end - 1);
+        }
+
+        /// <summary>
         /// Set of known self-closing tags.
         /// </summary>
         private static readonly HashSet<string> SelfClosingTags = new HashSet<string> {
@@ -1528,8 +1516,11 @@ namespace m.format.conv
 
                 // Decode HTML entities
                 string htmlDecoded = WebUtility.HtmlDecode(attrValue);
+
                 // Decode URL encoding
-                string fullyDecoded = FullyDecode(htmlDecoded).ToLowerInvariant();
+                // (Simple decoder sufficient for XSS validation. Not 100% the same as HttpUtility/WebUtility.UrlDecode.
+                // E.g. "+" always replaced with space, whereas %2B decoded to "+".)
+                string fullyDecoded = Uri.UnescapeDataString(htmlDecoded.Replace("+", " "));
 
                 // Check attribute name
                 if (DangerAttrPrefixes.Any(prefix => attrName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
