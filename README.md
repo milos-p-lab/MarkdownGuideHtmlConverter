@@ -82,7 +82,7 @@ Note about CommonMark Compliance
 This converter implements Markdown-to-HTML conversion in a way compatible with most commonly used Markdown syntax. However, it is not a strict implementation of the official CommonMark specification.
 
 Instead, it:
-- uses modern HTML5 output (e.g. <hr> instead of <hr />)
+- uses modern HTML5 output (e.g. &lt;hr&gt; instead of &lt;hr /&gt;)
 - escapes potentially dangerous tags and attributes for XSS protection
 - indents HTML output for readability
 - automatically injects warnings if it detects syntax errors in the Markdown input
