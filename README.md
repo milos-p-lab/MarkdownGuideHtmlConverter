@@ -75,6 +75,27 @@ This converter includes built-in logic to detect and sanitize potentially danger
 
 No external libraries or HTML sanitizers are required — the security logic is fully self-contained and works in both .NET Framework 4.x and modern .NET versions.
 
+### ⚠️ Limitations
+
+Note about CommonMark Compliance
+
+This converter implements Markdown-to-HTML conversion in a way compatible with most commonly used Markdown syntax. However, it is not a strict implementation of the official CommonMark specification.
+
+Instead, it:
+- uses modern HTML5 output (e.g. <hr> instead of <hr />)
+- escapes potentially dangerous tags and attributes for XSS protection
+- indents HTML output for readability
+- automatically injects warnings if it detects syntax errors in the Markdown input
+
+For most real-world documents, the converter produces results very similar to CommonMark parsers, but there may be differences in certain edge cases, especially:
+- whitespace handling around block elements
+- mixed nested lists with unusual indentation
+- some less frequently used syntax from the CommonMark test suite
+
+If your project requires strict CommonMark compliance or identical output for all test cases, you might want to use a specialized library like CommonMark.NET.
+
+Otherwise, this converter aims to balance speed, HTML correctness, security, and practical features beyond the scope of the CommonMark specification.
+
 ---
 
 ## 📄 C# AmigaGuide to HTML Converter
