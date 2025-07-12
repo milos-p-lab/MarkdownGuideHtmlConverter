@@ -26,20 +26,32 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 ### ✅ Supported Features
 
 - Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
-- Basic text styles (**bold**, *italic*)
+- Basic text styles (**bold**, *italic*, ***bolditalic***)
+- Strikethrough (~~strikethrough~~)
+- Highlighting (==highlighted==)
 - Multi-level **ordered lists**
 - Multi-level **unordered lists**
 - Mixed nesting of **ordered and unordered lists**
-- **Task lists**
+- **Task lists** (with checkbox states)
 - Blockquotes
 - Code blocks (**code fences**)
 - **Inline code**
 - Horizontal rules
 - **Links**
 - **Images**
-- **Tables**
-- **Footnotes**
-- **Raw HTML** elements — supports embedding HTML tags directly within Markdown text
+- **Tables**  
+  - Column alignment (left / center / right)
+- **Footnotes**  
+  - Clickable references and backlinks
+  - Multi-line footnote definitions
+  - Inline styles supported inside footnotes
+- **Raw HTML** elements  
+  - Embedding arbitrary HTML tags inside Markdown
+  - Self-closing tags (e.g. `<br>`)
+  - Audio/video tags for media embedding
+- Automatic HTML escaping for `<`, `>`, `&`, etc.
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
 
 ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 

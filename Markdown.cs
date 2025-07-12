@@ -481,7 +481,7 @@ namespace m.format.conv
 
             int len = line.Length;
 
-            int bld = 0, itl = 0;
+            int bld = 0, itl = 0, hl = 0, del = 0;
 
             for (int i = 0; i < len; i++)
             {
@@ -625,63 +625,137 @@ namespace m.format.conv
                 // Basic styles
                 else if (c == '*')
                 {
-                    string sty;
                     char c2 = (i + 1 < len) ? line[i + 1] : '\0';
                     char c3 = (i + 2 < len) ? line[i + 2] : '\0';
 
                     // Bold + Italic
                     if (c2 == '*' && c3 == '*')
                     {
-                        i += 3;
+                        i += 2;
                         if (bld == 0 && itl == 0 && c2 != ' ')
                         {
-                            bld++; itl++; sty = "<strong><em>";
+                            bld++; itl++; sb.Append("<strong><em>");
                         }
                         else
                         {
-                            bld--; itl--; sty = "</em></strong>";
+                            bld--; itl--; sb.Append("</em></strong>");
                         }
+                        continue;
                     }
 
                     // Bold
                     else if (c2 == '*')
                     {
-                        i += 2;
+                        i++;
                         if (bld == 0 && c2 != ' ')
                         {
-                            bld++; sty = "<strong>";
+                            bld++; sb.Append("<strong>");
                         }
                         else if (bld > 0)
                         {
-                            bld--; sty = "</strong>";
+                            bld--; sb.Append("</strong>");
                         }
                         else
                         {
-                            i -= 2;
-                            sty = "<b>[ERR: Bold tag]</b>"; // Incorrectly written character for "bold"
+                            i--;
+                            sb.Append("<b>[ERR: Bold tag]</b>"); // Incorrectly written character for "bold"
                         }
+                        continue;
                     }
 
                     // Italic
                     else
                     {
-                        i++;
                         if (itl == 0 && c2 != ' ')
                         {
-                            itl++; sty = "<em>";
+                            itl++; sb.Append("<em>");
                         }
                         else if (itl > 0)
                         {
-                            itl--; sty = "</em>";
+                            itl--; sb.Append("</em>");
                         }
                         else
                         {
-                            i--;
-                            sty = "<b>[ERR: Italic tag]</b>"; // Incorrectly written character for "italic"
+                            sb.Append("<b>[ERR: Italic tag]</b>"); // Incorrectly written character for "italic"
                         }
+                        continue;
+                    }
+                }
+
+                // Highlight
+                else if (c == '=' && i + 1 < len && line[i + 1] == '=')
+                {
+                    int j = i + 2;
+
+                    if (hl == 0)
+                    {
+                        // Check that there are not more than 2 '=' characters
+                        if (j < len && line[j] == '=')
+                        {
+                            // Too many = characters -> not highlighting
+                            sb.Append("==");
+                            i++;
+                            continue;
+                        }
+
+                        // Check that there is no space after == (e.g. == text)
+                        if (j < len && line[j] == ' ')
+                        {
+                            sb.Append("==");
+                            i++;
+                            continue;
+                        }
+
+                        hl++;
+                        sb.Append("<mark>");
+                    }
+                    else
+                    {
+                        // Closing highlight tag
+                        hl--;
+                        sb.Append("</mark>");
                     }
 
-                    sb.Append(sty);
+                    i++; // skip the second '=' character
+                    continue;
+                }
+
+                // Strikethrough
+                else if (c == '~' && i + 1 < len && line[i + 1] == '~')
+                {
+                    int j = i + 2;
+
+                    if (hl == 0)
+                    {
+                        // Check that there are not more than 2 '~' characters
+                        if (j < len && line[j] == '~')
+                        {
+                            // Too many ~ characters -> not strikethrough
+                            sb.Append("~~");
+                            i++;
+                            continue;
+                        }
+
+                        // Check that there is no space after ~~ (e.g. ~~ text)
+                        if (j < len && line[j] == ' ')
+                        {
+                            sb.Append("~~");
+                            i++;
+                            continue;
+                        }
+
+                        hl++;
+                        sb.Append("<del>");
+                    }
+                    else
+                    {
+                        // Closing strikethrough tag
+                        hl--;
+                        sb.Append("</del>");
+                    }
+
+                    i++; // skip the second '~' character
+                    continue;
                 }
 
                 if (i < len)
@@ -700,6 +774,16 @@ namespace m.format.conv
             {
                 sb.Append("</em>[ERR: Unclosed bold tag]");
                 bld--;
+            }
+            while (hl > 0)
+            {
+                sb.Append("</mark>[ERR: Unclosed mark tag]");
+                hl--;
+            }
+            while (del > 0)
+            {
+                sb.Append("</del>[ERR: Unclosed del tag]");
+                del--;
             }
 
             // Double "space" characters
