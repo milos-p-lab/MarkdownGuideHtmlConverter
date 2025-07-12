@@ -160,5 +160,5 @@ MIT License – © 2025 Miloš Perunović
 
 <!--
 Related terms:
-markdown converter, markdown convertor, dotnet markdown to html
+markdown converter, markdown convertor, dotnet markdown to html, amiga guide converter, amiga guide convertor
 -->
