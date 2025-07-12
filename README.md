@@ -1,6 +1,6 @@
 # Markdown & AmigaGuide to HTML Converter
 
-⚡ **Fast .NET converter for Markdown (.md) and AmigaGuide (.guide) files to HTML.**
+⚡ **Fast .NET converter for Markdown (often called convertor) (.md) and AmigaGuide (.guide) files to HTML.**
 
 This project contains two simple yet powerful C# classes that convert Markdown and AmigaGuide documents into fully valid HTML. The converters are developed for speed, small footprint, and independence from external libraries, making them perfect for integration into console, desktop and web applications.
 
@@ -9,7 +9,7 @@ This project contains two simple yet powerful C# classes that convert Markdown a
 ## 📄 C# Markdown to HTML Converter
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-11
+> 🗓️ **Date:** 2025-07-12
 
 ### 🚀 Introducing the Markdown to HTML Converter You Didn’t Think Was Possible
 
@@ -143,6 +143,20 @@ I developed these converters because:
 - If you’d like to improve the code, feel free to create a Pull Request.
 - Share any Markdown or AmigaGuide documents that could help with further testing and improvements.
 
+## Keywords
+
+- Markdown
+- HTML
+- converter
+- convertor
+- C#
+- .NET
+
 ## 📄 License
 
 MIT License – © 2025 Miloš Perunović
+
+<!--
+Related terms:
+markdown converter, markdown convertor, dotnet markdown to html
+-->
