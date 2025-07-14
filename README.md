@@ -153,13 +153,13 @@ I developed these converters because:
 
 ## Keywords
 
+- .NET
+- C#
+- C Sharp
 - Markdown
 - HTML
 - converter
 - convertor
-- C#
-- C Sharp
-- .NET
 
 ---
 
@@ -169,6 +169,7 @@ MIT License – © 2025 Miloš Perunović
 
 <!--
 Related terms:
-markdown converter, markdown convertor, dotnet markdown to html, c sharp markdown to html,
+markdown converter, markdown convertor, dotnet markdown to html,
+c sharp markdown to html, c# markdown to html converter, c# markdown to html convertor,
 amiga guide converter, amiga guide convertor
 -->
