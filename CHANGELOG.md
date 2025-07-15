@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.4] – 2025-07-12
+## [1.1.2] – 2025-07-15
+
+### Changed
+- Improved performance (~4x) of Markdown inline parsing by optimizing autolink and email link detection.
+
+### Added
+- Support for line breaks `<br>` if the line ends with a backslash `\`, or if the line contains only a backslash `\`.
+
+## [1.1.1] – 2025-07-12
 
 ### Added
 - Support for strikethrough text (~~strikethrough~~).
@@ -16,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolved issue with improper handling of stacked unordered/ordered lists.
 
-## [1.0.3] – 2025-07-11
+## [1.1.0] – 2025-07-11
 
 ### Added
 - Detection and warning mechanism for potential XSS and phishing attempts.
