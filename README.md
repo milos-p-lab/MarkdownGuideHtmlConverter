@@ -1,11 +1,27 @@
 # Markdown & AmigaGuide to HTML Converter
 
-⚡ **Fast .NET C# converter for Markdown (.md) and AmigaGuide (.guide) files to HTML.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](#) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](#)
 
-This project contains two simple yet powerful C# classes that convert Markdown and AmigaGuide documents into fully valid HTML. The converters are developed for speed, small footprint, and independence from external libraries, making them perfect for integration into console, desktop and web applications.
+## ℹ️ About
+
+**MarkdownGuideHtmlConverter** is a lightweight and fast **C# library** for converting **Markdown to HTML5** and **AmigaGuide to HTML**.  
+It’s designed to be:
+
+- Fully **HTML5-compliant**
+- Extremely fast, with no external dependencies
+- Simple to integrate into any **.NET** or **.NET Framework** application
+
+Unlike many large tools (like Pandoc), this converter is implemented in a **single C# file** and can be embedded directly into your project.
+
+It supports almost all core **Markdown syntax**, including headings, lists, links, images, code blocks, inline formatting, and tables.  
+It also includes **XSS-safe conversion**, making it suitable for web applications.
+
+The AmigaGuide converter is ideal for developers working with **retro-computing** documents or legacy help files.
+
+Whether you're building a **static site generator**, rendering **Markdown documentation** on the fly, or converting **AmigaGuide manuals**, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-12
+> 🗓️ **Date:** 2025-07-16
 
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
@@ -77,6 +93,17 @@ This converter includes built-in logic to detect and sanitize potentially danger
 
 No external libraries or HTML sanitizers are required — the security logic is fully self-contained and works in both .NET Framework 4.x and modern .NET versions.
 
+### ⚙️ Usage
+
+👉 This converter is implemented in a single C# file: [Markdown.cs](./src/Markdown.cs). You can simply copy this file into your project.
+
+Example usage for Markdown:
+
+```csharp
+string mdContent = File.ReadAllText("Markdown-test.md");
+string html = Markdown.ToHtml(mdContent);
+```
+
 ### ⚠️ Limitations
 
 Note about CommonMark Compliance
@@ -114,6 +141,17 @@ This converter enables viewing **.guide documents** (AmigaGuide format) directly
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
 
+### ⚙️ Usage
+
+👉 This converter is implemented in a single C# file: [AmigaGuide.cs](./src/AmigaGuide.cs). You can simply copy this file into your project.
+
+Example usage for AmigaGuide:
+
+```csharp
+string guideContent = File.ReadAllText("AmigaGuide-test.guide");
+string html = AmigaGuide.ToHtml(guideContent);
+```
+
 ---
 
 ## 🛠 Installation
@@ -122,23 +160,22 @@ No installation required — these are pure C# classes that you can simply add t
 
 ---
 
-## ⚙️ Usage
+## 📂 Test Files
 
-Example usage for Markdown:
-
-```csharp
-string mdContent = File.ReadAllText("document.md");
-string html = Markdown.ToHtml(mdContent);
-```
+Check the Test folder for examples of:
+- [Markdown-test.md](./test/Markdown-test.md)
+- [Markdown-XSS-test.md](./test/Markdown-XSS-test.md)
+- [AmigaGuide-test.guide](./test/AmigaGuide-test.guide)
 
 ---
 
-## 💡 Why?
+## 💡 Why Use This Converter?
 
-I developed these converters because:
-- I wanted fast document conversion for my applications
-- I didn’t want to depend on large tools like Pandoc
-- I love the retro world of Amiga and wanted native support for .guide files
+- You don’t want large external tools like Pandoc
+- You want speed and simplicity
+- You prefer pure C# without external dependencies
+- You need HTML5-compliant output
+- You’re working with Amiga retro documents and want to modernize them
 
 ---
 
@@ -151,25 +188,6 @@ I developed these converters because:
 
 ---
 
-## Keywords
-
-- .NET
-- C#
-- C Sharp
-- Markdown
-- HTML
-- converter
-- convertor
-
----
-
 ## 📜 License
 
 MIT License – © 2025 Miloš Perunović
-
-<!--
-Related terms:
-markdown converter, markdown convertor, dotnet markdown to html,
-c sharp markdown to html, c# markdown to html converter, c# markdown to html convertor,
-amiga guide converter, amiga guide convertor
--->
