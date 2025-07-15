@@ -4,7 +4,7 @@
 
 ## ℹ️ About
 
-**MarkdownGuideHtmlConverter** is a lightweight and fast **C# library** for converting **Markdown to HTML5** and **AmigaGuide to HTML**.  
+**MarkdownGuideHtmlConverter** is a lightweight and fast **C# library** for converting **Markdown to HTML5** and **AmigaGuide to HTML5**.
 It’s designed to be:
 
 - Fully **HTML5-compliant**
