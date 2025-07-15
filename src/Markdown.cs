@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.0.4</version>
-    /// <date>2025-07-12</date>
+    /// <version>1.1.2</version>
+    /// <date>2025-07-15</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -28,7 +28,12 @@ namespace m.format.conv
         public static string ToHtml(string doc, string lang = "en", string head = null)
         {
             Markdown md = new Markdown();
+
+            Stopwatch sw = Stopwatch.StartNew();
             string body = md.ToHtmlBody(doc, out Dictionary<string, string> metadata);
+            sw.Stop();
+            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
+            Console.WriteLine("Markdown -> HTML conv.: " + seconds);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -77,7 +82,8 @@ namespace m.format.conv
             CodeBlock,
             Table,
             RawHtmlCode,
-            HorizontalRule
+            HorizontalRule,
+            Break
         }
 
         /// <summary>
@@ -143,8 +149,6 @@ namespace m.format.conv
         /// <returns>HTML representation of the markdown</returns>
         public string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
         {
-            Stopwatch sw = Stopwatch.StartNew();
-
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             LinesCount = Lines.Length;
             metadata = new Dictionary<string, string>();
@@ -210,6 +214,13 @@ namespace m.format.conv
                         Body.Append("<br>\n");
                         emptyCnt = 1;
                     }
+                }
+                else if (trimLine == "\\")
+                {
+                    CurrState = State.Break;
+                    Body.Append("<br>\n");
+                    emptyCnt = 1;
+                    continue;
                 }
 
                 // Unordered list, task lists
@@ -293,7 +304,7 @@ namespace m.format.conv
                 {
                     CurrState = State.Heading;
                     CloseBlock();
-                    line = $"<h{level}>{content}</h{level}>\n";
+                    line = $"\n<h{level}>{content}</h{level}>\n";
                 }
 
                 // Blockquote
@@ -390,10 +401,6 @@ namespace m.format.conv
                 Body.Append("</ul>\n</div>\n");
             }
 
-            sw.Stop();
-            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
-            Console.WriteLine("Markdown -> HTML conv.: " + seconds);
-
             return Body.ToString();
         }
 
@@ -430,7 +437,7 @@ namespace m.format.conv
                 }
                 else
                 {
-                    line = "\n<p>";
+                    line = "<p>";
                 }
             }
             else if (PrevState == State.Paragraph)
@@ -483,14 +490,30 @@ namespace m.format.conv
 
             int bld = 0, itl = 0, hl = 0, del = 0;
 
+            // Check if the line contains a URL or email address to skip auto-link checks
+            bool skipCheckAutoLink = true;
+            if (len > 5 && (line.Contains("://") || line.Contains("@")))
+            {
+                skipCheckAutoLink = false;
+            }
+
             for (int i = 0; i < len; i++)
             {
                 char c = line[i];
 
-                // Escape character
-                if (c == '\\' && i + 1 < len)
+                if (c == '\\')
                 {
-                    i++;
+                    if (i + 1 < len)
+                    {
+                        // Escape character
+                        i++;
+                    }
+                    else
+                    {
+                        // Line break
+                        sb.Append("<br>");
+                        continue;
+                    }
                 }
                 // Line break
                 else if (c == '\n')
@@ -591,7 +614,7 @@ namespace m.format.conv
                 }
 
                 // Autolinks. Example: https://example.com, <https://example.com>, user@example.com, <user@example.com>
-                else if (TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
+                else if (!skipCheckAutoLink && TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
                 {
                     sb.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
                     i = end2; // skip the parsed part
@@ -786,14 +809,14 @@ namespace m.format.conv
                 del--;
             }
 
-            // Double "space" characters
+            // Convert double spaces to non-breaking spaces
             string s = sb.ToString();
-            int k = -1;
-            do
+            int k = s.IndexOf("  ");
+            while (k > -1)
             {
                 s = s.Replace("  ", "&nbsp; ");
-                k = s.IndexOf("  ", k + 1);
-            } while (k > -1);
+                k = s.IndexOf("  ");
+            }
 
             return s;
         }
