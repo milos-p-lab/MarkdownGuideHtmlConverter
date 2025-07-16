@@ -8,8 +8,6 @@ date: 2025-07-12
 
 ***Hello*world***
 
-\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
-
 Normal \* **bold** *italic* ***bolditalic*** normal ~~strikethrough~~ ==highlighted== normal **==highlighted bold==** normal == nohighlighted== ~~ nostrikethrough~~ normal
 
 Paragraph first line  
