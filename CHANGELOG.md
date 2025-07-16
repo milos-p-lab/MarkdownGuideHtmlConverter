@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] – 2025-07-16
+
+### Added
+- 🆕 Support for Table of Contents (TOC) generation.
+  - Automatically inserts a hierarchical TOC at the [TOC] marker in the document.
+
 ## [1.1.2] – 2025-07-15
 
 ### Changed

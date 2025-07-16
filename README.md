@@ -70,6 +70,10 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 - Automatic HTML escaping for `<`, `>`, `&`, etc.
 - **Front matter** (YAML metadata block)  
   - Supports title and custom meta tags for HTML `<head>`
+- **Table of Contents (TOC)** generation  
+  - Automatically collects all headings during parsing
+  - Generates hierarchical TOC as nested lists
+  - Optionally inserts TOC at `[TOC]` marker in the document
 
 ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
