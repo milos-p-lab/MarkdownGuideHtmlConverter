@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.1.2</version>
-    /// <date>2025-07-15</date>
+    /// <version>1.2.0</version>
+    /// <date>2025-07-16</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -222,6 +222,11 @@ namespace m.format.conv
                     emptyCnt = 1;
                     continue;
                 }
+                else if (trimLine == "[TOC]")
+                {
+                    Body.Append("{{TOC_PLACEHOLDER}}");
+                    continue;
+                }
 
                 // Unordered list, task lists
                 else if (IsUnorderedList(line, out _, out int level, out _, out string content))
@@ -300,11 +305,11 @@ namespace m.format.conv
                 }
 
                 // Heading
-                else if (IsHeading(line, out level, out content))
+                else if (IsHeading(line, out level, out content, out string id))
                 {
                     CurrState = State.Heading;
                     CloseBlock();
-                    line = $"\n<h{level}>{content}</h{level}>\n";
+                    line = $"<h{level} id=\"{id}\">{ParseInlineStyles(content)}</h{level}>\n";
                 }
 
                 // Blockquote
@@ -401,6 +406,9 @@ namespace m.format.conv
                 Body.Append("</ul>\n</div>\n");
             }
 
+            string toc = GenerateToc(TocHeadings);
+            Body.Replace("{{TOC_PLACEHOLDER}}", toc);
+
             return Body.ToString();
         }
 
@@ -491,10 +499,10 @@ namespace m.format.conv
             int bld = 0, itl = 0, hl = 0, del = 0;
 
             // Check if the line contains a URL or email address to skip auto-link checks
-            bool skipCheckAutoLink = true;
+            bool skipCheckAutolink = true;
             if (len > 5 && (line.Contains("://") || line.Contains("@")))
             {
-                skipCheckAutoLink = false;
+                skipCheckAutolink = false;
             }
 
             for (int i = 0; i < len; i++)
@@ -614,7 +622,7 @@ namespace m.format.conv
                 }
 
                 // Autolinks. Example: https://example.com, <https://example.com>, user@example.com, <user@example.com>
-                else if (!skipCheckAutoLink && TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
+                else if (!skipCheckAutolink && TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
                 {
                     sb.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
                     i = end2; // skip the parsed part
@@ -1289,10 +1297,11 @@ namespace m.format.conv
         /// </param>
         /// <param name="content">When this method completes, contains the heading content (without leading '#' characters and space) if the line is a heading; otherwise, an empty string.</param>
         /// <returns><see langword="true"/> if the line is a valid markdown heading; otherwise, <see langword="false"/>.</returns>
-        private bool IsHeading(string line, out int level, out string content)
+        private bool IsHeading(string line, out int level, out string content, out string id)
         {
             level = 0;
             content = "";
+            id = "";
 
             int i = 0;
 
@@ -1305,6 +1314,14 @@ namespace m.format.conv
             if (level > 0 && level <= 6 && i < line.Length && line[i] == ' ')
             {
                 content = ParseInlineStyles(line.Substring(i + 1).Trim());
+                id = GenerateAnchorId(content);
+                TocHeadings.Add(new HeadingInfo
+                {
+                    Level = level,
+                    Text = content,
+                    Id = id
+                });
+
                 return true;
             }
 
@@ -1716,6 +1733,76 @@ namespace m.format.conv
         {
             if (string.IsNullOrWhiteSpace(line)) { return false; }
             return line.StartsWith("    ") || line.StartsWith("\t");
+        }
+
+        #endregion
+
+        #region TOC
+
+        private readonly List<HeadingInfo> TocHeadings = new List<HeadingInfo>();
+
+        private class HeadingInfo
+        {
+            public int Level;   // npr. 1 za <h1>, 2 za <h2>...
+            public string Text; // tekst iz headinga
+            public string Id;   // HTML id (anchor)
+        }
+
+        private static string GenerateAnchorId(string text)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in text.ToLowerInvariant())
+            {
+                if (char.IsLetterOrDigit(c) || c == '-')
+                {
+                    sb.Append(c);
+                }
+                else if (char.IsWhiteSpace(c))
+                {
+                    sb.Append('-');
+                }
+            }
+            return sb.ToString().Trim('-');
+        }
+
+        private string GenerateToc(List<HeadingInfo> headings)
+        {
+            if (headings.Count == 0) { return ""; }
+
+            StringBuilder sb = new StringBuilder();
+            int currentLevel = headings[0].Level;
+
+            sb.AppendLine("<ul>");
+
+            foreach (HeadingInfo heading in headings)
+            {
+                // Ako heading ide dublje
+                while (heading.Level > currentLevel)
+                {
+                    sb.AppendLine("<ul>");
+                    currentLevel++;
+                }
+
+                // Ako heading ide pliće
+                while (heading.Level < currentLevel)
+                {
+                    sb.AppendLine("</ul>");
+                    currentLevel--;
+                }
+
+                sb.AppendLine(
+                    $"<li><a href=\"#{heading.Id}\">{WebUtility.HtmlEncode(heading.Text)}</a></li>");
+            }
+
+            // Zatvori sve liste
+            while (currentLevel > headings[0].Level)
+            {
+                sb.AppendLine("</ul>");
+                currentLevel--;
+            }
+
+            sb.AppendLine("</ul>");
+            return sb.ToString();
         }
 
         #endregion
