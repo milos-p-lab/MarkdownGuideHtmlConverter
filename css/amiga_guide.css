@@ -1,6 +1,6 @@
 ﻿/*!
- * File Name     : markdown.css
- * Description   : Markdown CSS Stylesheet for HTML Output
+ * File Name     : amiga_guide.css
+ * Description   : Amiga Guide CSS Stylesheet for HTML Output
  * Author        : Miloš Perunović
  * Version       : 1.0.3
  * Date          : 2025-07-09
@@ -301,7 +301,7 @@ body {
   width: 1120px;
   margin-left: auto;
   margin-right: auto;
-  background-image: url('paper01.jpg');
+  background-image: url('paper02.jpg');
 }
 
 .footer {
