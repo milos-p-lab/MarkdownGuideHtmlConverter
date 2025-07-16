@@ -222,6 +222,8 @@ namespace m.format.conv
                     emptyCnt = 1;
                     continue;
                 }
+
+                // Table of Contents placeholder
                 else if (trimLine == "[TOC]")
                 {
                     Body.Append("{{TOC_PLACEHOLDER}}");
@@ -406,6 +408,7 @@ namespace m.format.conv
                 Body.Append("</ul>\n</div>\n");
             }
 
+            // Generate Table of Contents (TOC) and insert it into the body
             string toc = GenerateToc(TocHeadings);
             Body.Replace("{{TOC_PLACEHOLDER}}", toc);
 
@@ -1702,6 +1705,9 @@ namespace m.format.conv
             }
         }
 
+        /// <summary>
+        /// Parses a footnote definition from the specified line.
+        /// </summary>
         private int ParseFootnoteDefinition(string[] lines, int index)
         {
             string line = lines[index];
@@ -1737,17 +1743,21 @@ namespace m.format.conv
 
         #endregion
 
-        #region TOC
+        #region Table of Contents (TOC)
 
         private readonly List<HeadingInfo> TocHeadings = new List<HeadingInfo>();
 
         private class HeadingInfo
         {
-            public int Level;   // npr. 1 za <h1>, 2 za <h2>...
-            public string Text; // tekst iz headinga
+            public int Level;   // e.g. 1 for <h1>, 2 for <h2>...
+            public string Text; // text from the heading
             public string Id;   // HTML id (anchor)
         }
 
+        /// <summary>
+        /// Generates an anchor ID from the given text.
+        /// The ID is a lowercase version of the text with spaces replaced by dashes and non-alphanumeric characters removed.
+        /// </summary>
         private static string GenerateAnchorId(string text)
         {
             StringBuilder sb = new StringBuilder();
@@ -1765,6 +1775,9 @@ namespace m.format.conv
             return sb.ToString().Trim('-');
         }
 
+        // <summary>
+        /// Generates a Table of Contents (TOC) from the collected headings.
+        /// </summary>
         private string GenerateToc(List<HeadingInfo> headings)
         {
             if (headings.Count == 0) { return ""; }
@@ -1776,14 +1789,14 @@ namespace m.format.conv
 
             foreach (HeadingInfo heading in headings)
             {
-                // Ako heading ide dublje
+                // If heading goes deeper
                 while (heading.Level > currentLevel)
                 {
                     sb.AppendLine("<ul>");
                     currentLevel++;
                 }
 
-                // Ako heading ide pliće
+                // If heading goes shallower
                 while (heading.Level < currentLevel)
                 {
                     sb.AppendLine("</ul>");
@@ -1794,7 +1807,7 @@ namespace m.format.conv
                     $"<li><a href=\"#{heading.Id}\">{WebUtility.HtmlEncode(heading.Text)}</a></li>");
             }
 
-            // Zatvori sve liste
+            // Close all lists
             while (currentLevel > headings[0].Level)
             {
                 sb.AppendLine("</ul>");
