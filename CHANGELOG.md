@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] – 2025-07-17
+
+### Added
+- 🧪 Optional: Command-line Tool (mdoc.exe) for users who want to try the converter without integrating it into a project.
+
 ## [1.2.0] – 2025-07-16
 
 ### Added
@@ -52,5 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 - Markdown to HTML conversion.
+- AmigaGuide to HTML conversion.
 - Support for headings, lists, tables, footnotes, code blocks, links, images, and raw HTML.
 - Fully standalone C# implementation with no external dependencies.
