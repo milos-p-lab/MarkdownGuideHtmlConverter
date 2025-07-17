@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.2.0</version>
-    /// <date>2025-07-16</date>
+    /// <version>1.2.2</version>
+    /// <date>2025-07-17</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -30,10 +30,10 @@ namespace m.format.conv
             Markdown md = new Markdown();
 
             Stopwatch sw = Stopwatch.StartNew();
+
+            // Convert Markdown to HTML body
+            // This method will also extract metadata from the document, such as title, author, and date.
             string body = md.ToHtmlBody(doc, out Dictionary<string, string> metadata);
-            sw.Stop();
-            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
-            Console.WriteLine($"Markdown -> HTML conv.: {seconds} sec.");
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -51,6 +51,10 @@ namespace m.format.conv
                     meta.Append($"<meta name=\"{WebUtility.HtmlEncode(pair.Key)}\" content=\"{WebUtility.HtmlEncode(pair.Value)}\">\n");
                 }
             }
+
+            sw.Stop();
+            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
+            Console.WriteLine($"Markdown -> HTML conv.: {seconds} sec.");
 
             // Generate the HTML document
             return
@@ -223,15 +227,16 @@ namespace m.format.conv
                     continue;
                 }
 
-                // Table of Contents placeholder
-                else if (trimLine == "[TOC]")
+                // Heading
+                else if (IsHeading(line, out int level, out string content, out string id))
                 {
-                    Body.Append("{{TOC_PLACEHOLDER}}");
-                    continue;
+                    CurrState = State.Heading;
+                    CloseBlock();
+                    line = $"<h{level} id=\"{id}\">{content}</h{level}>\n";
                 }
 
                 // Unordered list, task lists
-                else if (IsUnorderedList(line, out _, out int level, out _, out string content))
+                else if (IsUnorderedList(line, out _, out level, out _, out content))
                 {
                     string inputBox = "";
                     if (TryParseTaskList(line, out string content2, out bool isChecked))
@@ -306,14 +311,6 @@ namespace m.format.conv
                     line = "<hr>\n";
                 }
 
-                // Heading
-                else if (IsHeading(line, out level, out content, out string id))
-                {
-                    CurrState = State.Heading;
-                    CloseBlock();
-                    line = $"<h{level} id=\"{id}\">{ParseInlineStyles(content)}</h{level}>\n";
-                }
-
                 // Blockquote
                 else if (IsBlockquote(trimLine, out content))
                 {
@@ -370,6 +367,13 @@ namespace m.format.conv
                     Body.Append(table);
                     line = "";
                     LineNum = linesConsumed + LineNum - 1;
+                }
+
+                // Table of Contents placeholder
+                else if (trimLine == "[TOC]")
+                {
+                    Body.Append("{{TOC_PLACEHOLDER}}");
+                    continue;
                 }
 
                 // Paragraph
@@ -518,6 +522,15 @@ namespace m.format.conv
                     {
                         // Escape character
                         i++;
+                        switch (line[i])
+                        {
+                            case '<': sb.Append("&lt;"); break;
+                            case '>': sb.Append("&gt;"); break;
+                            case '&': sb.Append("&amp;"); break;
+                            case '"': sb.Append("&quot;"); break;
+                            default: sb.Append(line[i]); break;
+                        }
+                        continue;
                     }
                     else
                     {
@@ -1775,10 +1788,7 @@ namespace m.format.conv
             return sb.ToString().Trim('-');
         }
 
-        // <summary>
         /// <summary>
-        /// 
-        /// </summary>
         /// Generates a Table of Contents (TOC) from the collected headings.
         /// </summary>
         private string GenerateToc(List<HeadingInfo> headings)

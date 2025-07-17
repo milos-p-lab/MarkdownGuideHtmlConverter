@@ -24,10 +24,10 @@ namespace m.format.conv
         public static string ToHtml(string doc, string lang = "en", string head = null)
         {
             Stopwatch sw = Stopwatch.StartNew();
+
+            // Convert AmigaGuide to HTML body
+            // This method will also extract metadata from the document, such as title.
             string body = ToHtmlBody(doc, out Dictionary<string, string> metadata);
-            sw.Stop();
-            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
-            Console.WriteLine($"AmigaGuide -> HTML conv.: {seconds} sec.");
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -45,6 +45,10 @@ namespace m.format.conv
                     meta.Append($"<meta name=\"{WebUtility.HtmlEncode(pair.Key)}\" content=\"{WebUtility.HtmlEncode(pair.Value)}\">\n");
                 }
             }
+
+            sw.Stop();
+            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
+            Console.WriteLine($"AmigaGuide -> HTML conv.: {seconds} sec.");
 
             return
                 "<!DOCTYPE html>\n" +
