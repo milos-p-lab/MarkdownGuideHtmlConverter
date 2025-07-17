@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] – 2025-07-17
+
+### Fixed
+- Fixed rendering of inline styles within headings.
+- Fixed special character escaping in inline paragraph text.
+
 ## [1.2.1] – 2025-07-17
 
 ### Added

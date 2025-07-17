@@ -185,6 +185,8 @@ This CLI tool is intended for:
 
 💡 However, if you're building a console, desktop or web application, it's recommended to use the library directly via Markdown.cs or AmigaGuide.cs for full flexibility and performance.
 
+---
+
 ## 🧪 Test Files
 
 Check the Test folder for examples of:
