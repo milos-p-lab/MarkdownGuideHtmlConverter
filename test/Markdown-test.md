@@ -3,10 +3,12 @@ title: My Document Title
 author: Miloš Perunović
 description: This is a sample Markdown document to demonstrate various Markdown features.
 keywords: markdown, sample, features, text formatting
-date: 2025-07-12
+date: 2025-07-17
 ---
 
 ***Hello*world***
+
+\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
 
 Normal \* **bold** *italic* ***bolditalic*** normal ~~strikethrough~~ ==highlighted== normal **==highlighted bold==** normal == nohighlighted== ~~ nostrikethrough~~ normal
 
