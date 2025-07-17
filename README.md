@@ -4,16 +4,18 @@
 
 ## ℹ️ About
 
-**MarkdownGuideHtmlConverter** is a lightweight and fast **C# library** for converting **Markdown to HTML5** and **AmigaGuide to HTML5**.
+⚡ **Fast .NET converter for Markdown (.md) and AmigaGuide (.guide) files to HTML.**
+
+MarkdownGuideHtmlConverter is a lightweight and fast C# library for converting Markdown to HTML5 and AmigaGuide to HTML5.
 It’s designed to be:
 
 - Fully **HTML5-compliant**
 - Extremely fast, with no external dependencies
 - Simple to integrate into any **.NET** or **.NET Framework** application
 
-Unlike many large tools (like Pandoc), this converter is implemented in a **single C# file** and can be embedded directly into your project (console, desktop or web application) without needing complex installations or external libraries.
+Unlike many large tools (like *Pandoc*), this converter is implemented in a **single C# file** and can be embedded directly into your project (console, desktop or web application) without needing complex installations or external libraries.
 
-It supports almost all core **Markdown syntax**, including headings, lists, links, images, code blocks, inline formatting, and tables.  
+It supports almost all core Markdown syntax, including headings, lists, links, images, code blocks, inline formatting, and tables.  
 It also includes **XSS-safe conversion**, making it suitable for web applications.
 
 The AmigaGuide converter is ideal for developers working with **retro-computing** documents or legacy help files.
@@ -75,7 +77,7 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 
 ### 🌟 Additional Benefits
 
-- Fast conversion (e.g. a ~100-page book converts in milliseconds on a standard PC)
+- Fast conversion (e.g. a ~100-page book converts in just a few milliseconds on a standard PC)
 - Compatible with both .NET Framework and .NET 7/8/9
 - Minimal footprint (just a few tens of KB)
 - Supports custom CSS themes for beautiful HTML rendering
