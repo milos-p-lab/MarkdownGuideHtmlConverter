@@ -77,8 +77,8 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 
 ### 🌟 Additional Benefits
 
-- Fast conversion (e.g. a ~100-page book converts in just a few milliseconds on a standard PC)
-- Compatible with both .NET Framework and .NET 7/8/9
+- Fast conversion (e.g. a ~100-page book converts in just a few tens of milliseconds on a standard PC)
+- Compatible with both .NET Framework 4.x and .NET 7/8/9
 - Minimal footprint (just a few tens of KB)
 - Supports custom CSS themes for beautiful HTML rendering
 - No dependencies on external DLLs or tools like Pandoc
