@@ -158,7 +158,7 @@ No installation required — these are pure C# classes that you can simply add t
 
 ---
 
-## 🪛 Optional: Command-line Tool
+## 💾 Optional: Command-line Tool
 
 Although the primary goal of this project is to provide a lightweight, embeddable C# library for Markdown and AmigaGuide conversion, a simple precompiled command-line tool (mdoc.exe) is also included as a convenience.
 
