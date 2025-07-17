@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 
@@ -22,7 +23,11 @@ namespace m.format.conv
         /// <returns>HTML representation of the markdown</returns>
         public static string ToHtml(string doc, string lang = "en", string head = null)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             string body = ToHtmlBody(doc, out Dictionary<string, string> metadata);
+            sw.Stop();
+            double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
+            Console.WriteLine($"AmigaGuide -> HTML conv.: {seconds} sec.");
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();

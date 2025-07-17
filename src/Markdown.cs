@@ -33,7 +33,7 @@ namespace m.format.conv
             string body = md.ToHtmlBody(doc, out Dictionary<string, string> metadata);
             sw.Stop();
             double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
-            Console.WriteLine("Markdown -> HTML conv.: " + seconds);
+            Console.WriteLine($"Markdown -> HTML conv.: {seconds} sec.");
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -1776,6 +1776,9 @@ namespace m.format.conv
         }
 
         // <summary>
+        /// <summary>
+        /// 
+        /// </summary>
         /// Generates a Table of Contents (TOC) from the collected headings.
         /// </summary>
         private string GenerateToc(List<HeadingInfo> headings)
