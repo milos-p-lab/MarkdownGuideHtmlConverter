@@ -97,9 +97,7 @@ HTML:
 
 ## How to Use It
 
-The converter is available as a simple executable — no installation, no setup.
-
-GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
+If you just want to test the converter without compiling the source, you can use the prebuilt `.exe`:
 
 Supports: `.NET Framework 4.0+`, Windows systems (XP, Vista, 7, 8, 10, 11).
 
@@ -107,6 +105,14 @@ Example usage:
 
 ```bash
 mdoc.exe input.md
+```
+
+GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
+
+If you’re happy with the results and want more control or customization, simply copy the C# class into your own project and call:
+
+```csharp
+string html = Markdown.ToHtml(mdContent);
 ```
 
 ---
