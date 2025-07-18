@@ -29,6 +29,22 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 
 ---
 
+## 💡 Key Design Goal
+
+This library was built with one major principle in mind:
+
+> **Minimal, dependency-free, plug-and-play Markdown → HTML conversion.**
+
+It is designed to be seamlessly integrated into:
+
+- 🔹 Console applications
+- 🔹 Desktop applications (WinForms, WPF)
+- 🔹 Web applications (ASP.NET, WebView2-based, etc.)
+
+Just reference the `.dll` or invoke the `.exe` — no runtime dependencies, no configuration, no surprises.
+
+---
+
 ## ✨ Why Not Use Pandoc or Typora?
 
 While powerful, they come with limitations:
