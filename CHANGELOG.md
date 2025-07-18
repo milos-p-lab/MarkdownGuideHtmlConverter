@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] – 2025-07-18
+
+### Changed
+- TOC HTML code readability improvements (indentation).
+
+### Fixed
+- Minor issues with `img` tag attributes (like `title` and `alt`).
+- TOC nested `ul` tag rendering, and fixed incorrect rendering of inline styles within TOC entries.
+
 ## [1.2.2] – 2025-07-17
 
 ### Fixed
