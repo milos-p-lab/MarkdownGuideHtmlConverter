@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.2.2</version>
-    /// <date>2025-07-17</date>
+    /// <version>1.2.3</version>
+    /// <date>2025-07-18</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -650,7 +650,7 @@ namespace m.format.conv
                 {
                     if (TryParseImage(line, i, out string altText, out string url, out string title, out int end))
                     {
-                        sb.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $"\" title=\"{title}")}>");
+                        sb.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $" title=\"{title}\"")}>");
                         i = end; // skip the parsed part
                         continue;
                     }
@@ -678,14 +678,25 @@ namespace m.format.conv
                     // Bold + Italic
                     if (c2 == '*' && c3 == '*')
                     {
-                        i += 2;
                         if (bld == 0 && itl == 0 && c2 != ' ')
                         {
+                            i += 2;
                             bld++; itl++; sb.Append("<strong><em>");
                         }
                         else
                         {
-                            bld--; itl--; sb.Append("</em></strong>");
+                            if (itl > 0)
+                            {
+                                i++;
+                                itl--;
+                                sb.Append("</em>");
+                            }
+                            if (bld > 0)
+                            {
+                                i++;
+                                bld--;
+                                sb.Append("</strong>");
+                            }
                         }
                         continue;
                     }
@@ -1796,39 +1807,72 @@ namespace m.format.conv
             if (headings.Count == 0) { return ""; }
 
             StringBuilder sb = new StringBuilder();
-            int currentLevel = headings[0].Level;
+            int prevLevel = headings[0].Level;
+            int indentLevel = 0;
+            bool openLi = false;
 
-            sb.AppendLine("<ul>");
+            sb.Append("\n" + Indent(indentLevel) + "<ul>\n");
+            indentLevel++;
 
-            foreach (HeadingInfo heading in headings)
+            for (int i = 0; i < headings.Count; i++)
             {
-                // If heading goes deeper
-                while (heading.Level > currentLevel)
+                HeadingInfo heading = headings[i];
+                int currentLevel = heading.Level;
+
+                // If going deeper: open <ul> inside <li>, without closing <li>
+                if (currentLevel > prevLevel)
                 {
-                    sb.AppendLine("<ul>");
-                    currentLevel++;
+                    sb.Append("\n" + Indent(indentLevel) + "<ul>\n");
+                    indentLevel++;
                 }
 
-                // If heading goes shallower
-                while (heading.Level < currentLevel)
+                // If returning to a shallower level: close excess <li> and <ul>
+                else if (currentLevel < prevLevel)
                 {
-                    sb.AppendLine("</ul>");
-                    currentLevel--;
+                    if (openLi)
+                    {
+                        sb.Append(Indent(indentLevel) + "</li>\n");
+                    }
+                    for (int j = prevLevel; j > currentLevel; j--)
+                    {
+                        indentLevel--;
+                        sb.Append(Indent(indentLevel) + "</ul>\n");
+                        sb.Append(Indent(indentLevel) + "</li>\n");
+                    }
                 }
 
-                sb.AppendLine(
-                    $"<li><a href=\"#{heading.Id}\">{WebUtility.HtmlEncode(heading.Text)}</a></li>");
+                // Same level → close previous <li>
+                else if (openLi)
+                {
+                    sb.Append(Indent(indentLevel) + "</li>\n");
+                }
+
+                // Open new <li> (do not close yet if a nested <ul> is coming)
+                sb.Append(Indent(indentLevel) + $"<li><a href=\"#{heading.Id}\">{heading.Text}</a>");
+                openLi = true;
+
+                prevLevel = currentLevel;
             }
 
-            // Close all lists
-            while (currentLevel > headings[0].Level)
+            // Close the last <li> if it is still open
+            if (openLi) { sb.Append("</li>\n"); }
+
+            // Close all remaining open <ul> and <li>
+            for (int i = prevLevel; i > headings[0].Level; i--)
             {
-                sb.AppendLine("</ul>");
-                currentLevel--;
+                indentLevel--;
+                sb.Append(Indent(indentLevel) + "</ul>\n");
+                sb.Append(Indent(indentLevel) + "</li>\n");
             }
 
-            sb.AppendLine("</ul>");
+            indentLevel--;
+            sb.Append(Indent(indentLevel) + "</ul>\n\n");
             return sb.ToString();
+        }
+
+        private string Indent(int level)
+        {
+            return new string(' ', level * 2); // 2 spaces per level
         }
 
         #endregion
