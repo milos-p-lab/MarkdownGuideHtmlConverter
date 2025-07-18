@@ -1,7 +1,7 @@
 # Why I Built My Own Markdown to HTML Converter
 
-> ✍️ **Author:** Miloš Perunović
-> 🗓️ **Date:** 2025-07-18
+> ✍️ **Author:** Miloš Perunović  
+> 🗓️ **Date:** 2025-07-18  
 > **Description:** "A lightweight, safe and complete .md to .html converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
 ## Brighter, Smaller, Safer: Why I Built My Own Markdown to HTML Converter
