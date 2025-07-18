@@ -106,7 +106,7 @@ Supports: `.NET Framework 4.0+`, Windows systems (XP, Vista, 7, 8, 10, 11).
 Example usage:
 
 ```bash
-mdoc.exe input.md output.html
+mdoc.exe input.md
 ```
 
 ---

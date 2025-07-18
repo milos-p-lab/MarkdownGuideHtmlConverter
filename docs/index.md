@@ -48,7 +48,7 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 No setup needed — just download and run:
 
 ```bash
-mdoc.exe input.md output.html
+mdoc.exe input.md
 ```
 
 Works on Windows with .NET Framework 4.0+
