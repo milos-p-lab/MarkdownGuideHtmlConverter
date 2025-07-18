@@ -41,7 +41,13 @@ It is designed to be seamlessly integrated into:
 - Desktop applications (WinForms, WPF)
 - Web applications (ASP.NET, WebView2-based, etc.)
 
-Just reference the `.dll` or invoke the `.exe` — no runtime dependencies, no configuration, no surprises.
+Just copy the C# class into your project and use it directly:
+
+```csharp
+string html = Markdown.ToHtml(mdContent);
+```
+
+No runtime dependencies, no configuration, no surprises.
 
 ---
 
