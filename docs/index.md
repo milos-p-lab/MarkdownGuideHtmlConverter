@@ -1,8 +1,6 @@
 ---
-title: "MarkdownGuideHtmlConverter"
-layout: default
-description: "Fast, safe and feature-complete Markdown to HTML converter written in C#."
----
+
+## title: MarkdownGuideHtmlConverter layout: default description: Fast, safe and feature-complete Markdown to HTML converter written in C#.
 
 # MarkdownGuideHtmlConverter
 
@@ -48,7 +46,7 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 No setup needed — just download and run:
 
 ```bash
-mdcoc.exe input.md output.html
+mdoc.exe input.md output.html
 ```
 
 Works on Windows with .NET Framework 4.0+
@@ -60,6 +58,21 @@ Works on Windows with .NET Framework 4.0+
 Interested in what's next? 👉 [See the Roadmap](ROADMAP.md)
 
 Have ideas or want to contribute? 👉 [Open an issue or discussion](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/discussions)
+
+---
+
+## 🌐 Help Others Discover It
+
+This converter was built to fill the real gaps left by many existing tools:
+
+- More complete feature support
+- XSS-safe HTML output
+- Zero dependency usage
+- Fast execution and clean output
+
+If you find it useful, consider starring the GitHub repo ⭐ and sharing the [blog post](blog.md) that explains why it was created.
+
+This helps others discover a safer and more powerful alternative to bloated or limited Markdown tools.
 
 ---
 
