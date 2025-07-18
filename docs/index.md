@@ -1,6 +1,8 @@
 ---
-
-## title: "MarkdownGuideHtmlConverter" layout: default description: "Fast, safe and feature-complete Markdown to HTML converter written in C#."
+title: "MarkdownGuideHtmlConverter"
+layout: default
+description: "Fast, safe and feature-complete Markdown to HTML converter written in C#."
+---
 
 # MarkdownGuideHtmlConverter
 
@@ -62,4 +64,3 @@ Have ideas or want to contribute? 👉 [Open an issue or discussion](https://git
 ---
 
 Made with focus and precision by Miloš Perunović 😊
-
