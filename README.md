@@ -22,8 +22,8 @@ The AmigaGuide converter is ideal for developers working with **retro-computing*
 
 Whether you're building a **static site generator**, rendering **Markdown documentation** on the fly, or converting **AmigaGuide manuals**, this tool is optimized for clarity, speed, and portability.
 
-> ✍️ **Author:** Miloš Perunović
-> 🗓️ **Date:** 2025-07-18
+> ✍️ **Author:** Miloš Perunović  
+> 🗓️ **Date:** 2025-07-18  
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
 ---
