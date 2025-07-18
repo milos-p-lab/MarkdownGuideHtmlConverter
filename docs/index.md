@@ -48,7 +48,7 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 No setup needed — just download and run:
 
 ```bash
-MarkdownGuideHtmlConverter.exe input.md output.html
+mdcoc.exe input.md output.html
 ```
 
 Works on Windows with .NET Framework 4.0+
