@@ -6,27 +6,59 @@
   <title>{{ page.title | default: site.title }}</title>
   <meta name="description" content="{{ page.description | default: site.description }}">
   <link rel="icon" href="/MarkdownGuideHtmlConverter/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --fg: #1e1e1e;
+      --link: #0066cc;
+      --muted: #888888;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1e;
+        --fg: #dddddd;
+        --link: #66aaff;
+        --muted: #999999;
+      }
+    }
     body {
-      max-width: 900px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, sans-serif;
+      max-width: 800px;
       margin: 0 auto;
-      font-family: system-ui, sans-serif;
-      padding: 2rem;
+      padding: 2rem 1.5rem;
       line-height: 1.7;
     }
+    h1, h2, h3 {
+      color: var(--fg);
+      margin-top: 2rem;
+    }
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
     code, pre {
-      background: #f4f4f4;
-      padding: 2px 4px;
+      background: #f0f0f0;
+      color: #000;
+      padding: 0.2em 0.4em;
       border-radius: 4px;
-      font-family: monospace;
+      font-family: ui-monospace, monospace;
+      font-size: 0.95em;
+    }
+    pre {
+      padding: 1em;
+      overflow: auto;
     }
     hr {
       border: none;
-      border-top: 1px solid #ccc;
-      margin: 2rem 0;
-    }
-    h1, h2, h3 {
-      margin-top: 2rem;
+      border-top: 1px solid var(--muted);
+      margin: 3rem 0;
     }
   </style>
 </head>
