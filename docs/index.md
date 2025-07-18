@@ -51,7 +51,7 @@ No setup needed — just download and run:
 MarkdownGuideHtmlConverter.exe input.md output.html
 ```
 
-Works on Windows with .NET Framework 4.8+
+Works on Windows with .NET Framework 4.0+
 
 ---
 
