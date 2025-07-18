@@ -1,4 +1,4 @@
-# MarkdownGuideHtmlConverter – Roadmap
+# Roadmap
 
 This document outlines the planned features, enhancements, and long-term vision for the MarkdownGuideHtmlConverter project.
 
