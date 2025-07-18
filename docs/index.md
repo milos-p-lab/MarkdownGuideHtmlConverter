@@ -57,7 +57,7 @@ Works on Windows with .NET Framework 4.0+
 
 ## 📌 Roadmap & Contribution
 
-Interested in what's next? 👉 [See the Roadmap](../ROADMAP.md)
+Interested in what's next? 👉 [See the Roadmap](/ROADMAP.md)
 
 Have ideas or want to contribute? 👉 [Open an issue or discussion](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/discussions)
 
