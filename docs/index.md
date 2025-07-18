@@ -1,8 +1,8 @@
 ---
-
-## title: MarkdownGuideHtmlConverter layout: default description: Fast, safe and feature-complete Markdown to HTML converter written in C#.
-
-# MarkdownGuideHtmlConverter
+title: "MarkdownGuideHtmlConverter"
+layout: default
+description: "Fast, safe and feature-complete Markdown to HTML converter written in C#."
+---
 
 **A lightweight, reliable, and secure Markdown to HTML converter built in C#.**
 
