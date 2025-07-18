@@ -3,14 +3,43 @@
 <head>
 <meta charset="utf-8"><title>My Document Title</title>
 <meta name="author" content="Miloš Perunović">
-<meta name="date" content="2025-07-17">
+<meta name="date" content="2025-07-18">
 </head>
 <body>
-<p><strong><em>Hello</em>world</em></strong></p>
-<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
-<p>Normal * <strong>bold</strong> <em>italic</em> <strong><em>bolditalic</em></strong> normal <del>strikethrough</del> <mark>highlighted</mark> normal <strong><mark>highlighted bold</mark></strong> normal == nohighlighted== ~~ nostrikethrough~~ normal</p>
-<p>Paragraph first line<br>second line.</p>
+
+<ul>
+  <li><a href="#heading-1">Heading 1</a>
+  <ul>
+    <li><a href="#basic-text-formatting">Basic Text Formatting</a>    </li>
+    <li><a href="#escaped-characters">Escaped characters</a>    </li>
+    <li><a href="#images-links-and-email">Images, Links, and Email</a>    </li>
+    <li><a href="#media-embedding">Media Embedding</a>    </li>
+    <li><a href="#subtitle-emitalicem">Subtitle <em>italic</em></a>    </li>
+    <li><a href="#markhighlighted-subtitlemark"><mark>Highlighted Subtitle</mark></a>
+    <ul>
+      <li><a href="#subsubtitle">Subsubtitle</a></li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
 <h1 id="heading-1">Heading 1</h1>
+<p><strong><em>Hello</em>world</strong><em></em>[ERR: Unclosed italic tag]</p>
+<h2 id="basic-text-formatting">Basic Text Formatting</h2>
+<p>Normal * <strong>bold</strong> <em>italic</em> <strong><em>bolditalic</em></strong> normal <del>strikethrough</del> <mark>highlighted</mark> normal <strong><mark>highlighted bold</mark></strong> normal == nohighlighted== ~~ nostrikethrough~~ normal</p>
+<p>Nested <strong>bold <em>italic</em> bold</strong></p>
+<h2 id="escaped-characters">Escaped characters</h2>
+<p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
+<p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
+<pre><code class="markdown">
+&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;euro; are HTML entities.
+</code></pre>
+<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
+<p>Paragraph first line<br>second line (v1).</p>
+<p>Paragraph first line<br> second line (v2).</p>
+<h2 id="images-links-and-email">Images, Links, and Email</h2>
+<p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo" title="HTML 5 Logo">.</p>
 <p><a href="http://google.com">http://google.com</a></p>
 <p><a href="http://google.com">http://google.com</a></p>
 <p><a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
@@ -20,6 +49,7 @@
 This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
 <hr>
 <br>
+<h2 id="media-embedding">Media Embedding</h2>
 <video width="320" height="240" controls>
   <source src="https://www.w3schools.com/tags/movie.mp4" type="video/mp4">
   Your browser does not support the video tag.
@@ -51,12 +81,6 @@ This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:
   </tbody>
 </table>
 <p>Here goes more text with a second footnote.<sup><a href="#fnnote2" id="refnote2" title="This is the **second** footnote.">note2</a></sup></p>
-<p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo"" title="HTML 5 Logo>.</p>
-<p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
-<p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
-<pre><code class="markdown">
-&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;euro; are HTML entities.
-</code></pre>
 <br>
 <p><a href="https://example.com">link</a></p>
 <pre><code class="csharp">
@@ -96,10 +120,10 @@ bool ok = x &gt; 0;
     <li>ddd</li>
 </ol>
 </ol>
-<h1 id="title-emitalicem">Title <em>italic</em></h1>
+<h2 id="subtitle-emitalicem">Subtitle <em>italic</em></h2>
 <p>Aaa&nbsp;&nbsp; aaa aaa aaa bbb bbb bbb bbb.</p>
 <p>Ccc ccc ccc ccc.</p>
-<h2 id="subtitle">Subtitle</h2>
+<h2 id="markhighlighted-subtitlemark"><mark>Highlighted Subtitle</mark></h2>
 <h3 id="subsubtitle">Subsubtitle</h3>
 <p>x<strong><em>BI</em></strong>x<strong>B</strong>x<em>I</em>x</p>
 <p>*this is not italic*</p>
@@ -132,7 +156,6 @@ bool ok = x &gt; 0;
     </tr>
   </tbody>
 </table>
-<br>
 <br>
 <div class="footnotes">
 <ul>

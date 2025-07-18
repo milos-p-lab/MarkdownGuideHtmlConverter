@@ -3,19 +3,42 @@ title: My Document Title
 author: Miloš Perunović
 description: This is a sample Markdown document to demonstrate various Markdown features.
 keywords: markdown, sample, features, text formatting
-date: 2025-07-17
+date: 2025-07-18
 ---
+
+[TOC]
+
+# Heading 1
 
 ***Hello*world***
 
-\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
+## Basic Text Formatting
 
 Normal \* **bold** *italic* ***bolditalic*** normal ~~strikethrough~~ ==highlighted== normal **==highlighted bold==** normal == nohighlighted== ~~ nostrikethrough~~ normal
 
-Paragraph first line  
-second line.
+Nested **bold *italic* bold**
 
-# Heading 1
+## Escaped characters
+
+Characters <, >, &, and " can be used in Markdown without issues.
+
+&amp; &lt; &gt; &quot; &euro; &xxx; are HTML entities.
+
+``` markdown
+&amp; &lt; &gt; &quot; &euro; are HTML entities.
+```
+
+\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
+
+Paragraph first line  
+second line (v1).
+
+Paragraph first line\
+second line (v2).
+
+## Images, Links, and Email
+
+This is an image ![HTML 5 Logo](https://www.w3schools.com/html/html5.gif "HTML 5 Logo").
 
 http://google.com
 
@@ -32,6 +55,8 @@ This is some text with a footnote.[^1] user@example.com
 ---
 <br>
 
+## Media Embedding
+
 <video width="320" height="240" controls>
   <source src="https://www.w3schools.com/tags/movie.mp4" type="video/mp4">
   Your browser does not support the video tag.
@@ -41,22 +66,12 @@ This is some text with a footnote.[^1] user@example.com
 - [ ] In progress
 - [ ] Not started
 
-  | First Name | Last Name | Age |
-  |:-----------|:---------:|----:|
-  | John       | Smith     | 50  |
-  | Jane       | Doe       | 40  |
+| First Name | Last Name | Age |
+|:-----------|:---------:|----:|
+| John       | Smith     | 50  |
+| Jane       | Doe       | 40  |
 
 Here goes more text with a second footnote.[^note2]
-
-This is an image ![HTML 5 Logo](https://www.w3schools.com/html/html5.gif "HTML 5 Logo").
-
-Characters <, >, &, and " can be used in Markdown without issues.
-
-&amp; &lt; &gt; &quot; &euro; &xxx; are HTML entities.
-
-``` markdown
-&amp; &lt; &gt; &quot; &euro; are HTML entities.
-```
 
 [^note2]: This is the **second** footnote.
 
@@ -95,14 +110,14 @@ Normal \* **bold** *italic* ***bolditalic*** normal
 3. ccc
    1. ddd
 
-# Title *italic*
+## Subtitle *italic*
 
 Aaa   aaa aaa aaa
 bbb bbb bbb bbb.
 
 Ccc ccc ccc ccc.
 
-## Subtitle
+## ==Highlighted Subtitle==
 
 ### Subsubtitle
 
@@ -124,4 +139,3 @@ x***BI***x**B**x*I*x
 
 [^1]: This is > text of the **first** footnote. [link](https://example.com)
       This is the second line of the **first** footnote.
-
