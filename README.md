@@ -34,7 +34,7 @@ Whether you're building a **static site generator**, rendering **Markdown docume
 
 > “If you’d told me a year ago that it’s possible to build a faster and fully standards-compliant Markdown-to-HTML converter than Pandoc—in a single C# file, with built-in XSS protection, working on both .NET Framework and .NET 7/8/9—I honestly wouldn’t have believed it myself. So I built it to prove it can be done.”
 
-📘 [Why I Built This Converter](docs/blog.md)
+📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
 I’ve always admired tools like Pandoc for their power. But I wanted:
 
