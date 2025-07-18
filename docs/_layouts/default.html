@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,14 +16,16 @@
       --link: #0066cc;
       --muted: #888888;
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #1e1e1e;
-        --fg: #dddddd;
+        --fg: rgb(199, 187, 172);
         --link: #66aaff;
         --muted: #999999;
       }
     }
+
     body {
       background: var(--bg);
       color: var(--fg);
@@ -32,18 +35,42 @@
       padding: 2rem 1.5rem;
       line-height: 1.7;
     }
-    h1, h2, h3 {
-      color: rgb(199, 187, 172);
+
+    nav {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    nav a {
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: rgb(218, 201, 181);
       margin-top: 2rem;
     }
+
     a {
       color: var(--link);
       text-decoration: none;
     }
+
     a:hover {
       text-decoration: underline;
     }
-    code, pre {
+
+    code,
+    pre {
       background: #0c1902;
       color: #40d20a;
       padding: 0.2em 0.4em;
@@ -51,10 +78,12 @@
       font-family: ui-monospace, monospace;
       font-size: 0.95em;
     }
+
     pre {
       padding: 1em;
       overflow: auto;
     }
+
     hr {
       border: none;
       border-top: 1px solid var(--muted);
@@ -62,7 +91,15 @@
     }
   </style>
 </head>
+
 <body>
+  <nav>
+    <a href="/MarkdownGuideHtmlConverter/">Home</a>
+    <a href="/MarkdownGuideHtmlConverter/blog">Blog</a>
+    <a href="/MarkdownGuideHtmlConverter/ROADMAP">Roadmap</a>
+    <a href="https://github.com/milos-p-lab/MarkdownGuideHtmlConverter" target="_blank">GitHub ↗</a>
+  </nav>
   {{ content }}
 </body>
+
 </html>
