@@ -37,9 +37,9 @@ This library was built with one major principle in mind:
 
 It is designed to be seamlessly integrated into:
 
-- 🔹 Console applications
-- 🔹 Desktop applications (WinForms, WPF)
-- 🔹 Web applications (ASP.NET, WebView2-based, etc.)
+- Console applications
+- Desktop applications (WinForms, WPF)
+- Web applications (ASP.NET, WebView2-based, etc.)
 
 Just reference the `.dll` or invoke the `.exe` — no runtime dependencies, no configuration, no surprises.
 
