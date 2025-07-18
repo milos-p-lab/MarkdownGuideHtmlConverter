@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/)
 
-## ℹ️ About
+## 🧩 About
 
 ⚡ **Fast .NET converter for Markdown (.md) and AmigaGuide (.guide) files to HTML.**
 
@@ -22,8 +22,8 @@ The AmigaGuide converter is ideal for developers working with **retro-computing*
 
 Whether you're building a **static site generator**, rendering **Markdown documentation** on the fly, or converting **AmigaGuide manuals**, this tool is optimized for clarity, speed, and portability.
 
-> ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-17  
+> ✍️ **Author:** Miloš Perunović
+> 🗓️ **Date:** 2025-07-18
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
 ---
@@ -33,6 +33,8 @@ Whether you're building a **static site generator**, rendering **Markdown docume
 ### 🚀 Introducing the Markdown to HTML Converter You Didn’t Think Was Possible
 
 > “If you’d told me a year ago that it’s possible to build a faster and fully standards-compliant Markdown-to-HTML converter than Pandoc—in a single C# file, with built-in XSS protection, working on both .NET Framework and .NET 7/8/9—I honestly wouldn’t have believed it myself. So I built it to prove it can be done.”
+
+📘 [Why I Built This Converter](docs/blog.md)
 
 I’ve always admired tools like Pandoc for their power. But I wanted:
 
