@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown documents.
     /// </summary>
-    /// <version>1.2.3</version>
-    /// <date>2025-07-18</date>
+    /// <version>1.3.0</version>
+    /// <date>2025-07-19</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -109,7 +109,13 @@ namespace m.format.conv
         /// HTML body content.
         /// This is where the converted HTML will be stored.
         /// </summary>
-        private readonly StringBuilder Body = new StringBuilder("");
+        private readonly StringBuilder Body = new StringBuilder();
+
+        /// <summary>
+        /// Paragraph content.
+        /// This is used to accumulate text for the current paragraph being processed.
+        /// </summary>
+        private readonly StringBuilder Para = new StringBuilder();
 
         /// <summary>
         /// Current state of Markdown parsing.
@@ -135,6 +141,22 @@ namespace m.format.conv
         /// This stack is used to keep track of the closing tags for lists (ordered and unordered lists).
         /// </summary>
         private readonly Stack<string> ListClosingTags = new Stack<string>();
+
+        /// <summary>
+        /// List of warnings encountered during Markdown parsing.
+        /// This list is used to collect warnings about potential issues in the Markdown text,
+        /// such as unclosed tags or incorrect formatting.
+        /// </summary>
+        private readonly List<string> Warnings = new List<string>();
+
+        /// <summary>
+        /// Reports a warning encountered during Markdown parsing.
+        /// </summary>
+        /// <param name="desc">Description of the warning.</param>
+        private void ReportWarning(string desc)
+        {
+            Warnings.Add($"Line {LineNum + 1}: {EscapeHtml(desc)}");
+        }
 
         /// <summary>
         /// Escapes HTML special characters in the input string.
@@ -207,6 +229,7 @@ namespace m.format.conv
                     emptyCnt++;
                     if (PrevState == State.Paragraph)
                     {
+                        ProcessParagraph();
                         Body.Append("</p>\n");
                     }
                     else if (PrevState == State.UnorderedList || PrevState == State.TaskList || PrevState == State.OrderedList || PrevState == State.Blockquote)
@@ -250,6 +273,7 @@ namespace m.format.conv
                         CurrState = State.UnorderedList;
                     }
                     ListState = CurrState;
+
                     CloseBlock();
 
                     string ind = new string(' ', level * 2);
@@ -279,6 +303,7 @@ namespace m.format.conv
                 {
                     CurrState = State.OrderedList;
                     ListState = State.OrderedList;
+
                     CloseBlock();
 
                     string ind = new string(' ', level * 2);
@@ -340,6 +365,7 @@ namespace m.format.conv
                             {
                                 Body.Append("</code></pre>\n");
                                 endBlock = true;
+                                CurrState = State.Empty;
                             }
                             else
                             {
@@ -347,13 +373,13 @@ namespace m.format.conv
                             }
                         }
                     }
-                    CurrState = State.Empty;
                     line = "";
                 }
 
                 // Raw HTML
                 else if (ProcessRawHtml(line, trimLine, out State state))
                 {
+                    CloseBlock();
                     CurrState = state;
                     continue;
                 }
@@ -380,8 +406,16 @@ namespace m.format.conv
                 else
                 {
                     CurrState = State.Paragraph;
-                    CloseBlock();
-                    line = ParseInlineStyles(line.TrimEnd());
+                    CloseBlock(false);
+                    if (line.EndsWith("  ") || line.EndsWith("\\"))
+                    {
+                        Para.Append(line.TrimEnd(' ', '\\') + "\n");
+                    }
+                    else
+                    {
+                        Para.Append(line);
+                    }
+                    line = "";
                 }
 
                 PrevState = CurrState;
@@ -393,6 +427,9 @@ namespace m.format.conv
                     Body.Append(line);
                 }
             }
+
+            CurrState = State.Empty;
+            CloseBlock();
 
             // Add footnote definitions at the end of the document
             if (UsedFootnotes.Count > 0)
@@ -412,6 +449,20 @@ namespace m.format.conv
                 Body.Append("</ul>\n</div>\n");
             }
 
+            // Generate a report of any warnings
+            if (Warnings.Count > 0)
+            {
+                Body.Append(
+                    "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
+                    "  <h2>⚠️ Warnings</h2>\n" +
+                    "  <ul>\n");
+                foreach (string desc in Warnings)
+                {
+                    Body.Append($"    <li>{desc}</li>\n");
+                }
+                Body.Append("  </ul>\n</div>\n");
+            }
+
             // Generate Table of Contents (TOC) and insert it into the body
             string toc = GenerateToc(TocHeadings);
             Body.Replace("{{TOC_PLACEHOLDER}}", toc);
@@ -420,35 +471,45 @@ namespace m.format.conv
         }
 
         /// <summary>
+        /// Processes the current paragraph by converting inline styles and appending it to the HTML body.
+        /// </summary>
+        private void ProcessParagraph()
+        {
+            if (Para.Length > 0)
+            {
+                Body.Append(ParseInlineStyles(Para.ToString()));
+                Para.Clear();
+            }
+        }
+
+        /// <summary>
         /// Closes the current block in the HTML document.
         /// </summary>
-        private void CloseBlock()
+        private void CloseBlock(bool procPara = true)
         {
-            if (!(CurrState == State.UnorderedList || CurrState == State.TaskList || CurrState == State.OrderedList) && ListState != State.Empty)
+            if (procPara) { ProcessParagraph(); }
+
+            if (ListState != State.Empty && !(CurrState == State.UnorderedList || CurrState == State.TaskList || CurrState == State.OrderedList))
             {
                 ListLevelDown(0);
             }
-
-            string line = "";
 
             if (PrevState == State.Blockquote)
             {
                 Body.Append("</blockquote>\n");
             }
+            else if (PrevState == State.CodeBlock)
+            {
+                Body.Append("</code></pre>\n");
+            }
+
+            string line = "";
 
             if (CurrState == State.Paragraph)
             {
                 if (PrevState == State.Paragraph)
                 {
-                    if (LineNum > 0 && Lines[LineNum - 1].EndsWith("  "))
-                    {
-                        // If the previous line of the paragraph ends with two spaces, add a <br>
-                        line = "<br>";
-                    }
-                    else
-                    {
-                        line = " ";
-                    }
+                    Para.Append(" ");
                 }
                 else
                 {
@@ -534,8 +595,7 @@ namespace m.format.conv
                     }
                     else
                     {
-                        // Line break
-                        sb.Append("<br>");
+                        sb.Append(c);
                         continue;
                     }
                 }
@@ -716,7 +776,7 @@ namespace m.format.conv
                         else
                         {
                             i--;
-                            sb.Append("<b>[ERR: Bold tag]</b>"); // Incorrectly written character for "bold"
+                            ReportWarning($"Incorrectly written character for \"bold\" [pos {i}]");
                         }
                         continue;
                     }
@@ -734,7 +794,7 @@ namespace m.format.conv
                         }
                         else
                         {
-                            sb.Append("<b>[ERR: Italic tag]</b>"); // Incorrectly written character for "italic"
+                            ReportWarning($"Incorrectly written character for \"italic\" [pos {i}]");
                         }
                         continue;
                     }
@@ -825,22 +885,26 @@ namespace m.format.conv
             // Fix unclosed tags from the markdown document
             while (itl > 0)
             {
-                sb.Append("</em>[ERR: Unclosed italic tag]");
+                sb.Append("</em>");
+                ReportWarning("Unclosed italic tag");
                 itl--;
             }
             while (bld > 0)
             {
-                sb.Append("</em>[ERR: Unclosed bold tag]");
+                sb.Append("</strong>");
+                ReportWarning("Unclosed bold tag");
                 bld--;
             }
             while (hl > 0)
             {
-                sb.Append("</mark>[ERR: Unclosed mark tag]");
+                sb.Append("</mark>");
+                ReportWarning("Unclosed mark tag");
                 hl--;
             }
             while (del > 0)
             {
-                sb.Append("</del>[ERR: Unclosed del tag]");
+                sb.Append("</del>");
+                ReportWarning("Unclosed del tag");
                 del--;
             }
 
@@ -941,7 +1005,7 @@ namespace m.format.conv
         /// <summary>
         /// Parses a Markdown link.
         /// </summary>
-        private static bool TryParseLink(string input, int startIndex, out string linkText, out string url, out string title, out int endIndex)
+        private bool TryParseLink(string input, int startIndex, out string linkText, out string url, out string title, out int endIndex)
         {
             linkText = null;
             url = null;
@@ -1047,6 +1111,12 @@ namespace m.format.conv
             if (urlEnd == -1) { return false; } // No closing ')'
 
             url = input.Substring(urlStart, urlEnd - urlStart).Trim();
+
+            if (url.Contains('<') || url.Contains('>'))
+            {
+                ReportWarning("Invalid character in URL: " + url);
+                url = url.Replace("<", "").Replace(">", "");
+            }
 
             if (IsDangerousTag(url))
             {
@@ -1564,7 +1634,7 @@ namespace m.format.conv
                     {
                         if (TryParseAutoLink(tag, 0, out string linkText, out string url, out string title, out string cls, out int _))
                         {
-                            Body.Append($"<p><a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a></p>\n");
+                            Body.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a>\n");
                             state = State.Paragraph;
                             return true;
                         }
@@ -1645,7 +1715,7 @@ namespace m.format.conv
         /// <summary>
         /// Checks if the given HTML tag is dangerous. (XSS, phishing, etc.)
         /// </summary>
-        public static bool IsDangerousTag(string tagHtml)
+        public bool IsDangerousTag(string tagHtml)
         {
             if (string.IsNullOrWhiteSpace(tagHtml)) { return false; }
 
@@ -1654,7 +1724,11 @@ namespace m.format.conv
 
             string tagName = tagNameMatch.Groups[1].Value;
 
-            if (DangerTags.Contains(tagName)) { return true; }
+            if (DangerTags.Contains(tagName))
+            {
+                ReportWarning("Dangerous tag: " + tagName);
+                return true;
+            }
 
             Regex attrRegex = new Regex(@"([a-zA-Z0-9:-]+)\s*=\s*(""([^""]*)""|'([^']*)'|([^\s>]+))", RegexOptions.IgnoreCase);
 
@@ -1676,6 +1750,7 @@ namespace m.format.conv
                 // Check attribute name
                 if (DangerAttrPrefixes.Any(prefix => attrName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
                 {
+                    ReportWarning("Dangerous attribute: " + attrName);
                     return true;
                 }
 
@@ -1686,6 +1761,7 @@ namespace m.format.conv
                 {
                     if (DangerousAttrValues.Any(d => fullyDecoded.Contains(d)))
                     {
+                        ReportWarning("Dangerous attribute: " + attrName);
                         return true;
                     }
                 }
