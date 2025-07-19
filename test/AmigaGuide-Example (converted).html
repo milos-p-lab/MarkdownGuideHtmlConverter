@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>Amigaguide.guide</title>
+</head>
+<body>
+<div style="white-space: pre; font-family: monospace;">
+<!--@master Amigaguide.texinfo-->
+<!--@width 76-->
+<a id="main"></a>
+
+
+                           The Amigaguide Manual
+
+            The <i>complete</i> documentation of Amigaguide commands.
+
+                    Copyright (C) 1995 By Aric R Caley.
+                            
+
+
+
+ <input type="button" onclick="location.href='#copyright';" value=" Copyright "> 
+ <input type="button" onclick="location.href='#about';" value=" About "> 
+ <input type="button" onclick="location.href='#amigaguide_background';" value=" Amigaguide Background "> 
+ <input type="button" onclick="location.href='#paths_and_nodes';" value=" Paths and Nodes "> 
+ <input type="button" onclick="location.href='#global_commands';" value=" Global Commands "> 
+ <input type="button" onclick="location.href='#node_commands';" value=" Node Commands "> 
+ <input type="button" onclick="location.href='#attribute_commands';" value=" Attribute Commands "> 
+
+
+<hr>
+<a id="copyright"></a><h2>Amigaguide.guide/Copyright</h2><input type="button" onclick="location.href='#about';" value="Browse &gt;"><input type="button" onclick="location.href='#main';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Copyright
+*********
+
+Copyright Notice
+----------------
+
+   This document is Copyright (C) 1995 by Aric R. Caley.
+
+Disclaimer
+----------
+
+   This document is offered "as is", and the author will not be held
+responsible for any damage resulting from mistakes contained within, though
+the best effort has been made to ensure that all the information is
+complete and correct.
+
+Distribution
+------------
+
+   This is only Copyrighted in order to protect the integrity of this
+document and to ensure its free availability to all.  You may not directly
+profit from the distribution of this document.  You may not put it in a disk
+collection without prior permission from the author.  Fred Fish's disks and
+CD-ROMed versions of Aminet are exempt.  You may freely and for free
+distribute it across any medium.
+
+   If you are a disk distributer, please contact the author and arrange to
+receive the latest version.
+
+   There is no shareware registration fee since this is "freeware".
+However, contributions are of course welcome.  If there is a demand for a
+printed version of this document, please inquire about one.  Printed
+versions would be created with a Canon BubbleJet 200 (360 x 360 DPI).
+
+About
+-----
+
+   This document was written on an Amiga 500, with an 85MB hd and 4.5MB ram.
+The documentation is created with a combination of Makeinfo and TeX /
+Metafont.
+
+
+<hr>
+<a id="about"></a><h2>Amigaguide.guide/About</h2><input type="button" onclick="location.href='#amigaguide_background';" value="Browse &gt;"><input type="button" onclick="location.href='#copyright';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Amigaguide
+**********
+
+About
+=====
+
+   Like other people, I did not have a single concise source for all the
+Amigaguide commands and how they work (or don't as the case may be).  So I
+decided to write one.  I believe I have covered all the commands from the
+earliest Amigaguide to the latest (release 3.1 of AmigaOS).
+
+   I've also considered writting more about how to work with Amigaguide as
+a programer (how to work with dynamic hosts, the Amigaguide Datatype, etc),
+but that will only come later if there is a demand.  I also thought about
+doing a general tutorial on writting Amigaguide documents (or Texinfo
+documents for that matter).
+
+   I don't claim to be any expert on Amigaguide, but, I do think I do a
+fairly good job at rounding up information and compiling it into a nice
+readable form.  I hope you will agree.
+
+     Aric R. Caley.
+     
+     Internet: dances@qedbbs.com
+     
+     Snail mail (US Postal service):
+     
+       5829 Los Feliz,
+       Buena Park, CA. 90620.
+     
+     Voice phone:  (714) 229-9957
+
+
+<hr>
+<a id="amigaguide_background"></a><h2>Amigaguide.guide/Amigaguide Background</h2><input type="button" onclick="location.href='#paths_and_nodes';" value="Browse &gt;"><input type="button" onclick="location.href='#about';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Background
+==========
+
+   Amigaguide commands all begin with the '@' (pronounced 'at') symbol.
+Most commands must start at the very begining of a line, and should be the
+only thing that is on that line.  Although not required for most commands,
+you should probably write them all in capital letters as a matter of
+discipline (it also makes them much easier to see and keep track of!).
+
+   There are three catagories of commands:  Global, Node, and Attributes.
+Global commands are usualy specified at the begining of the document,
+before any nodes are defined, and apply to all the nodes in the document.
+Technicaly, they could be anywhere.  Many commands can be used both globaly
+and in nodes.
+
+   Node commands are usable inside of a node (after a '@NODE' and before an
+"@ENDNODE"), and affect only the node in which they are used.
+
+   Attributes may be specified anywhere in a normal line.  In addition to
+the '@' symbol, attributes always use a pair of braces ('{' and '}') to
+enclose the attribute name and possibly additional arguments.
+
+   Many commands have been introduced over time, so some commands require a
+minimum OS version.  These commands may be used without too much worry
+about compatibility since older versions of Amigaguide largely ignore
+unknown commands.  Where a command only works on more recent versions of
+the OS, they will be followed by a "V39" or "V40", otherwise they work on
+any Amiga.  V39 is AmigaOS/Workbench release 3.0 (only on A1200's and
+A4000's), and V40 is release 3.1 (available to anyone willing to pay
+through the butt for it).
+
+   To avoid complications in viewing this document with Amigaguide, all the
+commands listed will not include the necessary '@' - but don't forget it
+when you are authoring an Amigaguide document!
+
+
+ <input type="button" onclick="location.href='#global_commands';" value=" Global Commands "> 
+ <input type="button" onclick="location.href='#node_commands';" value=" Node Commands "> 
+ <input type="button" onclick="location.href='#attribute_commands';" value=" Attribute Commands "> 
+
+
+<hr>
+<a id="paths_and_nodes"></a><h2>Amigaguide.guide/Paths and Nodes</h2><input type="button" onclick="location.href='#global_commands';" value="Browse &gt;"><input type="button" onclick="location.href='#amigaguide_background';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Paths and Nodes
+===============
+
+   The commands INDEX, HELP, NEXT, PREV, TOC and the all purpose hypertext
+link specify other nodes to jump to.  They all support the naming of nodes
+within the current document, but they also all support a path along with
+that name which lets the node be located in any Amigaguide document.
+
+   It is really the essence of the simple.  To access a node in another
+document, simply put an AmigaDOS file path before the node name.  You do
+not need a complete path including a volume name, if you are sure that the
+file is going to be where it should be (generaly, if it is not in the same
+directory as the main document, you should use a full path, maybe an
+assigned volume name).  Some example paths are:  "s:help.guide/main",
+"Amigaguide.guide/Copyright".
+
+   If you are running AmigaOS 3.0 or above, you can jump to any file that is
+supported by Datatypes - pictures, animation, anything.  You must still
+give a "node" name, even though the file is not an Amigaguide file and has
+no "nodes" - so just use "main":  "picture.iff/main".
+
+
+<hr>
+<a id="global_commands"></a><h2>Amigaguide.guide/Global Commands</h2><input type="button" onclick="location.href='#node_commands';" value="Browse &gt;"><input type="button" onclick="location.href='#paths_and_nodes';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Global Commands
+***************
+
+Global Commands
+===============
+
+<b>$VER: &lt;AmigaDOS version string&gt;</b>
+     Specify an Amiga standard version string.  "VER" must be uppercase.
+     The format for an Amiga version string is:  &lt;name&gt; (mm/dd/yy).  If you
+     have this in your Amigaguide file, you can use the AmigaDOS command
+     "Version" to get the string.
+
+<b>(C) &lt;copyright&gt;</b>
+     Specify a copyright notice for this file.
+
+<b>AUTHOR &lt;name&gt;</b>
+     Specify the author of this file.
+
+<b>DATABASE &lt;name&gt;</b>
+     Identifies this file as an Amigaguide document.  Must be the very first
+     thing in the file!
+
+<b>DNODE &lt;name&gt;</b>
+     This is an obsolete command, do not use.  It used to be for indicating
+     a "dynamic node", but is not needed because the Amigaguide system will
+     search for a node that doesn't exist, at which point a dynamic node
+     host can return the node.
+
+<b>ENDNODE</b>
+     Specify the end of a hypertext node definition.
+
+<b>FONT &lt;name&gt; &lt;size&gt;</b>
+     Specify the font to use for the database.
+
+<b>HEIGHT &lt;rows&gt;</b>
+     The number of rows in the largest node.
+
+<b>HELP  </b>
+     Specify a help node accessible with the "Help" button.
+
+<b>INDEX &lt;path/node&gt;</b>
+     Specify an index node accessible with the "Index" button.
+
+<b>MACRO &lt;name&gt; &lt;commands&gt;</b>
+     Define a macro for this document.  A macro is made up of attribute
+     commands and or other macros, and is used like other attributes.  A
+     macro can override the built in attributes.  A macro can accept
+     arguments by embeding a '$' symbol with a number, for each argument
+     supported; IE, '$1', '$2', etc.  If an argument is given when using
+     the macro, but is not defined in the macro, then it simply doesn't
+     appear, which might be usefull to somebody.  V40.
+
+	     Example:
+
+              @macro bold "@{b} $1 @{ub}"
+                ...
+          
+              This is an example of a @{bold "bold"} macro.
+
+<b>MASTER &lt;path&gt;</b>
+     Specifies the AmigaDOS file path of the original document this
+     Amigaguide file was derived from.
+
+<b>NODE &lt;name&gt; &lt;title&gt;</b>
+     Specify the beginning of a hypertext node definition.
+
+<b>ONCLOSE &lt;rxcommand&gt;</b>
+     Specify an ARexx script to execute when this document is closed.  The
+     script's return value is not significant.  V40.
+
+<b>ONOPEN &lt;rxcommand&gt;</b>
+     Specify an ARexx script to execute when this document is opened.  The
+     document will not be opened if the script returns an error.  V40.
+
+<b>REM &lt;remark&gt;</b>
+<b>REMARK &lt;remark&gt;</b>
+     Used to place a remark in the document which is not displayed.
+
+<b>SMARTWRAP</b>
+     A more inteligent word wrapping algorithm than WORDWRAP.  Paragraphs
+     must be separated by two line feeds (visualy, a blank line).  V40.
+
+<b>TAB &lt;num&gt;</b>
+     Define the size in spaces of a tab.  Defaults to 8.  V40.
+
+<b>WIDTH &lt;chars&gt;</b>
+     The number of columns in the largest node.
+
+<b>WORDWRAP</b>
+     Use wordwrapping for all paragraphs.  To be wordwrapped, the paragraph
+     must have no line feeds.  V39.  Since this is ugly to work with, and
+     ugly to look at in Amigaguide 2.x and lower, you should use SMARTWRAP
+     and write your Amigaguide files to look wordwrapped - this makes your
+     document look decent on all systems while taking advantage of V40 and
+     above since SMARTWRAP will be ignored on pre-V40 Amiga's.
+
+
+<hr>
+<a id="node_commands"></a><h2>Amigaguide.guide/Node Commands</h2><input type="button" onclick="location.href='#attribute_commands';" value="Browse &gt;"><input type="button" onclick="location.href='#global_commands';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Node Commands
+*************
+
+Node Commands
+=============
+
+<b>\ </b>
+     Sometimes it is necessary to be able to use the '@' symbol in your
+     document.  To prevent it from being interpreted as a command, use the
+     '\' to escape it:  '\@'.  To use a '\' itself, you must also escape
+     it: '\\'.
+
+<b>FONT &lt;name&gt; &lt;size&gt;</b>
+     Specify the font to use for this node.  The name must be the complete
+     name of the font, IE:  "times.font".
+
+<b>HELP &lt;path/node&gt;</b>
+     Specify a help node accessible with the "Help" button.
+
+<b>INDEX &lt;path/node&gt;</b>
+     Specify a help node accessible with the "Help" button.
+
+<b>KEYWORDS &lt;keywords&gt;</b>
+     Keywords for this node.  Not currently used by Amigaguide.
+
+<b>MACRO &lt;name&gt; &lt;commands&gt;</b>
+     Same as the global version.
+
+<b>NEXT &lt;path/node&gt;</b>
+     Define the next logical node (if not physicaly located right after this
+     one) accessible with the "Browse &gt;" button.
+
+<b>ONCLOSE &lt;rxcommand&gt;</b>
+     Specify an ARexx script to execute when this node is closed.  The
+     script's return value is not significant.  V40.
+
+<b>ONOPEN &lt;rxcommand&gt;</b>
+     Specify an ARexx script to execute when this node is opened.  The node
+     will not be opened if the script returns an error.  V40.
+
+<b>PREV &lt;path/node&gt;</b>
+     Define the previous logical node (if not physicaly located right before
+     this one) accessible with the "&lt; Browse" button.
+
+<b>SMARTWRAP</b>
+     Same as the global version, but only effective for this node.  Note:
+     No matter where SMARTWRAP appears in the node, it will effect the
+     <i>entire</i> node.
+
+<b>TAB &lt;num&gt;</b>
+     Define the size in spaces of a tab.  Defaults to 8.  V40.
+
+<b>TITLE &lt;title&gt;</b>
+     Specifies the title of this node, which is displayed in the title bar
+     of the window when this node is selected.  Must begin at the start of
+     a line.
+
+<b>TOC &lt;path/name&gt;</b>
+     Specifies the table of contents for this node (the default is the node
+     "MAIN") accessible with the "Contents" button.
+
+<b>WORDWRAP</b>
+     Same as the global version, but only effective for this node.
+
+
+<hr>
+<a id="attribute_commands"></a><h2>Amigaguide.guide/Attribute Commands</h2><input type="button" onclick="location.href='#node_commands';" value="Browse &lt;"><input type="button" onclick="location.href='#main';" value="Contents">
+Attribute Commands
+******************
+
+Attribute Commands
+==================
+
+<b>{&lt;label&gt; &lt;command&gt;}</b>
+     Specify a hypertext link.  Not really an attribute per se, but shares a
+     similar syntax and scope.  It may be specified anywhere on a line.
+
+     The command is usualy "LINK", to specify a normal hypertext link.
+     There are other commands as follows:
+
+    <b>ALINK &lt;path/name&gt; &lt;line&gt;</b>
+          Display the hypertext node in a new window, starting at &lt;line&gt;.
+          This no longer works in V39 and up (why not??).
+
+    <b>CLOSE</b>
+          Close the window, to be used with ALINK windows.  Doesn't work in
+          V39 and up.
+
+    <b>LINK &lt;path/name&gt; &lt;line&gt;</b>
+          Display the hypertext node, starting at &lt;line&gt;.
+
+    <b>RX &lt;command&gt;</b>
+          Execute an ARexx script.
+
+    <b>RXS &lt;command&gt;</b>
+          Execute an ARexx string file.
+
+    <b>SYSTEM &lt;command&gt;</b>
+          Execute an AmigaDOS command.
+
+    <b>QUIT</b>
+          Shutdown the current database.  Doesn't work in V39 and up.
+
+     The node is the name of a node in this document, or a path to a node in
+     another document.  In AmigaOS 3.0 and above, the node may be a path to
+     any type of file which is recognized by the Datatypes system.
+
+<b>{AMIGAGUIDE}</b>
+     Displays the word "Amigaguide(R)" in bold.  V40.
+
+<b>{APEN &lt;n&gt;}</b>
+     Change the foreground (text) colour to specified pen number.  V40.
+
+<b>{B}</b>
+     Turn on bolding.  V39.
+
+<b>{BG &lt;colour&gt;}</b>
+     Change the background to a preferences defined colour.  Colour can be:
+
+    <b>Text</b>
+    <b>Shine</b>
+    <b>Shadow</b>
+    <b>Fill</b>
+    <b>FillText</b>
+    <b>Background</b>
+    <b>Highlight</b>
+<b>{BODY}</b>
+     Restore default formatting for normal body text.  V40.
+
+<b>{BPEN &lt;n&gt;}</b>
+     Change the background colour to specified pen number.  V40.
+
+<b>{CLEARTABS}</b>
+     Restore default tabs.  V40.
+
+<b>{CODE}</b>
+     Turn off wordwrapping.  V40.
+
+<b>{FG &lt;colour&gt;}</b>
+     Change the foreground colour.  See command BG for colours.  V40.
+
+<b>{I}</b>
+     Turn on italics.  V39.
+
+<b>{JCENTER}</b>
+     Turn on centered justification.  V40.
+
+<b>{JLEFT}</b>
+     Turn on left justification.  V40.
+
+<b>{JRIGHT}</b>
+     Turn on right justification.  V40.
+
+<b>{LINDENT &lt;n&gt;}</b>
+     Specify an indent in spaces for the body of paragraphs.  V40.
+
+<b>{LINE}</b>
+     Force a line feed without starting a new paragraph.  V40.
+
+<b>{PAR}</b>
+     Specifies the end of the paragraph, equivalent to two line feeds and
+     usable with SMARTWRAP.  V40.
+
+<b>{PARD}</b>
+     Reset to default paragraph settings:  APEN to 1, BPEN to 0, original
+     font, and LINDENT to 0.  V40.
+
+<b>{PARI &lt;n&gt;}</b>
+     Specify an indent in spaces for the first line of a paragraph.  Value
+     is relative to LINDENT and may be negative.  V40.
+
+<b>{PLAIN}</b>
+     Turns off all style attributes (bold, italics, underlineing).  V40.
+
+<b>{SETTABS &lt;n&gt; ... &lt;n&gt;}</b>
+     Specify a series of tab stops in spaces.  V40.
+
+<b>{TAB}</b>
+     Outputs a real tab character.  V40.
+
+<b>{U}</b>
+     Turn on underlining.  V39.
+
+<b>{UB}</b>
+     Turn off bolding.  V39.
+
+<b>{UI}</b>
+     Turn off italics.  V39.
+
+<b>{UU}</b>
+     Turn off underlining.  V39.
+
+<hr>
+ERROR</div>
+</body>
+</html>
