@@ -21,6 +21,7 @@ These features are already implemented and functional:
 - Automatic Table of Contents generation from headings
 - Raw HTML passthrough (audio, video, etc.)
 - Built-in XSS protection with sanitization of dangerous content
+- Warnings for syntax and security issues
 - Clean, semantic HTML5 output
 - Ready-to-use .exe binary (no installation required)
 
@@ -33,7 +34,6 @@ Features and improvements currently in development or planned:
 - [ ] Optional math / LaTeX support (KaTeX or MathJax integration)
 - [ ] Definition list syntax (`Term\n: Definition`)
 - [ ] Partial HTML-to-Markdown reverse conversion
-- [ ] Web-based live preview (using WebView2 or local web server)
 - [ ] Command-line arguments: toggle features (e.g. `--no-toc`, `--unsafe-html`)
 - [ ] More robust error reporting (invalid syntax, malformed input)
 - [ ] Configurable templates / theming support for output

@@ -24,8 +24,9 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
   - Inline HTML passthrough
   - YAML front-matter → meta tags
   - Automatic Table of Contents `[TOC]`
-- Built-in 🛡️ **XSS protection**
-- Produces **clean, semantic HTML** — easy to embed anywhere
+- 🛡️ Built-in **XSS protection**
+- 🚨 Warnings for syntax and security issues
+- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ---
 

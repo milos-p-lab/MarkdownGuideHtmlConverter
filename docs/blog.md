@@ -1,7 +1,7 @@
 # Why I Built My Own Markdown to HTML Converter
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-18  
+> 🗓️ **Date:** 2025-07-19  
 > **Description:** "A lightweight, safe and complete .md to .html converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
 ## Brighter, Smaller, Safer: Why I Built My Own Markdown to HTML Converter
@@ -24,7 +24,7 @@ So I built my own.
 
 ---
 
-## Why Not Use Pandoc or Typora?
+## 🔍 Why Not Use Pandoc or Typora?
 
 These tools are powerful. But they weren't right for my needs:
 
@@ -38,81 +38,71 @@ When you care about **structure, safety, and full feature coverage**, even power
 
 ---
 
-## What My Converter Supports
+## ✅ Why Build a New One?
 
-Built in C#, my converter already supports:
+I needed a tool that:
 
-- Headings (`#` to `######`)
-- **Bold**, *italic*, ~~strikethrough~~, ==highlight==
-- Combined styles (e.g. `**==highlighted bold==**`)
-- Nested **ordered/unordered lists**
-- **Task lists** with checkbox states (`- [x]`, `- [ ]`)
-- **Blockquotes** and inline quotes
-- **Code blocks** with language hinting
-- **Inline code**
-- **Horizontal rules**
-- **Hyperlinks** and images (with alt/title)
-- **Tables** with column alignment
-- **Footnotes** (multi-line, styled, with backlinks)
-- **Raw HTML passthrough** (`<video>`, `<br>`, etc.)
-- **YAML front matter** → converted into HTML `<head>` tags
-- **Automatic Table of Contents** via `[TOC]` marker
-- 🛡️ **XSS protection** — dangerous tags/attributes are detected and sanitized
+- Generates valid HTML5 (passes W3C validation)
+- Has built-in XSS protection
+- Supports all standard Markdown features — and more:
+  - Nested lists
+  - Tables with alignment
+  - Footnotes with backlinks
+  - Raw HTML passthrough (e.g., `audio`, `video`, `br`, etc.)
+  - Front matter → HTML `head` meta
+  - [TOC] marker for automatic Table of Contents
+- Works as a pure C# class, without any dependencies
+- Is small enough to embed in any app (desktop, console, or web)
+
+---
+
+## 🛡️ New Bonus Feature: Warnings for Syntax and Security Issues
+
+The converter now includes a built-in warning system:
+
+- 🚨 Detects syntax errors (e.g. unclosed **bold**, *italic*, ==highlight==)
+- 🔒 Scans for XSS and phishing attempts (e.g. `<script>`, malformed `<a href>`, etc.)
+- 📄 Collects all issues and appends them to the output HTML in a styled warning block
+- 📌 Includes line numbers and position info for easier debugging
+- 🎯 Uses inline styling so the warning block is always visible — even without external CSS
+
+This makes the tool much safer for batch processing or handling untrusted Markdown sources.
 
 Output is minimalistic, semantic HTML5 — no extra wrappers, no unnecessary classes.
 
 ---
 
-## Example
+## 🧪 How I Use It
 
-Markdown:
+This project started as a personal need for clean, fast, embeddable Markdown-to-HTML conversion.
 
-```md
-- [x] Done
-- [ ] In progress
+Since then, I’ve used it in:
 
-[^1]: This is a multi-line footnote.  
-      It supports **inline styles** and proper backlinking.
+- 📘 Static website generators
+- 🧩 WebView2-based desktop apps
+- 🛠️ Batch documentation tools
+- 🧪 Testing Markdown parsers and XSS filters
 
-[link](https://example.com)
-```
+And it continues to evolve.
 
-HTML:
+## 🧠 Design Philosophy
 
-```html
-<ul>
-  <li><input type="checkbox" checked> Done</li>
-  <li><input type="checkbox"> In progress</li>
-</ul>
-<p><sup><a href="#fn1" id="ref1">1</a></sup></p>
-<div class="footnotes">
-  <ul>
-    <li id="fn1">This is a multi-line footnote.<br>
-    It supports <strong>inline styles</strong> and proper backlinking. <a href="#ref1" class="footnote-backref">↩</a></li>
-  </ul>
-</div>
-```
+One C# file. One method: Markdown.ToHtml()
 
----
+- ⚡ No runtime dependencies
+- 🛡️ Safety and standards-compliance by default
+- 🔧 Easy to read, fork, modify, extend
 
-## How to Use It
-
-If you just want to test the converter without compiling the source, you can use the prebuilt `.exe`:
-
-Supports: `.NET Framework 4.0+`, Windows systems (XP, Vista, 7, 8, 10, 11).
-
-Example usage:
+If you like this approach, try the .exe version or include the class in your project:
 
 ```bash
 mdoc.exe input.md
 ```
 
-GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
-
-If you’re happy with the results and want more control or customization, simply copy the C# class into your own project and call:
+Or in C#:
 
 ```csharp
-string html = Markdown.ToHtml(mdContent);
+string html = Markdown.ToHtml(mdSource);
 ```
 
 ---
@@ -121,10 +111,9 @@ string html = Markdown.ToHtml(mdContent);
 
 Planned features:
 
-- Optional math / LaTeX support
 - Definition list syntax
+- Optional math / LaTeX support
 - HTML-to-Markdown (partial) reverse support
-- Web-based live preview mode
 
 ---
 
@@ -133,5 +122,7 @@ Planned features:
 When existing tools don't meet your expectations — build your own.
 
 This converter started as a hobby, but it's now a practical tool I trust in my own workflow. If you're looking for a simple, powerful, and secure Markdown-to-HTML converter, feel free to try it or contribute.
+
+Made with ❤️ and precision by Miloš Perunović
 
 👉 [Try it on GitHub](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
