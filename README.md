@@ -93,9 +93,18 @@ This converter includes built-in logic to detect and sanitize potentially danger
 - Detects and blocks tags such as `<script>`, `<iframe>`, `<object>`, and other potentially unsafe HTML elements.
 - Blocks dangerous attributes like `onerror`, `onclick`, `onload`, etc.
 - Decodes and analyzes **HTML entity encoding** (e.g. `&#106;...`) and **URL encoding** (e.g. `%6a%61...`) to prevent obfuscated XSS attacks.
-- Automatically escapes or rejects unsafe input during conversion, ensuring that even cleverly encoded payloads cannot slip through unnoticed.
+- Automatically inserts warnings for any detected issues, allowing users to fix Markdown syntax errors without breaking the conversion process.
 
 No external libraries or HTML sanitizers are required — the security logic is fully self-contained.
+
+### 🚨 Warnings for Syntax and Security Issues
+
+- The converter detects common Markdown syntax mistakes (e.g., unclosed **bold**, *italic*, ==highlight==, etc.).
+- It also scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+- Instead of halting the conversion, all issues are collected and displayed as a styled warning block appended to the end of the generated HTML.
+- Each warning includes the line number (and optionally the position) where the issue occurred.
+- Inline fallback styling is used to ensure visibility of warnings, even without custom CSS.
+- This feature improves robustness, especially for automated batch conversions or unverified input sources.
 
 ### ⚙️ Usage (Markdown)
 
