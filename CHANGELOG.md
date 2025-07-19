@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - ⚠️ New warning system for malformed Markdown syntax (e.g., unclosed `**`, `*`, `==`).
+- 🚨 Warrnings for XSS and phishing attempts (e.g., `<script>`, malformed `<a href>`, etc.).
 - Warnings are collected during parsing and displayed at the end of the HTML output.
-- Warrnings for XSS and phishing attempts (e.g., `<script>`, malformed `<a href>`, etc.).
 - Default visual styling for warnings via inline `<div>` styling (visible even without external CSS).
 
 ### Fixed
