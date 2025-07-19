@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace m.format.conv
 {
     /// <summary>
-    /// Converts Markdown documents.
+    /// Converts Markdown to HTML.
     /// </summary>
     /// <version>1.3.0</version>
     /// <date>2025-07-19</date>
@@ -280,11 +280,13 @@ namespace m.format.conv
 
                     if (level > ListLastLevel)
                     {
+                        line = "";
                         for (int j = 0; j < level - ListLastLevel; j++)
                         {
-                            line = $"<ul>\n{ind}<li>{inputBox}{content}";
+                            line += $"<ul>\n{ind}<li>";
                             ListClosingTags.Push("</ul>\n");
                         }
+                        line += inputBox + content;
                     }
                     else if (level < ListLastLevel)
                     {
@@ -310,11 +312,13 @@ namespace m.format.conv
 
                     if (level > ListLastLevel)
                     {
+                        line = "";
                         for (int j = 0; j < level - ListLastLevel; j++)
                         {
-                            line = $"<ol>\n{ind}<li>{content}";
+                            line += $"<ol>\n{ind}<li>";
                             ListClosingTags.Push("</ol>\n");
                         }
+                        line += content;
                     }
                     else if (level < ListLastLevel)
                     {
