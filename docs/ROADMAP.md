@@ -32,7 +32,7 @@ These features are already implemented and functional:
 Features and improvements currently in development or planned:
 
 - [ ] Optional math / LaTeX support (KaTeX or MathJax integration)
-- [ ] Definition list syntax (`Term\n: Definition`)
+- [x] Definition list syntax (`Term\n: Definition`)
 - [ ] Partial HTML-to-Markdown reverse conversion
 - [ ] Command-line arguments: toggle features (e.g. `--no-toc`, `--unsafe-html`)
 - [ ] More robust error reporting (invalid syntax, malformed input)
