@@ -8,27 +8,26 @@
 <body>
 
 <ul>
-  <li><a href="#heading-1">Heading 1</a>
+  <li><a href="#basic-text-formatting">Basic Text Formatting</a>  </li>
+  <li><a href="#escaped-characters">Escaped characters</a>  </li>
+  <li><a href="#images-links-and-email">Images, Links, and Email</a>  </li>
+  <li><a href="#media-embedding">Media Embedding</a>  </li>
+  <li><a href="#subtitle-emitalicem">Subtitle <em>italic</em></a>  </li>
+  <li><a href="#markhighlighted-subtitlemark"><mark>Highlighted Subtitle</mark></a>
   <ul>
-    <li><a href="#basic-text-formatting">Basic Text Formatting</a>    </li>
-    <li><a href="#escaped-characters">Escaped characters</a>    </li>
-    <li><a href="#images-links-and-email">Images, Links, and Email</a>    </li>
-    <li><a href="#media-embedding">Media Embedding</a>    </li>
-    <li><a href="#subtitle-emitalicem">Subtitle <em>italic</em></a>    </li>
-    <li><a href="#markhighlighted-subtitlemark"><mark>Highlighted Subtitle</mark></a>
-    <ul>
-      <li><a href="#subsubtitle">Subsubtitle</a></li>
-    </ul>
-    </li>
+    <li><a href="#subsubtitle">Subsubtitle</a></li>
   </ul>
   </li>
 </ul>
 
-<h1 id="heading-1">Heading 1</h1>
-<p><strong><em>Hello</em>world</strong><em></em>[ERR: Unclosed italic tag]</p>
 <h2 id="basic-text-formatting">Basic Text Formatting</h2>
+<p>Normal normal <strong>bold<br>
+ continues</strong> normal</p>
+<p>Normal normal <em>italic continues</em> normal</p>
 <p>Normal * <strong>bold</strong> <em>italic</em> <strong><em>bolditalic</em></strong> normal <del>strikethrough</del> <mark>highlighted</mark> normal <strong><mark>highlighted bold</mark></strong> normal == nohighlighted== ~~ nostrikethrough~~ normal</p>
 <p>Nested <strong>bold <em>italic</em> bold</strong></p>
+<p>*this is not italic*</p>
+<p># this is not heading</p>
 <h2 id="escaped-characters">Escaped characters</h2>
 <p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
 <p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
@@ -36,14 +35,16 @@
 &amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;euro; are HTML entities.
 </code></pre>
 <p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
-<p>Paragraph first line<br>second line (v1).</p>
-<p>Paragraph first line<br> second line (v2).</p>
+<p>Paragraph first line<br>
+ second line (v1).</p>
+<p>Paragraph first line<br>
+ second line (v2).</p>
 <h2 id="images-links-and-email">Images, Links, and Email</h2>
 <p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo" title="HTML 5 Logo">.</p>
 <p><a href="http://google.com">http://google.com</a></p>
-<p><a href="http://google.com">http://google.com</a></p>
+<a href="http://google.com">http://google.com</a>
 <p><a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
-<p><a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
+<a href="mailto:user@example.com" class="email-link">user@example.com</a>
 <p>Water H<sub>2</sub>O. <br>E = mc<sup>2</sup>.</p>
 <p>This is some text with a footnote.<sup><a href="#fn1" id="ref1" title="This is > text of the **first** footnote. [link](https://example.com)
 This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
@@ -125,9 +126,6 @@ bool ok = x &gt; 0;
 <p>Ccc ccc ccc ccc.</p>
 <h2 id="markhighlighted-subtitlemark"><mark>Highlighted Subtitle</mark></h2>
 <h3 id="subsubtitle">Subsubtitle</h3>
-<p>x<strong><em>BI</em></strong>x<strong>B</strong>x<em>I</em>x</p>
-<p>*this is not italic*</p>
-<p># this is not heading</p>
 <p>2025-06-25&nbsp; * Fixed bug in <strong><em>Chrome</em></strong> 124 installation process</p>
 <p>2025-06-24&nbsp; ^ Improved Firefox version detection</p>
 <table>

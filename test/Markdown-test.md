@@ -8,15 +8,21 @@ date: 2025-07-18
 
 [TOC]
 
-# Heading 1
-
-***Hello*world***
-
 ## Basic Text Formatting
+
+Normal normal **bold  
+continues** normal
+
+Normal normal *italic
+continues* normal
 
 Normal \* **bold** *italic* ***bolditalic*** normal ~~strikethrough~~ ==highlighted== normal **==highlighted bold==** normal == nohighlighted== ~~ nostrikethrough~~ normal
 
 Nested **bold *italic* bold**
+
+\*this is not italic\*
+
+\# this is not heading
 
 ## Escaped characters
 
@@ -120,12 +126,6 @@ Ccc ccc ccc ccc.
 ## ==Highlighted Subtitle==
 
 ### Subsubtitle
-
-x***BI***x**B**x*I*x
-
-\*this is not italic\*
-
-\# this is not heading
 
 2025-06-25  \* Fixed bug in ***Chrome*** 124 installation process
 
