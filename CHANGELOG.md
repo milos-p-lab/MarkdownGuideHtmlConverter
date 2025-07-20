@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] - 2025-07-20
+
+### Changed
+- Allocate more space for the HTML output
+  - This change improves performance by reducing the number of memory allocations during string concatenation.
+
 ## [1.3.0] – 2025-07-19
 
 ### Added
