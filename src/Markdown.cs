@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>1.3.0</version>
-    /// <date>2025-07-19</date>
+    /// <version>1.3.1</version>
+    /// <date>2025-07-20</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -21,19 +21,17 @@ namespace m.format.conv
         /// <summary>
         /// Converts Markdown document to HTML.
         /// </summary>
-        /// <param name="doc">The Markdown document as a string.</param>
+        /// <param name="md">The Markdown document as a string.</param>
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
         /// <returns>HTML representation of the markdown</returns>
-        public static string ToHtml(string doc, string lang = "en", string head = null)
+        public static string ToHtml(string md, string lang = "en", string head = null)
         {
-            Markdown md = new Markdown();
-
             Stopwatch sw = Stopwatch.StartNew();
 
             // Convert Markdown to HTML body
             // This method will also extract metadata from the document, such as title, author, and date.
-            string body = md.ToHtmlBody(doc, out Dictionary<string, string> metadata);
+            string body = new Markdown().ToHtmlBody(md, out Dictionary<string, string> metadata);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -109,7 +107,7 @@ namespace m.format.conv
         /// HTML body content.
         /// This is where the converted HTML will be stored.
         /// </summary>
-        private readonly StringBuilder Body = new StringBuilder();
+        private StringBuilder Body;
 
         /// <summary>
         /// Paragraph content.
@@ -175,6 +173,8 @@ namespace m.format.conv
         /// <returns>HTML representation of the markdown</returns>
         public string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
         {
+            Body = new StringBuilder(doc.Length * 2); // Allocate more space for the HTML output
+
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             LinesCount = Lines.Length;
             metadata = new Dictionary<string, string>();
