@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.0] - 2025-07-21
 
 ### Added
-- 🔁 Initial HTML → Markdown converter (HtmlToMarkdown.cs)
+- 🔁 Initial HTML → Markdown converter (HtmlMd.cs)
   - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.
