@@ -12,7 +12,7 @@ namespace m.format.conv
     /// Converts Markdown to HTML.
     /// </summary>
     /// <version>1.3.1</version>
-    /// <date>2025-07-20</date>
+    /// <date>2025-07-21</date>
     /// <author>Miloš Perunović</author>
     public class Markdown
     {
@@ -173,7 +173,7 @@ namespace m.format.conv
         /// <returns>HTML representation of the markdown</returns>
         public string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
         {
-            Body = new StringBuilder(doc.Length * 2); // Allocate more space for the HTML output
+            Body = new StringBuilder(doc.Length * 2); // Pre-allocate space for the HTML output
 
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             LinesCount = Lines.Length;
@@ -215,15 +215,29 @@ namespace m.format.conv
                 }
             }
 
+            // Parse footnotes at the end of the document
             ParseFootnotes(Lines, Math.Max(0, LinesCount - FootnoteScanLines));
 
             for (LineNum = startLine; LineNum < LinesCount; LineNum++)
             {
                 string line = Lines[LineNum];
                 string trimLine = line.Trim();
+                char firstChar = trimLine.Length > 0 ? trimLine[0] : '\0'; // First character of the line. If empty, it's '\0'
+
+                // Determine the indentation level
+                int indentSpc = 0; // Count of leading spaces
+                int indentPos = 0; // Position of the first non-space character
+                if (firstChar != '\0')
+                {
+                    while (indentPos < line.Length && (line[indentPos] == ' ' || line[indentPos] == '\t'))
+                    {
+                        indentSpc += (line[indentPos] == '\t') ? 4 : 1;
+                        indentPos++;
+                    }
+                }
 
                 // Empty line
-                if (trimLine.Length == 0)
+                if (firstChar == '\0')
                 {
                     CurrState = State.Empty;
                     emptyCnt++;
@@ -242,6 +256,8 @@ namespace m.format.conv
                         emptyCnt = 1;
                     }
                 }
+
+                // Line break
                 else if (trimLine == "\\")
                 {
                     CurrState = State.Break;
@@ -251,7 +267,7 @@ namespace m.format.conv
                 }
 
                 // Heading
-                else if (IsHeading(line, out int level, out string content, out string id))
+                else if (firstChar == '#' && ProcessHeading(line, out int level, out string content, out string id))
                 {
                     CurrState = State.Heading;
                     CloseBlock();
@@ -259,7 +275,7 @@ namespace m.format.conv
                 }
 
                 // Unordered list, task lists
-                else if (IsUnorderedList(line, out _, out level, out _, out content))
+                else if (IsUnorderedList(line, indentSpc, indentPos, out level, out _, out content))
                 {
                     string inputBox = "";
                     if (TryParseTaskList(line, out string content2, out bool isChecked))
@@ -301,7 +317,7 @@ namespace m.format.conv
                 }
 
                 // Ordered list
-                else if (IsOrderedList(line, out _, out level, out _, out content))
+                else if (IsOrderedList(line, indentSpc, indentPos, out level, out _, out content))
                 {
                     CurrState = State.OrderedList;
                     ListState = State.OrderedList;
@@ -341,9 +357,10 @@ namespace m.format.conv
                 }
 
                 // Blockquote
-                else if (IsBlockquote(trimLine, out content))
+                else if (firstChar == '>')
                 {
                     CurrState = State.Blockquote;
+                    content = ParseInlineStyles(line.Substring(1).TrimStart());
                     if (PrevState != State.Blockquote)
                     {
                         CloseBlock();
@@ -353,7 +370,7 @@ namespace m.format.conv
                 }
 
                 // Code block
-                else if (IsCodeFence(trimLine, out string fence, out string lang))
+                else if ((firstChar == '`' || firstChar == '~') && IsCodeFence(trimLine, out string fence, out string lang))
                 {
                     CurrState = State.CodeBlock;
                     CodeFenceSeq = fence;
@@ -381,7 +398,7 @@ namespace m.format.conv
                 }
 
                 // Raw HTML
-                else if (ProcessRawHtml(line, trimLine, out State state))
+                else if (firstChar == '<' && ProcessRawHtml(line, trimLine, out State state))
                 {
                     CloseBlock();
                     CurrState = state;
@@ -389,7 +406,7 @@ namespace m.format.conv
                 }
 
                 // Tables
-                else if (trimLine.StartsWith("|") && LineNum < LinesCount - 2 && IsTableHeaderSeparator(Lines[LineNum + 1]))
+                else if (firstChar == '|' && LineNum < LinesCount - 2 && IsTableHeaderSeparator(Lines[LineNum + 1]))
                 {
                     CurrState = State.Table;
                     CloseBlock();
@@ -567,6 +584,8 @@ namespace m.format.conv
             StringBuilder sb = new StringBuilder();
 
             int len = line.Length;
+
+            if (len == 0) { return ""; }
 
             int bld = 0, itl = 0, hl = 0, del = 0;
 
@@ -1398,7 +1417,7 @@ namespace m.format.conv
         /// </param>
         /// <param name="content">When this method completes, contains the heading content (without leading '#' characters and space) if the line is a heading; otherwise, an empty string.</param>
         /// <returns><see langword="true"/> if the line is a valid markdown heading; otherwise, <see langword="false"/>.</returns>
-        private bool IsHeading(string line, out int level, out string content, out string id)
+        private bool ProcessHeading(string line, out int level, out string content, out string id)
         {
             level = 0;
             content = "";
@@ -1434,44 +1453,32 @@ namespace m.format.conv
         /// </summary>
         public bool IsUnorderedList(
             string line,
-            out int indent,
+            int indentSpc,
+            int indentPos,
             out int level,
             out char bullet,
             out string content)
         {
-            indent = 0;
             level = 0;
             bullet = '\0';
             content = "";
 
-            if (string.IsNullOrWhiteSpace(line)) { return false; }
-
-            // Count leading spaces/tabs
-            int i = 0;
-            while (i < line.Length && (line[i] == ' ' || line[i] == '\t'))
-            {
-                indent += (line[i] == '\t') ? 4 : 1;
-                i++;
-            }
-
-            if (i >= line.Length) { return false; }
-
-            char firstChar = line[i];
+            char firstChar = line[indentPos];
 
             if (firstChar == '-' || firstChar == '*' || firstChar == '+')
             {
-                i++;
+                indentPos++;
 
                 // Must be a space or tab after the bullet character.
-                if (i < line.Length && (line[i] == ' ' || line[i] == '\t'))
+                if (indentPos < line.Length && (line[indentPos] == ' ' || line[indentPos] == '\t'))
                 {
                     bullet = firstChar;
 
                     // List level is floor(indent / 2) + 1
-                    level = (indent / 2) + 1;
+                    level = (indentSpc / 2) + 1;
 
                     // Get the item text
-                    content = ParseInlineStyles(line.Substring(i + 1).Trim());
+                    content = ParseInlineStyles(line.Substring(indentPos + 1).Trim());
 
                     return true;
                 }
@@ -1509,65 +1516,41 @@ namespace m.format.conv
         /// </summary>
         public bool IsOrderedList(
             string line,
-            out int indent,
+            int indentSpc,
+            int indentPos,
             out int level,
             out int number,
             out string content)
         {
-            indent = 0;
             level = 0;
             number = 0;
             content = "";
 
-            if (string.IsNullOrWhiteSpace(line)) { return false; }
-
-            // Count leading spaces/tabs
-            int i = 0;
-            while (i < line.Length && (line[i] == ' ' || line[i] == '\t'))
-            {
-                indent += (line[i] == '\t') ? 4 : 1;
-                i++;
-            }
-
-            if (i >= line.Length || !char.IsDigit(line[i])) { return false; }
+            if (!char.IsDigit(line[indentPos])) { return false; }
 
             // Read number
-            int start = i;
-            while (i < line.Length && char.IsDigit(line[i])) { i++; }
+            int start = indentPos;
+            while (indentPos < line.Length && char.IsDigit(line[indentPos])) { indentPos++; }
 
-            if (i >= line.Length || line[i] != '.') { return false; }
+            if (indentPos >= line.Length || line[indentPos] != '.') { return false; }
 
-            string numberStr = line.Substring(start, i - start);
+            string numberStr = line.Substring(start, indentPos - start);
             if (!int.TryParse(numberStr, out number)) { return false; }
 
-            i++; // skip dot
+            indentPos++; // skip dot
 
             // Must be space or tab
-            if (i >= line.Length || (line[i] != ' ' && line[i] != '\t')) { return false; }
+            if (indentPos >= line.Length || (line[indentPos] != ' ' && line[indentPos] != '\t')) { return false; }
 
-            i++; // skip space/tab
+            indentPos++; // skip space/tab
 
             // Item text
-            content = ParseInlineStyles(line.Substring(i).Trim());
+            content = ParseInlineStyles(line.Substring(indentPos).Trim());
 
             // Recalculate level
-            level = (indent / 2) + 1;
+            level = (indentSpc / 2) + 1;
 
             return true;
-        }
-
-        /// <summary>
-        /// Determines if the given line is a blockquote in markdown format.
-        /// </summary>
-        public bool IsBlockquote(string line, out string content)
-        {
-            content = "";
-            if (line.StartsWith(">"))
-            {
-                content = ParseInlineStyles(line.Substring(1).TrimStart());
-                return true;
-            }
-            return false;
         }
 
         /// <summary>

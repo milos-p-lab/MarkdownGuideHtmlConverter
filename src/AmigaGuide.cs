@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts AmigaGuide documents.
     /// </summary>
-    /// <version>1.0.5</version>
-    /// <date>2025-07-05</date>
+    /// <version>1.4.0</version>
+    /// <date>2025-07-21</date>
     /// <author>Miloš Perunović</author>
     public static class AmigaGuide
     {
@@ -71,8 +71,8 @@ namespace m.format.conv
         /// <param name="metadata">Document title.</param>
         public static string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
         {
-            StringBuilder body = new StringBuilder();
-            int docLen = doc.Length;
+            int len = doc.Length;
+            StringBuilder body = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
             metadata = new Dictionary<string, string>();
 
             bool skip = true;
@@ -81,7 +81,7 @@ namespace m.format.conv
 
             body.Append("<div style=\"white-space: pre; font-family: monospace;\">\n");
 
-            for (int i = 0; i < docLen; i++)
+            for (int i = 0; i < len; i++)
             {
                 char c = doc[i];
                 string tag = "";
@@ -105,7 +105,7 @@ namespace m.format.conv
                         break;
 
                     case '\\':
-                        if (i < docLen - 1)
+                        if (i < len - 1)
                         {
                             if (doc[i + 1] == '\\')
                             {
@@ -122,10 +122,10 @@ namespace m.format.conv
 
                     case '@':
                         {
-                            if (++i < docLen && doc[i] == '{')
+                            if (++i < len && doc[i] == '{')
                             {
                                 // Extracting the tag.
-                                while (++i < docLen && doc[i] != '}')
+                                while (++i < len && doc[i] != '}')
                                 {
                                     tag += doc[i];
                                 }
@@ -153,7 +153,7 @@ namespace m.format.conv
 
                                 i--;
                                 int ti = i;
-                                while (++i < docLen && doc[i] != '\n' && doc[i] != '\r')
+                                while (++i < len && doc[i] != '\n' && doc[i] != '\r')
                                 {
                                     cmd += doc[i];
                                 }
