@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] - 2025-07-20
+## [1.4.0] - 2025-07-21
+
+### Added
+- 🔁 Initial HTML → Markdown converter (HtmlToMarkdown.cs)
+  - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, lists.
+  - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
+  - Implements basic fallback logic and optional attribute handling.
+  - Reversible conversion supported for standard Markdown-generated HTML.
+
+- 📦 New CLI support in mdoc.exe:
+  - Example: mdoc input.html output.md.
 
 ### Changed
-- Allocate more space for the HTML output
-  - This change improves performance by reducing the number of memory allocations during string concatenation.
+- Minor performance improvements, optimizations in Markdown parsing.
+- Pre-allocate space for the HTML output to reduce memory allocations during string concatenation.
 
 ## [1.3.0] – 2025-07-19
 
