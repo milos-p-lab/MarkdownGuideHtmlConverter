@@ -87,7 +87,7 @@ And it continues to evolve.
 
 ## 🧠 Design Philosophy
 
-One C# file. One method: Markdown.ToHtml()
+One C# file. One method: Markdown.Convert()
 
 - ⚡ No runtime dependencies
 - 🛡️ Safety and standards-compliance by default
@@ -104,22 +104,26 @@ mdoc input.html output.md
 Or in C#:
 
 ```csharp
-string html = ConvMarkdownHtml.ToHtml(markdown);
+string html = ConvMarkdownHtml.Convert(markdown);
 ```
 
 ```csharp
-string html = ConvGuideHtml.ToHtml(guide);
+string markdown = ConvHtmlMarkdown.Convert(html);
+```
+
+```csharp
+string html = ConvGuideHtml.Convert(guide);
 ```
 
 ---
 
-## What's Next?
+## 💡 What's Next?
 
 Planned features:
 
+- HTML to Markdown conversion (in progress)
 - Definition list syntax
 - Optional math / LaTeX support
-- HTML-to-Markdown (partial) reverse support
 
 ---
 
@@ -129,6 +133,6 @@ When existing tools don't meet your expectations — build your own.
 
 This converter started as a hobby, but it's now a practical tool I trust in my own workflow. If you're looking for a simple, powerful, and secure Markdown-to-HTML converter, feel free to try it or contribute.
 
-Made with ❤️ and precision by Miloš Perunović
+Made with focus and precision by Miloš Perunović 😊
 
 👉 [Try it on GitHub](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
