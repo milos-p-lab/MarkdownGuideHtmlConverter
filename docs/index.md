@@ -17,7 +17,8 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 ### Converts Markdown `.md` files to valid HTML5 `.html`
 
 - Fully supports:
-  - Headings, bold/italic/strikethrough/highlight
+  - Headings (h1–h6)
+  - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
   - Ordered, unordered, and task lists
   - Tables with alignment
   - Code blocks (with language hints)
@@ -33,7 +34,8 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 
 - Fully supports:
   - Headings (h1–h6)
-  - Bold, italic, and style combinations
+  - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+  - span elements with class attributes (e.g., `<span class="mark">`)
   - Blockquotes
   - Unordered lists
   - ⚠️ Status: Early prototype under testing
@@ -54,7 +56,7 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 
 This library was built with one major principle in mind:
 
-> **Minimal, dependency-free, plug-and-play Markdown → HTML conversion.**
+> **Minimal, dependency-free, plug-and-play Markdown ⇄ HTML and AmigaGuide → HTML conversion.**
 
 It is designed to be seamlessly integrated into:
 
@@ -65,7 +67,15 @@ It is designed to be seamlessly integrated into:
 Just copy the C# class into your project and use it directly:
 
 ```csharp
-string html = Markdown.ToHtml(mdContent);
+string html = ConvMarkdownHtml.Convert(markdown);
+```
+
+```csharp
+string markdown = ConvHtmlMarkdown.Convert(html);
+```
+
+```csharp
+string html = ConvGuideHtml.Convert(amigaGuide);
 ```
 
 No runtime dependencies, no configuration, no surprises.
