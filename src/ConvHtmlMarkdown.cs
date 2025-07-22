@@ -19,7 +19,7 @@ namespace m.format.conv
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        public static string ToMarkdown(string html)
+        public static string Convert(string html)
         {
             return new ConvHtmlMarkdown().ToMarkdownBody(html);
         }

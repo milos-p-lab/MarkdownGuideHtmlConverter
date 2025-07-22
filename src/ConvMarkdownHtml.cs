@@ -25,7 +25,7 @@ namespace m.format.conv
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
         /// <returns>HTML representation of the markdown document</returns>
-        public static string ToHtml(string md, string lang = "en", string head = null)
+        public static string Convert(string md, string lang = "en", string head = null)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
