@@ -14,7 +14,7 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 
 ## 🔧 What It Does
 
-### Converts Markdown `.md` files to valid HTML5
+### Converts Markdown `.md` files to valid HTML5 `.html`
 
 - Fully supports:
   - Headings, bold/italic/strikethrough/highlight
@@ -29,14 +29,24 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 - 🚨 Warnings for syntax and security issues
 - ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
-### Converts HTML back to Markdown
+### Converts HTML `.html` to Markdown `.md`
 
 - Fully supports:
   - Headings (h1–h6)
   - Bold, italic, and style combinations
   - Blockquotes
   - Unordered lists
-  - ⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
+  - ⚠️ Status: Early prototype under testing
+
+### Converts Amino Guide `.guide` files to HTML `.html`
+
+- Converts core AmigaGuide commands:
+  - nodes (`@NODE`, `@ENDNODE`)
+  - navigation links (`@TOC`, `@NEXT`, `@PREV`)
+  - basic text styles (`@{b}`, `@{i}`, `@{u}`)
+- Preserves the document’s structure for a retro feel
+- Generates clean HTML navigation buttons between nodes
+- Escapes special HTML characters to safely display content
 
 ---
 
@@ -81,7 +91,9 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 No setup needed — just download and run:
 
 ```cmd
-mdoc.exe input.md
+mdoc input.md output.html
+mdoc input.html output.md
+mdoc input.guide output.html
 ```
 
 Works on Windows with .NET Framework 4.0+
