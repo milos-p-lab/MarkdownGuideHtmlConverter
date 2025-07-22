@@ -29,7 +29,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 - Syntax and structural warning system for safer, cleaner output
 - Reversible conversion for supported syntax (Markdown ⇄ HTML)
 
-The HTML-to-Markdown converter is under active development and will aim to offer precise, round-trip-compatible output — especially for documents originally produced by this tool.
+🧪 The HTML-to-Markdown converter is under active development and will aim to offer precise, round-trip-compatible output — especially for documents originally produced by this tool.
 
 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
@@ -182,7 +182,7 @@ Example usage for Markdown:
 string markdown = ConvHtmlMarkdown.Convert(html);
 ```
 
-### ⚠️ **Status**: 🧪 Early prototype under testing — will be released in a future version once stable
+### ⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
 
 ---
 
