@@ -100,6 +100,22 @@
     <a href="https://github.com/milos-p-lab/MarkdownGuideHtmlConverter" target="_blank">GitHub ↗</a>
   </nav>
   {{ content }}
+
+  <footer>
+    v1.4.0 – {{ site.time | date: "%Y-%m-%d" }}
+  </footer>
+  
+    <script>
+    (function () {
+      const lastModified = '{{ site.time | date: "%s" }}';
+      const stored = localStorage.getItem("mdghc_last_modified");
+      if (stored && stored !== lastModified) {
+        location.reload(true);
+      }
+      localStorage.setItem("mdghc_last_modified", lastModified);
+    })();
+  </script>
+  
 </body>
 
 </html>
