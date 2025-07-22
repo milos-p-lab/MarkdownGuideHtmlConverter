@@ -234,8 +234,8 @@ Although the primary goal of this project is to provide a lightweight, embeddabl
 
 ```cmd
 mdoc input.md output.html
-mdoc input.guide output.html
 mdoc input.html output.md
+mdoc input.guide output.html
 ```
 
 📁 **Location**
