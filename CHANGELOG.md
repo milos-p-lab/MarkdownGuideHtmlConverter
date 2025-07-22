@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2025-07-22
+
+### Added
+- HTML → Markdown: Support for links (e.g., `<a href="https://example.com"`).
+
+### Changed
+- Rename `Markdown.cs` to `ConvMarkdownHtml.cs` for clarity.
+- Rename `HtmlMd.cs` to `ConvHtmlMarkdown.cs` for clarity.
+- Rename `AmigaGuide.cs` to `ConvGuideHtml.cs` for clarity.
+
 ## [1.4.0] - 2025-07-21
 
 ### Added
-- 🔁 Initial HTML → Markdown converter (HtmlMd.cs)
-  - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, lists.
+- 💥 Initial HTML → Markdown converter (HtmlMd.cs)
+  - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, unordered lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.
   - Reversible conversion supported for standard Markdown-generated HTML.
