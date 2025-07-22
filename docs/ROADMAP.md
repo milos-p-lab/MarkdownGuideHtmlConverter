@@ -33,7 +33,7 @@ Features and improvements currently in development or planned:
 
 - [ ] Optional math / LaTeX support (KaTeX or MathJax integration)
 - [x] Definition list syntax (`Term\n: Definition`)
-- [ ] Partial HTML-to-Markdown reverse conversion
+- [x] Partial HTML-to-Markdown reverse conversion
 - [ ] Command-line arguments: toggle features (e.g. `--no-toc`, `--unsafe-html`)
 - [ ] More robust error reporting (invalid syntax, malformed input)
 - [ ] Configurable templates / theming support for output

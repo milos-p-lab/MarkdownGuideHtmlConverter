@@ -1,7 +1,7 @@
 # Why I Built My Own Markdown to HTML Converter
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-19  
+> 🗓️ **Date:** 2025-07-22  
 > **Description:** "A lightweight, safe and complete .md to .html converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
 ## Brighter, Smaller, Safer: Why I Built My Own Markdown to HTML Converter
@@ -95,14 +95,20 @@ One C# file. One method: Markdown.ToHtml()
 
 If you like this approach, try the .exe version or include the class in your project:
 
-```bash
-mdoc.exe input.md
+```cmd
+mdoc input.md output.html
+mdoc input.guide output.html
+mdoc input.html output.md
 ```
 
 Or in C#:
 
 ```csharp
-string html = Markdown.ToHtml(mdSource);
+string html = ConvMarkdownHtml.ToHtml(markdown);
+```
+
+```csharp
+string html = ConvGuideHtml.ToHtml(guide);
 ```
 
 ---
