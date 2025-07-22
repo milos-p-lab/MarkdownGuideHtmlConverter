@@ -1,12 +1,12 @@
 ---
 title: "MarkdownGuideHtmlConverter"
 layout: default
-description: "Fast, safe and feature-complete Markdown to HTML converter written in C#."
+description: "Fast, safe and feature-complete Markdown ⇄ HTML converter written in C#."
 ---
 
 # MarkdownGuideHtmlConverter
 
-**A lightweight, reliable, and secure Markdown to HTML converter built in C#.**
+**A lightweight, reliable, and secure Markdown ⇄ HTML converter built in C#.**
 
 GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
 
@@ -14,7 +14,8 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 
 ## 🔧 What It Does
 
-- Converts Markdown `.md` files to valid HTML5
+### Converts Markdown `.md` files to valid HTML5
+
 - Fully supports:
   - Headings, bold/italic/strikethrough/highlight
   - Ordered, unordered, and task lists
@@ -27,6 +28,16 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
 - 🛡️ Built-in **XSS protection**
 - 🚨 Warnings for syntax and security issues
 - ✅ Produces **clean, semantic HTML** — easy to embed anywhere
+
+### Converts HTML back to Markdown
+
+- Fully supports:
+  - Headings (h1–h6)
+  - Bold, italic, and style combinations
+  - Blockquotes
+  - Unordered lists
+
+⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
 
 ---
 
@@ -70,7 +81,7 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 
 No setup needed — just download and run:
 
-```bash
+```cmd
 mdoc.exe input.md
 ```
 
