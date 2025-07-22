@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] - 2025-07-22
+
+### Added
+- HTML → Markdown: Support for strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
+- HTML → Markdown: Support for span elements with class attributes (e.g., `<span class="mark">`).
+
 ## [1.4.1] - 2025-07-22
 
 ### Added
@@ -21,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - 💥 Initial HTML → Markdown converter (HtmlMd.cs)
+  - ⚠️ Status: 🧪 Early prototype under testing — will be released in a future version once stable.
   - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, unordered lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.

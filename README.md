@@ -162,7 +162,8 @@ Unlike many existing tools that either oversimplify or bloat the output, this co
 ### ✅ HTML Supported Features
 
 - Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
-- Basic text styles (**bold**, *italic*)
+- Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+- span elements with class attributes (e.g., `<span class="mark">`)
 - Blockquotes
 - Unordered lists
 - Links
