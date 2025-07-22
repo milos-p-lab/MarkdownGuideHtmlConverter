@@ -1,15 +1,15 @@
-# Markdown ↔ HTML and AmigaGuide → HTML Converter
+# Markdown ⇄ HTML and AmigaGuide → HTML Converter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/) [![Discussions](https://img.shields.io/github/discussions/milos-p-lab/MarkdownGuideHtmlConverter?label=Discussions)](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/discussions)
 
 ## 🧩 About
 
-⚡ Fast .NET converter for Markdown (.md), AmigaGuide (.guide), and HTML files — all to and from HTML/Markdown.
+⚡ Fast .NET converter for Markdown to HTML,  HTML to Markdown, and AmigaGuide to HTML.
 
 MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for converting between:
 
 - Markdown → HTML5
-- HTML5 → Markdown (planned full support)
+- HTML5 → Markdown
 - AmigaGuide → HTML5
 
 It’s designed to be:
@@ -179,7 +179,7 @@ Planned support includes:
 Example usage for Markdown:
 
 ```csharp
-string html = ConvHtmlMarkdown.Convert(markdown);
+string markdown = ConvHtmlMarkdown.Convert(html);
 ```
 
 ### ⚠️ **Status**: 🧪 Early prototype under testing — will be released in a future version once stable
