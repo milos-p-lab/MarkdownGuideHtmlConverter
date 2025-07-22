@@ -36,8 +36,7 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
   - Bold, italic, and style combinations
   - Blockquotes
   - Unordered lists
-
-⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
+  - ⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
 
 ---
 
