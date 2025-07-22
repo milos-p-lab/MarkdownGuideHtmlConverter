@@ -117,7 +117,7 @@ No external libraries or HTML sanitizers are required — the security logic is 
 - Inline fallback styling is used to ensure visibility of warnings, even without custom CSS.
 - This feature improves robustness, especially for automated batch conversions or unverified input sources.
 
-### ⚙️ Usage (Markdown)
+### ⚙️ Usage (Markdown to HTML)
 
 👉 This converter is implemented in a single C# file: [ConvMarkdownHtml.cs](./src/ConvMarkdownHtml.cs). You can simply copy this file into your project.
 
@@ -172,7 +172,17 @@ Planned support includes:
 
 ✅ Designed to match the Markdown output format already supported by `ConvHtmlMarkdown.Convert`, ensuring **reversible conversions** for supported syntax.
 
-⚠️ **Status**: 🧪 Early prototype under testing — will be released in a future version once stable.
+### ⚙️ Usage (HTML to Markdown)
+
+👉 This converter is implemented in a single C# file: [ConvHtmlMarkdown.cs](./src/ConvHtmlMarkdown.cs). You can simply copy this file into your project.
+
+Example usage for Markdown:
+
+```csharp
+string html = ConvHtmlMarkdown.Convert(markdown);
+```
+
+### ⚠️ **Status**: 🧪 Early prototype under testing — will be released in a future version once stable
 
 ---
 
@@ -190,7 +200,7 @@ This converter enables viewing **.guide documents** (AmigaGuide format) directly
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
 
-### ⚙️ Usage (AmigaGuide)
+### ⚙️ Usage (AmigaGuide to HTML)
 
 👉 This converter is implemented in a single C# file: [ConvGuideHtml.cs](./src/ConvGuideHtml.cs). You can simply copy this file into your project.
 
