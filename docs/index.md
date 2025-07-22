@@ -38,7 +38,7 @@ GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/m
   - Unordered lists
   - ⚠️ Status: Early prototype under testing
 
-### Converts Amino Guide `.guide` files to HTML `.html`
+### Converts AmigaGuide `.guide` files to HTML `.html`
 
 - Converts core AmigaGuide commands:
   - nodes (`@NODE`, `@ENDNODE`)
