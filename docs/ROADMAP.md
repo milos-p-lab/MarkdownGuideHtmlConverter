@@ -8,6 +8,8 @@ This document outlines the planned features, enhancements, and long-term vision 
 
 These features are already implemented and functional:
 
+### Markdown to HTML Conversion
+
 - Headings (h1–h6)
 - Bold, italic, strikethrough, highlight, and style combinations
 - Ordered, unordered and task lists (with checkbox rendering)
@@ -25,6 +27,14 @@ These features are already implemented and functional:
 - Clean, semantic HTML5 output
 - Ready-to-use .exe binary (no installation required)
 
+### HTML to Markdown Conversion
+
+- Headings (h1–h6)
+- Bold, italic, and style combinations
+- Blockquotes
+- Unordered lists
+- Ready-to-use .exe binary (no installation required)
+
 ---
 
 ## 🚧 In Progress / Planned
@@ -33,7 +43,6 @@ Features and improvements currently in development or planned:
 
 - [ ] Optional math / LaTeX support (KaTeX or MathJax integration)
 - [x] Definition list syntax (`Term\n: Definition`)
-- [x] Partial HTML-to-Markdown reverse conversion
 - [ ] Command-line arguments: toggle features (e.g. `--no-toc`, `--unsafe-html`)
 - [ ] More robust error reporting (invalid syntax, malformed input)
 - [ ] Configurable templates / theming support for output
