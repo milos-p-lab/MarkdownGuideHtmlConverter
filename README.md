@@ -259,9 +259,9 @@ This CLI tool is intended for:
 
 Check the Test folder for examples of:
 
-- [Markdown-test.md](./test/Markdown-Example.md)
-- [Markdown-XSS-test.md](./test/Markdown-XSS.md)
-- [AmigaGuide-test.guide](./test/AmigaGuide-Example.guide)
+- [Markdown-Example.md](./test/Markdown-Example.md)
+- [Markdown-XSS.md](./test/Markdown-XSS.md)
+- [AmigaGuide-Example.guide](./test/AmigaGuide-Example.guide)
 
 ---
 
