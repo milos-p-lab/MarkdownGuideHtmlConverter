@@ -1,12 +1,12 @@
 ---
 title: "MarkdownGuideHtmlConverter"
 layout: default
-description: "Fast, safe and feature-complete Markdown ⇄ HTML converter written in C#."
+description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide → HTML converter written in C#."
 ---
 
 # MarkdownGuideHtmlConverter
 
-**A lightweight, reliable, and secure Markdown ⇄ HTML converter built in C#.**
+**A lightweight, reliable, and secure Markdown ⇄ HTML and AmigaGuide → HTML converter built in C#.**
 
 GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
 
