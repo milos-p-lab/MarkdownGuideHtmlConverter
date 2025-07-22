@@ -159,6 +159,14 @@ Unlike many existing tools that either oversimplify or bloat the output, this co
 - 🔐 **Safe by design** — skips dangerous HTML or flags ambiguities with inline warnings
 - 🧩 **Same API design** — one method: `ConvHtmlMarkdown.Convert(string html)`
 
+### ✅ HTML Supported Features
+
+- Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
+- Basic text styles (**bold**, *italic*)
+- Blockquotes
+- Unordered lists
+- Links
+
 Planned support includes:
 
 - Headings → `#`, `##`, etc.
