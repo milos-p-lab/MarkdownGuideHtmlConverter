@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.2] - 2025-07-22
+## [1.4.2a] - 2025-07-22
 
 ### Added
 - HTML → Markdown: Support for strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
 - HTML → Markdown: Support for span elements with class attributes (e.g., `<span class="mark">`).
 
-## [1.4.1] - 2025-07-22
+## [1.4.1a] - 2025-07-22
 
 ### Added
 - HTML → Markdown: Support for links (e.g., `<a href="https://example.com"`).
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `HtmlMd.cs` to `ConvHtmlMarkdown.cs` for clarity.
 - Rename `AmigaGuide.cs` to `ConvGuideHtml.cs` for clarity.
 
-## [1.4.0] - 2025-07-21
+## [1.4.0 alpha] - 2025-07-21
 
 ### Added
 - 💥 Initial HTML → Markdown converter (HtmlMd.cs)
