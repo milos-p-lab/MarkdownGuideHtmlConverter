@@ -7,38 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.2a] - 2025-07-22
+## [2.0.0] - 2025-07-25
 
 ### Added
-- HTML → Markdown: Support for strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
-- HTML → Markdown: Support for span elements with class attributes (e.g., `<span class="mark">`).
-
-## [1.4.1a] - 2025-07-22
-
-### Added
-- HTML → Markdown: Support for links (e.g., `<a href="https://example.com"`).
-
-### Changed
-- Rename `Markdown.cs` to `ConvMarkdownHtml.cs` for clarity.
-- Rename `HtmlMd.cs` to `ConvHtmlMarkdown.cs` for clarity.
-- Rename `AmigaGuide.cs` to `ConvGuideHtml.cs` for clarity.
-
-## [1.4.0 alpha] - 2025-07-21
-
-### Added
-- 💥 Initial HTML → Markdown converter (HtmlMd.cs)
-  - ⚠️ Status: 🧪 Early prototype under testing — will be released in a future version once stable.
+- 🚨 HTML → MD conversion: Added warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks). (2025-07-25)
+- 🆕 MD → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
+- 🆕 HTML → MD conversion:
+  - Support for subscript and superscript (e.g., `<sub>`, `<sup>`).
+  - Support for front matter (YAML metadata block).
+- 🆕 HTML → MD conversion: Support for task lists (e.g., `<li><input type="checkbox" checked>Done</li>`). (2025-07-24)
+- 🆕 HTML → MD conversion support: (2025-07-23)
+  - Horizontal rules (e.g., `<hr>`, `<hr />`).
+  - Links and email links (e.g., `<a href="https://example.com">`, `<a href="mailto:user@example.com">`).
+  - Ordered lists.
+  - Preformatted text blocks (e.g., `<pre>...</pre>`).
+  - Code blocks with language highlighting (e.g., `<pre><code class="csharp">...</code></pre>`).
+  - Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`).
+  - Tables with alignment (e.g., `| --- | :---: | ---: |`).
+- HTML → MD conversion support: [2025-07-22]
+  - Strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
+  - Span elements with class attributes (e.g., `<span class="mark">`).
+  - Links (e.g., `<a href="https://example.com"`).
+- 💥 Initial HTML → MD converter (2025-07-21)
   - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, unordered lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.
   - Reversible conversion supported for standard Markdown-generated HTML.
-
 - 📦 New CLI support in mdoc.exe:
   - Example: mdoc input.html output.md.
 
 ### Changed
-- Minor performance improvements, optimizations in Markdown parsing.
-- Pre-allocate space for the HTML output to reduce memory allocations during string concatenation.
+- HTML → MD conversion: (2025-07-24)
+  - Improved handling of improperly closed paragraph tags.
+  - Enhanced handling of `<br>` tags to ensure proper line breaks in Markdown output.
+  - Enhanced handling of double space characters in paragraphs to ensure proper line breaks in Markdown output.
+- Rename class for clarity (2025-07-22)
+  - `Markdown.cs` to `ConvMarkdownHtml.cs`
+  - `HtmlMd.cs` to `ConvHtmlMarkdown.cs`
+  - `AmigaGuide.cs` to `ConvGuideHtml.cs`
+- Minor performance improvements, optimizations in Markdown parsing. (2025-07-21)
+- Pre-allocate space for the HTML output to reduce memory allocations during string concatenation. (2025-07-21)
 
 ## [1.3.0] – 2025-07-19
 

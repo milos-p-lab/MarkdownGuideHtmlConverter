@@ -6,6 +6,8 @@
 
 ⚡ Fast .NET converter for Markdown to HTML,  HTML to Markdown, and AmigaGuide to HTML.
 
+> Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
+
 MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for converting between:
 
 - Markdown → HTML5
@@ -29,13 +31,12 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 - Syntax and structural warning system for safer, cleaner output
 - Reversible conversion for supported syntax (Markdown ⇄ HTML)
 
-🧪 The HTML-to-Markdown converter is under active development and will aim to offer precise, round-trip-compatible output — especially for documents originally produced by this tool.
-
 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-22  
-> Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
+> 🗓️ **Date:** 2025-07-25
+
+📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
 ---
 
@@ -44,8 +45,6 @@ Whether you're building a static site generator, rendering Markdown documentatio
 ### 🚀 Introducing the Markdown to HTML Converter You Didn’t Think Was Possible
 
 > “If you’d told me a year ago that it’s possible to build a faster and fully standards-compliant Markdown-to-HTML converter than Pandoc—in a single C# file, with built-in XSS protection, working on both .NET Framework and .NET 7/8/9—I honestly wouldn’t have believed it myself. So I built it to prove it can be done.”
-
-📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
 I’ve always admired tools like Pandoc for their power. But I wanted:
 
@@ -58,8 +57,9 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 
 ### ✅ Markdown Supported Features
 
-- Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
+- Headings (`#`, `##`, `###`, etc.)
 - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+- Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
 - Multi-level **ordered lists** and **unordered lists**
 - Mixed nesting of **ordered and unordered lists**
 - **Task lists** (with checkbox states)
@@ -88,15 +88,6 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 
 ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
-### 🌟 Additional Benefits
-
-- Fast conversion (e.g. a ~100-page book converts in just a few tens of milliseconds on a standard PC)
-- Compatible with both .NET Framework 4.x and .NET 7/8/9
-- Minimal footprint (just a few tens of KB)
-- Supports custom CSS themes for beautiful HTML rendering
-- No dependencies on external DLLs or tools like Pandoc
-- 🛡️ **Built-in XSS protection** — automatically detects dangerous tags, attributes, and obfuscated payloads for safer HTML output
-
 ### 🔐 Security Considerations
 
 This converter includes built-in logic to detect and sanitize potentially dangerous HTML input:
@@ -108,7 +99,7 @@ This converter includes built-in logic to detect and sanitize potentially danger
 
 No external libraries or HTML sanitizers are required — the security logic is fully self-contained.
 
-### 🚨 Warnings for Syntax and Security Issues
+### 🚨 Warnings for Markdown Syntax and Security Issues
 
 - The converter detects common Markdown syntax mistakes (e.g., unclosed **bold**, *italic*, ==highlight==, etc.).
 - It also scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
@@ -150,7 +141,7 @@ Otherwise, this converter aims to balance speed, HTML correctness, security, and
 
 ## 📄 HTML to Markdown Converter
 
-A fast reverse conversion engine — for turning HTML back into Markdown — is **currently in development**.
+A fast reverse conversion engine — for turning HTML back into Markdown.
 
 Unlike many existing tools that either oversimplify or bloat the output, this converter aims to provide:
 
@@ -161,25 +152,26 @@ Unlike many existing tools that either oversimplify or bloat the output, this co
 
 ### ✅ HTML Supported Features
 
-- Headings (**h1**, **h2**, **h3**, **h4**, **h5**, **h6**)
-- Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
-- span elements with class attributes (e.g., `<span class="mark">`)
+- Headings (`<h1>`–`<h6>`)
+- Basic text styles (`<strong>`, `<em>`, `<del>`, `<mark>`)
+- Subscript and superscript (e.g., `<sub>`, `<sup>`)
+- Span elements with class attributes (e.g., `<span class="lang-en">`)
 - Blockquotes
-- Unordered lists
+- Ordered lists and unordered lists
+- Task lists (with checkbox states)
 - Links
+- Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`)
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- Preformatted text blocks (e.g., `<pre>...</pre>`)
+- Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
 
-Planned support includes:
+### 🚨 Warnings for HTML Syntax and Security Issues
 
-- Headings → `#`, `##`, etc.
-- Lists → ordered/unordered/task
-- Tables → pipe-style with alignment
-- Links and images
-- Blockquotes and code blocks
-- Footnotes and inline styles
-- Inline formatting (bold, italic, highlight…)
-- Optional front matter block (if present in HTML `<head>`)
-
-✅ Designed to match the Markdown output format already supported by `ConvHtmlMarkdown.Convert`, ensuring **reversible conversions** for supported syntax.
+- The converter detects common HTML syntax mistakes (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks).
+- Instead of halting the conversion, all issues are collected and reported at the end of the HTML output.
 
 ### ⚙️ Usage (HTML to Markdown)
 
@@ -190,8 +182,6 @@ Example usage for Markdown:
 ```csharp
 string markdown = ConvHtmlMarkdown.Convert(html);
 ```
-
-### ⚠️ **Status**: Early prototype under testing — will be released in a future version once stable
 
 ---
 
@@ -218,6 +208,17 @@ Example usage for AmigaGuide:
 ```csharp
 string html = ConvGuideHtml.Convert(guide);
 ```
+
+---
+
+## 🌟 Additional Benefits
+
+- Fast conversion (e.g. a ~100-page book converts in just a few tens of milliseconds on a standard PC)
+- Compatible with both .NET Framework 4.x and .NET 7/8/9
+- Minimal footprint (just a few tens of KB)
+- Supports custom CSS themes for beautiful HTML rendering
+- No dependencies on external DLLs or tools like Pandoc
+- 🛡️ **Built-in XSS protection** — automatically detects dangerous tags, attributes, and obfuscated payloads for safer HTML output
 
 ---
 
@@ -258,11 +259,12 @@ This CLI tool is intended for:
 
 ## 🧪 Test Files
 
-Check the Test folder for examples of:
+Check the Test folder ([test](./test)) for examples of:
 
 - [Markdown-Example.md](./test/Markdown-Example.md)
 - [Markdown-XSS.md](./test/Markdown-XSS.md)
 - [AmigaGuide-Example.guide](./test/AmigaGuide-Example.guide)
+- ...
 
 ---
 
