@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>1.4.1</version>
-    /// <date>2025-07-22</date>
+    /// <version>2.0.0</version>
+    /// <date>2025-07-25</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -141,22 +141,6 @@ namespace m.format.conv
         /// This stack is used to keep track of the closing tags for lists (ordered and unordered lists).
         /// </summary>
         private readonly Stack<string> ListClosingTags = new Stack<string>();
-
-        /// <summary>
-        /// List of warnings encountered during Markdown parsing.
-        /// This list is used to collect warnings about potential issues in the Markdown text,
-        /// such as unclosed tags or incorrect formatting.
-        /// </summary>
-        private readonly List<string> Warnings = new List<string>();
-
-        /// <summary>
-        /// Reports a warning encountered during Markdown parsing.
-        /// </summary>
-        /// <param name="desc">Description of the warning.</param>
-        private void ReportWarning(string desc)
-        {
-            Warnings.Add($"Line {LineNum + 1}: {EscapeHtml(desc)}");
-        }
 
         /// <summary>
         /// Escapes HTML special characters in the input string.
@@ -471,19 +455,7 @@ namespace m.format.conv
                 Out.Append("</ul>\n</div>\n");
             }
 
-            // Generate a report of any warnings
-            if (Warnings.Count > 0)
-            {
-                Out.Append(
-                    "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
-                    "  <h2>⚠️ Warnings</h2>\n" +
-                    "  <ul>\n");
-                foreach (string desc in Warnings)
-                {
-                    Out.Append($"    <li>{desc}</li>\n");
-                }
-                Out.Append("  </ul>\n</div>\n");
-            }
+            GenerateWarningsReport();
 
             // Generate Table of Contents (TOC) and insert it into the body
             string toc = GenerateToc(TocHeadings);
@@ -582,13 +554,13 @@ namespace m.format.conv
         /// </returns>
         private string ParseInlineStyles(string line)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder res = new StringBuilder();
 
             int len = line.Length;
 
             if (len == 0) { return ""; }
 
-            int bld = 0, itl = 0, hl = 0, del = 0;
+            int bld = 0, itl = 0, hl = 0, del = 0, sub = 0, sup = 0;
 
             // Check if the line contains a URL or email address to skip auto-link checks
             bool skipCheckAutolink = true;
@@ -597,60 +569,63 @@ namespace m.format.conv
                 skipCheckAutolink = false;
             }
 
-            for (int i = 0; i < len; i++)
+            for (int pos = 0; pos < len; pos++)
             {
-                char c = line[i];
+                char c = line[pos];
 
                 if (c == '\\')
                 {
-                    if (i + 1 < len)
+                    if (pos + 1 < len)
                     {
                         // Escape character
-                        i++;
-                        switch (line[i])
+                        pos++;
+                        switch (line[pos])
                         {
-                            case '<': sb.Append("&lt;"); break;
-                            case '>': sb.Append("&gt;"); break;
-                            case '&': sb.Append("&amp;"); break;
-                            case '"': sb.Append("&quot;"); break;
-                            default: sb.Append(line[i]); break;
+                            case '<': res.Append("&lt;"); break;
+                            case '>': res.Append("&gt;"); break;
+                            case '&': res.Append("&amp;"); break;
+                            case '"': res.Append("&quot;"); break;
+                            default: res.Append(line[pos]); break;
                         }
                         continue;
                     }
                     else
                     {
-                        sb.Append(c);
+                        res.Append(c);
                         continue;
                     }
                 }
+
                 // Line break
                 else if (c == '\n')
                 {
-                    sb.Append("<br>");
+                    res.Append("<br>");
                 }
+
                 // HTML entity
                 else if (c == '&')
                 {
-                    int semicolonPos = line.IndexOf(';', i + 1);
-                    if (semicolonPos > i)
+                    int semicolonPos = line.IndexOf(';', pos + 1);
+                    if (semicolonPos > pos)
                     {
-                        string entity = line.Substring(i, semicolonPos - i + 1);
+                        string entity = line.Substring(pos, semicolonPos - pos + 1);
                         string decoded = WebUtility.HtmlDecode(entity);
                         if (decoded != entity)
                         {
-                            sb.Append(entity);
-                            i += entity.Length - 1;
+                            res.Append(entity);
+                            pos += entity.Length - 1;
                             continue;
                         }
                     }
-                    sb.Append("&amp;");
+                    res.Append("&amp;");
                     continue;
                 }
+
                 // Less-than sign
                 else if (c == '<')
                 {
-                    int tagStart = i;
-                    int j = i + 1;
+                    int tagStart = pos;
+                    int j = pos + 1;
 
                     // Go to the end of the potential tag
                     while (j < line.Length && line[j] != '>') { j++; }
@@ -662,18 +637,19 @@ namespace m.format.conv
                         // Check if the tag is allowed
                         if (!IsDangerousTag(tagCandidate) && IsAllowedHtmlTag(tagCandidate))
                         {
-                            sb.Append(tagCandidate);
-                            i = j;
+                            res.Append(tagCandidate);
+                            pos = j;
                             continue;
                         }
                     }
-                    sb.Append("&lt;");
+                    res.Append("&lt;");
                     continue;
                 }
+
                 // Greater-than sign
                 else if (c == '>')
                 {
-                    sb.Append("&gt;");
+                    res.Append("&gt;");
                     continue;
                 }
 
@@ -681,12 +657,12 @@ namespace m.format.conv
                 else if (c == '[')
                 {
                     // Footnotes
-                    if (line[i] == '[' && i + 1 < len && line[i + 1] == '^')
+                    if (line[pos] == '[' && pos + 1 < len && line[pos + 1] == '^')
                     {
-                        int end = line.IndexOf(']', i);
+                        int end = line.IndexOf(']', pos);
                         if (end > -1)
                         {
-                            string id = line.Substring(i + 2, end - i - 2);
+                            string id = line.Substring(pos + 2, end - pos - 2);
 
                             if (!FullScanFootnote && !FootnoteDefinitions.ContainsKey(id))
                             {
@@ -706,36 +682,37 @@ namespace m.format.conv
                                     tooltip = FootnoteDefinitions[id].Replace("\"", "&quot;");
                                 }
                                 // HTML link in the text uses href to "fn" and id "ref"
-                                sb.Append($"<sup><a href=\"#fn{id}\" id=\"ref{id}\" title=\"{tooltip}\">{id}</a></sup>");
-                                i = end; // skip the parsed part
+                                res.Append($"<sup><a href=\"#fn{id}\" id=\"ref{id}\" title=\"{tooltip}\">{id}</a></sup>");
+                                pos = end; // skip the parsed part
                                 continue;
                             }
                         }
                     }
+
                     // Links. Example: [link](https://example.com)
-                    else if (TryParseLink(line, i, out string linkText, out string url, out string title, out int end))
+                    else if (TryParseLink(line, pos, out string linkText, out string url, out string title, out int end))
                     {
-                        sb.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
-                        i = end; // skip the parsed part
+                        res.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
+                        pos = end; // skip the parsed part
                         continue;
                     }
                 }
 
                 // Autolinks. Example: https://example.com, <https://example.com>, user@example.com, <user@example.com>
-                else if (!skipCheckAutolink && TryParseAutoLink(line, i, out string linkText2, out string url2, out string title2, out string cls, out int end2))
+                else if (!skipCheckAutolink && TryParseAutoLink(line, pos, out string linkText2, out string url2, out string title2, out string cls, out int end2))
                 {
-                    sb.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
-                    i = end2; // skip the parsed part
+                    res.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
+                    pos = end2; // skip the parsed part
                     continue;
                 }
 
                 // Image. Example: ![Logo za HTML 5](https://www.w3schools.com/html/html5.gif \"HTML 5 Logo\")
-                else if (c == '!' && i + 1 < len && line[i + 1] == '[')
+                else if (c == '!' && pos + 1 < len && line[pos + 1] == '[')
                 {
-                    if (TryParseImage(line, i, out string altText, out string url, out string title, out int end))
+                    if (TryParseImage(line, pos, out string altText, out string url, out string title, out int end))
                     {
-                        sb.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $" title=\"{title}\"")}>");
-                        i = end; // skip the parsed part
+                        res.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $" title=\"{title}\"")}>");
+                        pos = end; // skip the parsed part
                         continue;
                     }
                 }
@@ -743,12 +720,12 @@ namespace m.format.conv
                 // Inline code
                 else if (c == '`')
                 {
-                    if (TryParseInlineCode(line, i, out int end, out string codeContent))
+                    if (TryParseInlineCode(line, pos, out int end, out string codeContent))
                     {
                         // HTML-escape the content
                         string html = $"<code>{WebUtility.HtmlEncode(codeContent)}</code>";
-                        sb.Append(html);
-                        i = end; // skip the parsed part
+                        res.Append(html);
+                        pos = end; // skip the parsed part
                         continue;
                     }
                 }
@@ -756,30 +733,30 @@ namespace m.format.conv
                 // Basic styles
                 else if (c == '*')
                 {
-                    char c2 = (i + 1 < len) ? line[i + 1] : '\0';
-                    char c3 = (i + 2 < len) ? line[i + 2] : '\0';
+                    char c2 = (pos + 1 < len) ? line[pos + 1] : '\0';
+                    char c3 = (pos + 2 < len) ? line[pos + 2] : '\0';
 
                     // Bold + Italic
                     if (c2 == '*' && c3 == '*')
                     {
                         if (bld == 0 && itl == 0 && c2 != ' ')
                         {
-                            i += 2;
-                            bld++; itl++; sb.Append("<strong><em>");
+                            pos += 2;
+                            bld++; itl++; res.Append("<strong><em>");
                         }
                         else
                         {
                             if (itl > 0)
                             {
-                                i++;
+                                pos++;
                                 itl--;
-                                sb.Append("</em>");
+                                res.Append("</em>");
                             }
                             if (bld > 0)
                             {
-                                i++;
+                                pos++;
                                 bld--;
-                                sb.Append("</strong>");
+                                res.Append("</strong>");
                             }
                         }
                         continue;
@@ -788,19 +765,18 @@ namespace m.format.conv
                     // Bold
                     else if (c2 == '*')
                     {
-                        i++;
-                        if (bld == 0 && c2 != ' ')
+                        pos++;
+                        if (bld == 0 && c3 != ' ')
                         {
-                            bld++; sb.Append("<strong>");
+                            bld++; res.Append("<strong>");
                         }
                         else if (bld > 0)
                         {
-                            bld--; sb.Append("</strong>");
+                            bld--; res.Append("</strong>");
                         }
                         else
                         {
-                            i--;
-                            ReportWarning($"Incorrectly written character for \"bold\" [pos {i}]");
+                            ReportWarning($"Incorrectly written character for \"bold\" [pos {pos}]");
                         }
                         continue;
                     }
@@ -810,24 +786,24 @@ namespace m.format.conv
                     {
                         if (itl == 0 && c2 != ' ')
                         {
-                            itl++; sb.Append("<em>");
+                            itl++; res.Append("<em>");
                         }
                         else if (itl > 0)
                         {
-                            itl--; sb.Append("</em>");
+                            itl--; res.Append("</em>");
                         }
                         else
                         {
-                            ReportWarning($"Incorrectly written character for \"italic\" [pos {i}]");
+                            ReportWarning($"Incorrectly written character for \"italic\" [pos {pos}]");
                         }
                         continue;
                     }
                 }
 
                 // Highlight
-                else if (c == '=' && i + 1 < len && line[i + 1] == '=')
+                else if (c == '=' && pos + 1 < len && line[pos + 1] == '=')
                 {
-                    int j = i + 2;
+                    int j = pos + 2;
 
                     if (hl == 0)
                     {
@@ -835,37 +811,37 @@ namespace m.format.conv
                         if (j < len && line[j] == '=')
                         {
                             // Too many = characters -> not highlighting
-                            sb.Append("==");
-                            i++;
+                            res.Append("==");
+                            pos++;
                             continue;
                         }
 
                         // Check that there is no space after == (e.g. == text)
                         if (j < len && line[j] == ' ')
                         {
-                            sb.Append("==");
-                            i++;
+                            res.Append("==");
+                            pos++;
                             continue;
                         }
 
                         hl++;
-                        sb.Append("<mark>");
+                        res.Append("<mark>");
                     }
                     else
                     {
                         // Closing highlight tag
                         hl--;
-                        sb.Append("</mark>");
+                        res.Append("</mark>");
                     }
 
-                    i++; // skip the second '=' character
+                    pos++; // skip the second '=' character
                     continue;
                 }
 
                 // Strikethrough
-                else if (c == '~' && i + 1 < len && line[i + 1] == '~')
+                else if (c == '~' && pos + 1 < len && line[pos + 1] == '~')
                 {
-                    int j = i + 2;
+                    int j = pos + 2;
 
                     if (hl == 0)
                     {
@@ -873,67 +849,101 @@ namespace m.format.conv
                         if (j < len && line[j] == '~')
                         {
                             // Too many ~ characters -> not strikethrough
-                            sb.Append("~~");
-                            i++;
+                            res.Append("~~");
+                            pos++;
                             continue;
                         }
 
                         // Check that there is no space after ~~ (e.g. ~~ text)
                         if (j < len && line[j] == ' ')
                         {
-                            sb.Append("~~");
-                            i++;
+                            res.Append("~~");
+                            pos++;
                             continue;
                         }
 
                         hl++;
-                        sb.Append("<del>");
+                        res.Append("<del>");
                     }
                     else
                     {
                         // Closing strikethrough tag
                         hl--;
-                        sb.Append("</del>");
+                        res.Append("</del>");
                     }
 
-                    i++; // skip the second '~' character
+                    pos++; // skip the second '~' character
                     continue;
                 }
 
-                if (i < len)
+                // Subscript
+                else if (c == '~' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
                 {
-                    sb.Append(line[i]);
+                    if (sub == 0)
+                    {
+                        sub++;
+                        res.Append("<sub>");
+                        continue;
+                    }
+                    else
+                    {
+                        sub--;
+                        res.Append("</sub>");
+                        continue;
+                    }
+                }
+
+                // Superscript
+                else if (c == '^' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
+                {
+                    if (sup == 0)
+                    {
+                        sup++;
+                        res.Append("<sup>");
+                        continue;
+                    }
+                    else
+                    {
+                        sup--;
+                        res.Append("</sup>");
+                        continue;
+                    }
+                }
+
+                if (pos < len)
+                {
+                    res.Append(line[pos]);
                 }
             }
 
             // Fix unclosed tags from the markdown document
             while (itl > 0)
             {
-                sb.Append("</em>");
+                res.Append("</em>");
                 ReportWarning("Unclosed italic tag");
                 itl--;
             }
             while (bld > 0)
             {
-                sb.Append("</strong>");
+                res.Append("</strong>");
                 ReportWarning("Unclosed bold tag");
                 bld--;
             }
             while (hl > 0)
             {
-                sb.Append("</mark>");
+                res.Append("</mark>");
                 ReportWarning("Unclosed mark tag");
                 hl--;
             }
             while (del > 0)
             {
-                sb.Append("</del>");
+                res.Append("</del>");
                 ReportWarning("Unclosed del tag");
                 del--;
             }
 
             // Convert double spaces to non-breaking spaces
-            string s = sb.ToString();
+            string s = res.ToString();
             int k = s.IndexOf("  ");
             while (k > -1)
             {
@@ -1614,7 +1624,7 @@ namespace m.format.conv
 
                     if (IsDangerousTag(tag) || trimLine.StartsWith("<!-->"))
                     {
-                        Out.AppendLine(EscapeHtml(Lines[LineNum]));
+                        Out.Append(EscapeHtml(Lines[LineNum] + "\n"));
                         state = State.RawHtmlCode;
                         return true;
                     }
@@ -1629,7 +1639,7 @@ namespace m.format.conv
 
                         if (IsSelfClosing(tag))
                         {
-                            Out.AppendLine(line);
+                            Out.Append(line + "\n");
                             state = State.RawHtmlCode;
                             return true;
                         }
@@ -1642,11 +1652,11 @@ namespace m.format.conv
                             {
                                 do
                                 {
-                                    Out.AppendLine(Lines[LineNum]);
+                                    Out.Append(Lines[LineNum] + "\n");
                                     if (++LineNum >= LinesCount) { break; }
                                 } while (Lines[LineNum].IndexOf(endTag, StringComparison.OrdinalIgnoreCase) < 0);
                             }
-                            if (LineNum < LinesCount) { Out.AppendLine(Lines[LineNum]); }
+                            if (LineNum < LinesCount) { Out.Append(Lines[LineNum] + "\n"); }
 
                             state = State.RawHtmlCode;
                             return true;
@@ -1714,7 +1724,7 @@ namespace m.format.conv
 
             if (DangerTags.Contains(tagName))
             {
-                ReportWarning("Dangerous tag: " + tagName);
+                ReportWarning($"Dangerous tag: {tagName}", inNextLine: true);
                 return true;
             }
 
@@ -1738,7 +1748,7 @@ namespace m.format.conv
                 // Check attribute name
                 if (DangerAttrPrefixes.Any(prefix => attrName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
                 {
-                    ReportWarning("Dangerous attribute: " + attrName);
+                    ReportWarning("Dangerous attribute: " + attrName, inNextLine: true);
                     return true;
                 }
 
@@ -1749,7 +1759,7 @@ namespace m.format.conv
                 {
                     if (DangerousAttrValues.Any(d => fullyDecoded.Contains(d)))
                     {
-                        ReportWarning("Dangerous attribute: " + attrName);
+                        ReportWarning("Dangerous attribute: " + attrName, inNextLine: true);
                         return true;
                     }
                 }
@@ -1965,39 +1975,39 @@ namespace m.format.conv
             current++;
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<table>");
+            sb.Append("<table>\n");
 
             // Write thead
-            sb.AppendLine("  <thead>");
-            sb.AppendLine("    <tr>");
+            sb.Append("  <thead>\n");
+            sb.Append("    <tr>\n");
             for (int i = 0; i < headerCells.Count; i++)
             {
                 string align = alignments[i];
                 string style = string.IsNullOrEmpty(align) ? "" : $" style=\"text-align:{align}\"";
-                sb.AppendLine($"      <th{style}>{ParseInlineStyles(headerCells[i])}</th>");
+                sb.Append($"      <th{style}>{ParseInlineStyles(headerCells[i])}</th>\n");
             }
-            sb.AppendLine("    </tr>");
-            sb.AppendLine("  </thead>");
+            sb.Append("    </tr>\n");
+            sb.Append("  </thead>\n");
 
             // Write tbody
-            sb.AppendLine("  <tbody>");
+            sb.Append("  <tbody>\n");
             while (current < lines.Length && lines[current].Contains("|"))
             {
                 List<string> rowCells = ParseTableRow(lines[current]);
-                sb.AppendLine("    <tr>");
+                sb.Append("    <tr>\n");
                 for (int i = 0; i < headerCells.Count; i++)
                 {
                     string cell = i < rowCells.Count ? rowCells[i] : "";
                     string align = alignments[i];
                     string style = string.IsNullOrEmpty(align) ? "" : $" style=\"text-align:{align}\"";
-                    sb.AppendLine($"      <td{style}>{ParseInlineStyles(cell)}</td>");
+                    sb.Append($"      <td{style}>{ParseInlineStyles(cell)}</td>\n");
                 }
-                sb.AppendLine("    </tr>");
+                sb.Append("    </tr>\n");
                 current++;
             }
-            sb.AppendLine("  </tbody>");
+            sb.Append("  </tbody>\n");
 
-            sb.AppendLine("</table>");
+            sb.Append("</table>\n");
 
             linesConsumed = current - startLineIndex;
             return sb.ToString();
@@ -2067,6 +2077,46 @@ namespace m.format.conv
             }
 
             return aligns;
+        }
+
+        #endregion
+
+        #region Warnings processing
+
+        /// <summary>
+        /// List of warnings encountered during Markdown parsing.
+        /// This list is used to collect warnings about potential issues in the Markdown text,
+        /// such as unclosed tags or incorrect formatting.
+        /// </summary>
+        private readonly List<string> Warnings = new List<string>();
+
+        /// <summary>
+        /// Reports a warning encountered during Markdown parsing.
+        /// </summary>
+        /// <param name="desc">Description of the warning.</param>
+        private void ReportWarning(string desc, bool inNextLine = false)
+        {
+            Warnings.Add($"Line {(inNextLine ? LineNum + 1 : LineNum)}: {EscapeHtml(desc)}");
+        }
+
+        /// <summary>
+        /// Generates a report of any warnings encountered during Markdown parsing.
+        /// </summary>
+        private void GenerateWarningsReport()
+        {
+            // Generate a report of any warnings
+            if (Warnings.Count > 0)
+            {
+                Out.Append(
+                    "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
+                    "  <h2>⚠️ WARNINGS</h2>\n" +
+                    "  <ul>\n");
+                foreach (string desc in Warnings)
+                {
+                    Out.Append($"    <li>{desc}</li>\n");
+                }
+                Out.Append("  </ul>\n</div>\n");
+            }
         }
 
         #endregion
