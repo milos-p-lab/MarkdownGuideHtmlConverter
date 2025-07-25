@@ -8,37 +8,55 @@ description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide �
 
 **A lightweight, reliable, and secure Markdown ⇄ HTML and AmigaGuide → HTML converter built in C#.**
 
-GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
+👉 GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
 
 ---
 
 ## 🔧 What It Does
 
-### Converts Markdown `.md` files to valid HTML5 `.html`
+### Converts Markdown `.md` to valid HTML5 `.html`
 
-- Fully supports:
-  - Headings (h1–h6)
-  - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
-  - Ordered, unordered, and task lists
-  - Tables with alignment
-  - Code blocks (with language hints)
-  - Footnotes with backlinking
-  - Inline HTML passthrough
-  - YAML front-matter → meta tags
-  - Automatic Table of Contents `[TOC]`
-- 🛡️ Built-in **XSS protection**
+Supports:
+
+- Headings (`#`, `##`, `###`, etc.)
+- Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+- Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
+- Blockquotes
+- Inline code and horizontal rules
+- Hyperlinks and images (with alt/title)
+- Multi-level **ordered lists** and **unordered lists**
+- Mixed nesting of **ordered and unordered lists**
+- **Task lists** (with checkbox states)
+- Tables with column alignment
+- Code blocks (with language hints)
+- Footnotes with multi-line support and backlinking
+- Raw HTML passthrough (audio, video, etc.)
+- YAML front-matter → meta tags
+- Automatic Table of Contents `[TOC]`
+- 🛡️ Built-in **XSS protection** with sanitization of dangerous content
 - 🚨 Warnings for syntax and security issues
 - ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ### Converts HTML `.html` to Markdown `.md`
 
-- Fully supports:
-  - Headings (h1–h6)
-  - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
-  - span elements with class attributes (e.g., `<span class="mark">`)
-  - Blockquotes
-  - Unordered lists
-  - ⚠️ Status: Early prototype under testing
+Supports:
+
+- Headings (`<h1>`–`<h6>`)
+- Basic text styles (`<strong>`, `<em>`, `<del>`, `<mark>`)
+- Subscript and superscript (e.g., `<sub>`, `<sup>`)
+- Span elements with class attributes (e.g., `<span class="lang-en">`)
+- Blockquotes
+- Ordered lists and unordered lists
+- Task lists (with checkbox states)
+- Links
+- Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`)
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- Preformatted text blocks (e.g., `<pre>...</pre>`)
+- Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
+- 🚨 Warnings for syntax and security issues
 
 ### Converts AmigaGuide `.guide` files to HTML `.html`
 

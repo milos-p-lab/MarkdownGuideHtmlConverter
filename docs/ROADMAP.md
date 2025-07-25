@@ -10,30 +10,53 @@ These features are already implemented and functional:
 
 ### Markdown to HTML Conversion
 
-- Headings (h1–h6)
-- Bold, italic, strikethrough, highlight, and style combinations
-- Ordered, unordered and task lists (with checkbox rendering)
-- Code blocks with language detection
-- Inline code and horizontal rules
+- Headings (`#`, `##`, `###`, etc.)
+- Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+- Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
 - Blockquotes
+- Inline code and horizontal rules
 - Hyperlinks and images (with alt/title)
+- Multi-level **ordered lists** and **unordered lists**
+- Mixed nesting of **ordered and unordered lists**
+- **Task lists** (with checkbox states)
 - Tables with column alignment
+- Code blocks (with language hints)
 - Footnotes with multi-line support and backlinking
-- YAML front matter → converted to HTML meta tags
-- Automatic Table of Contents generation from headings
 - Raw HTML passthrough (audio, video, etc.)
-- Built-in XSS protection with sanitization of dangerous content
-- Warnings for syntax and security issues
-- Clean, semantic HTML5 output
-- Ready-to-use .exe binary (no installation required)
+- YAML front-matter → meta tags
+- Automatic Table of Contents `[TOC]`
+- 🛡️ Built-in **XSS protection** with sanitization of dangerous content
+- 🚨 Warnings for syntax and security issues
+- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ### HTML to Markdown Conversion
 
-- Headings (h1–h6)
-- Bold, italic, and style combinations
+- Headings (`<h1>`–`<h6>`)
+- Basic text styles (`<strong>`, `<em>`, `<del>`, `<mark>`)
+- Subscript and superscript (e.g., `<sub>`, `<sup>`)
+- Span elements with class attributes (e.g., `<span class="lang-en">`)
 - Blockquotes
-- Unordered lists
-- Ready-to-use .exe binary (no installation required)
+- Ordered lists and unordered lists
+- Task lists (with checkbox states)
+- Links
+- Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`)
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- Preformatted text blocks (e.g., `<pre>...</pre>`)
+- Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
+- 🚨 Warnings for syntax and security issues
+
+### AmigaGuide to HTML Conversion
+
+- Converts core AmigaGuide commands:
+  - Nodes (`@NODE`, `@ENDNODE`)
+  - Navigation links (`@TOC`, `@NEXT`, `@PREV`)
+  - Basic text styles (`@{b}`, `@{i}`, `@{u}`)
+- Preserves the document’s structure for a retro feel
+- Generates clean HTML navigation buttons between nodes
+- Escapes special HTML characters to safely display content
 
 ---
 
@@ -56,9 +79,6 @@ Ideas under consideration or awaiting user feedback:
 - Export to single-file self-contained `.html` with embedded styles
 - Integration with static site generators or CI pipelines
 - Markdown extensions (abbr, emoji, custom containers)
-- Option to preserve or strip raw HTML tags
-- Optional WYSIWYG mode for previewing/editing before export
-- Cross-platform support via .NET 6/8+
 
 ---
 
