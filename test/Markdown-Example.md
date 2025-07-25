@@ -3,14 +3,14 @@ title: My Document Title
 author: Miloš Perunović
 description: This is a sample Markdown document to demonstrate various Markdown features.
 keywords: markdown, sample, features, text formatting
-date: 2025-07-18
+date: 2025-07-25
 ---
 
 [TOC]
 
 ## Basic Text Formatting (**Bold**, *Italic*, ~~Strikethrough~~, ==Highlighted==)
 
-Normal normal **bold  
+Normal   normal **bold  
 continues** normal
 
 Normal normal *italic
@@ -38,7 +38,14 @@ user@example.com
 
 <user@example.com>
 
-Water H<sub>2</sub>O. <br>E = mc<sup>2</sup>.
+Water H<sub>2</sub>O.<br>E = mc<sup>2</sup>.
+
+Water H~2~O.  
+E = mc^2^.
+
+x = 2 ^ 2
+
+x^
 
 This is some text with a footnote.[^1] user@example.com
 
@@ -123,18 +130,15 @@ Text...
 3. ccc
    1. ddd
 
-## Paragraphs and Line Breaks
+## Warnings test
 
-Aaa   aaa aaa aaa
-bbb bbb bbb bbb.
+Unclosed **bold
 
-Ccc ccc ccc ccc.
+Unclosed *italic
 
-| a1   | a2   | a3   |
-| ---- | ---- | ---- |
-| b1   | b2   | b3   |
-| c1   | c2   | c3   |
-| d1   | d2   | d3   |
+Incorrectly written character for ** bold
+
+Incorrectly written character for * italic
 
 [^1]: This is > text of the **first** footnote. [link](https://example.com)
       This is the second line of the **first** footnote.

@@ -1,6 +1,75 @@
-<h1>  My Document Title  </h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>  Document Title  </title>
+<meta name="author" content="Firstname Lastname">
+<meta name="date" content="2025-07-25">
+</head>
 
-<unk> U N </unk>
+<body>
+
+<h1>  Test Document Title  </h1>
+
+<h2 id="break-line">Break line</h2>
+
+<br />
+
+<p>Paragraph   first line<br>
+ second line (v1).</p>
+<p>Paragraph	 first line<br>
+ second line (v2).</p>
+
+<h2 id="task-list">Task List</h2>
+<ul>
+  <li><input type="checkbox" checked>Done</li>
+  <li><input type="checkbox" checked>In progress</li>
+  <li><input type="checkbox" >Not started</li>
+</ul>
+
+<h2 id="code-blocks">Code Blocks</h2>
+
+<pre>
+ - Preformatted
+ - text block
+</pre>
+
+<pre>One line</pre>
+<p>Next paragraph</p>
+
+<p>Code Snippet:</p>
+<pre><code class="csharp">
+int x = 5;
+bool ok = x &gt; 0;
+</code></pre>
+
+<pre><code class="csharp">int x = 6;
+bool ok = x &gt; 1;</code></pre>
+
+<pre>
+bool wrong1 = x < 0;
+bool wrong2 = x > 0;
+</pre>
+
+<h2 id="subscripts-and-superscripts">Subscripts and Superscripts</h2>
+<p>Water H<sub>2</sub>O.<br>E = mc<sup>2</sup>.</p>
+
+<unk> Unsupported tag </unk>
+
+<h2 id="images">Images</h2>
+<p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo" title="HTML 5 Logo">.</p>
+
+<h2 id="unordered-list">Ordered, Unordered List</h2>
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ul>
+
+<ol>
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ol>
 
 <h2 id="quotes-and-citations">Quotes and Citations</h2>
 
@@ -34,29 +103,63 @@
 
 <p>Normal * <em>italic</em> <strong>bold</strong> <strong><em>bolditalic</em></strong> normal <del>strikethrough</del> <mark>highlighted</mark> normal <strong><mark>highlighted bold</mark></strong> normal == nohighlighted== ~~ nostrikethrough~~ normal</p>
 
-<h2 id="lists">Ordered, Unordered Lists</h2>
-<ul>
-  <li>aaa<ul>
-    <li>qqq</li>
-    <li>www<ul>
-      <li>eee</li>
-</ul>
-</ul>
-  <li>bbb</li>
-  <li>Item 1</li>
-  <li>Item 2<ol>
-    <li>Nested ordered</li>
-    <li>Another item<ul>
-      <li>Nested unordered</li>
-</ul>
-</ol>
-</ul>
-<p>Text...</p>
-<ul>
-  <li>Item 3</li>
-  <li>aaa</li>
-  <li>bbb</li>
-  <li>ccc<ol>
-    <li>ddd</li>
-</ol>
-</ul>
+<h2 id="links-and-email">Links and Email</h2>
+<p><a href="https://example.com">Link example</a></p>
+<p><a href="http://google.com">http://google.com</a></p>
+<a href="http://google.com">http://google.com</a>
+<p><a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
+<a href="mailto:user@example.com" class="email-link">user@example.com</a>
+
+<h2 id="tables">Tables</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&lt;First Name&gt;</th>
+      <th style="text-align:center">&amp;Last Name</th>
+      <th style="text-align:right">Age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">John</td>
+      <td style="text-align:center">Smith</td>
+      <td style="text-align:right">50</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">Jane</td>
+      <td style="text-align:center">Doe</td>
+      <td style="text-align:right">40</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+<tr><th>Name</th><th style='text-align:center'>Age</th></tr>
+<tr><td>John</td><td>25</td></tr>
+</table>
+
+<hr>
+<h2 id="media-embedding">Media Embedding</h2>
+<video width="320" height="240" controls>
+  <source src="https://www.w3schools.com/tags/movie.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<h2 id="escaped-characters">Escaped characters</h2>
+<p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
+<p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
+<pre><code class="markdown">
+&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;euro; are HTML entities.
+</code></pre>
+<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
+
+<!--Warnings-->
+
+<p>Unclosed HTML entity:  &nbsp</p>
+<p>Unknown HTML entity: &wrong;</p>
+<h3>Unclosed heading
+<p>Unclosed paragraph: Unsclosed paragraph 1
+<p>Unclosed paragraph: Unsclosed paragraph 2
+
+</body>
+</html>
