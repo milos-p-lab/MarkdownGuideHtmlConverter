@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.1] - 2025-07-26
+
+### Changed
+- Improved MD → HTML conversion: Enhanced detection of YAML front matter:
+  - Added support for meta tags: `version`, `description`, `keywords`, `license`.
+  - Enhanced detection of empty front matter blocks and end-of-front-matter marker (`...`).
+- Improved MD → HTML conversion: Enhanced handling of fenced code blocks.
+
 ## [2.0.0] - 2025-07-25
 
 ### Added
