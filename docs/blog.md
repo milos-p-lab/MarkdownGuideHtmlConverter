@@ -1,10 +1,4 @@
----
-title: "Why I Built a C# Markdown to / from HTML Converter (That’s Actually Fast and Safe)"
-published: true
-description: "A fast, embeddable, XSS-safe Markdown to / from HTML and AmigaGuide to HTML converter written as a single-file C# class."
-tags: [markdown, csharp, dotnet, converter]
-cover_image: "https://raw.githubusercontent.com/milos-p-lab/MarkdownGuideHtmlConverter/main/docs/favicon.png"
----
+# Why I Built a C# Markdown to / from HTML Converter (That’s Actually Fast and Safe)
 
 > ✍️ **Author:** Miloš Perunović  
 > 🗓️ **Date:** 2025-07-25  
