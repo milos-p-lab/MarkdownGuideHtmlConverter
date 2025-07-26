@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.0.0</version>
-    /// <date>2025-07-25</date>
+    /// <version>2.0.1</version>
+    /// <date>2025-07-26</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -42,11 +42,11 @@ namespace m.format.conv
 
                 if (key == "title")
                 {
-                    meta.Append($"<title>{WebUtility.HtmlEncode(pair.Value)}</title>\n");
+                    meta.Append($"  <title>{EscapeHtmlQ(pair.Value)}</title>\n");
                 }
                 else
                 {
-                    meta.Append($"<meta name=\"{WebUtility.HtmlEncode(pair.Key)}\" content=\"{WebUtility.HtmlEncode(pair.Value)}\">\n");
+                    meta.Append($"  <meta name=\"{EscapeHtmlQ(pair.Key)}\" content=\"{EscapeHtmlQ(pair.Value)}\">\n");
                 }
             }
 
@@ -59,8 +59,8 @@ namespace m.format.conv
                 "<!DOCTYPE html>\n" +
                 $"<html lang=\"{lang}\">\n" +
                 "<head>\n" +
-                "<meta charset=\"utf-8\">" +
-                (meta.Length > 0 ? meta.ToString() : "") +
+                "  <meta charset=\"utf-8\">" +
+                (meta.Length > 0 ? $"\n{meta}" : "") +
                 (head ?? "") +
                 "</head>\n" +
                 "<body>\n" +
@@ -152,6 +152,15 @@ namespace m.format.conv
         }
 
         /// <summary>
+        /// Escapes HTML special characters in the input string.
+        /// This method replaces characters like '&', '<', '>', and '"' with their corresponding HTML entities.
+        /// </summary>
+        private static string EscapeHtmlQ(string input)
+        {
+            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+        }
+
+        /// <summary>
         /// Converts Markdown document to HTML.
         /// </summary>
         /// <param name="doc">Markdown document</param>
@@ -169,12 +178,23 @@ namespace m.format.conv
             int emptyCnt = 0;
 
             // Detect YAML Front Matter
-            if (LinesCount > 0 && Lines[0].Trim() == "---")
+            string trimLine = Lines[0].Trim();
+            if (LinesCount > 0 && trimLine == "---")
             {
-                int end = Array.FindIndex(Lines, 1, l => l.Trim() == "---");
+                int end = -1;
+                int i = 0;
+                while (++i < LinesCount && i < 20)
+                {
+                    trimLine = Lines[i].Trim();
+                    if (trimLine == "---" || trimLine == "...")
+                    {
+                        end = i;
+                        break;
+                    }
+                }
                 if (end > 0)
                 {
-                    for (int i = 1; i < end; i++)
+                    for (i = 1; i < end; i++)
                     {
                         string line = Lines[i].Trim();
                         int sep = line.IndexOf(':');
@@ -191,8 +211,20 @@ namespace m.format.conv
                                 case "author":
                                     metadata["author"] = value;
                                     break;
+                                case "version":
+                                    metadata["version"] = value;
+                                    break;
                                 case "date":
                                     metadata["date"] = value;
+                                    break;
+                                case "description":
+                                    metadata["description"] = value;
+                                    break;
+                                case "keywords":
+                                    metadata["keywords"] = value;
+                                    break;
+                                case "license":
+                                    metadata["license"] = value;
                                     break;
                             }
                         }
@@ -207,7 +239,7 @@ namespace m.format.conv
             for (LineNum = startLine; LineNum < LinesCount; LineNum++)
             {
                 string line = Lines[LineNum];
-                string trimLine = line.Trim();
+                trimLine = line.Trim();
                 char firstChar = trimLine.Length > 0 ? trimLine[0] : '\0'; // First character of the line. If empty, it's '\0'
 
                 // Determine the indentation level
@@ -362,12 +394,12 @@ namespace m.format.conv
                     if (PrevState != State.CodeBlock)
                     {
                         CloseBlock();
+                        if (string.IsNullOrEmpty(lang)) { lang = "text"; }
                         Out.Append($"<pre><code class=\"{lang}\">\n");
                         bool endBlock = false;
                         while (!endBlock && ++LineNum < LinesCount)
                         {
-                            line = Lines[LineNum];
-                            if (IsFenceClosingLine(line, fence))
+                            if (Lines[LineNum].Trim() == fence)
                             {
                                 Out.Append("</code></pre>\n");
                                 endBlock = true;
@@ -375,7 +407,7 @@ namespace m.format.conv
                             }
                             else
                             {
-                                Out.Append($"{EscapeHtml(line)}\n");
+                                Out.Append($"{EscapeHtml(Lines[LineNum])}\n");
                             }
                         }
                     }
@@ -1589,24 +1621,6 @@ namespace m.format.conv
                 return true;
             }
             return false;
-        }
-
-        /// <summary>
-        /// Determines if the given line is a closing fence for a code block.
-        /// </summary>
-        private bool IsFenceClosingLine(string line, string fence)
-        {
-            if (line == null) { return false; }
-
-            line = line.TrimEnd(); // Remove whitespace from the right side only
-
-            if (!line.StartsWith(fence)) { return false; }
-
-            // Extract the part of the line after the fence string
-            string afterFence = line.Substring(fence.Length);
-
-            // Check if afterFence contains only whitespace
-            return string.IsNullOrWhiteSpace(afterFence);
         }
 
         /// <summary>
