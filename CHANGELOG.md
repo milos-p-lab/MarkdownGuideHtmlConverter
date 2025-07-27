@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.2] - 2025-07-27
 
 ### Fixed
-- MD → HTML conversion: TOC generation now supports documents with headings 1 and 3 even if heading 2 is missing.
+- MD → HTML conversion: TOC generation now supports documents with skipped heading levels (e.g., `#`, `###` without an intervening `##`).
 - MD → HTML conversion: Convert improperly started fenced code blocks (e.g., ````csharp`).
 
 ## [2.0.1] - 2025-07-26
