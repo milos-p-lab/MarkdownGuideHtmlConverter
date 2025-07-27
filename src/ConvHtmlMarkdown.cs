@@ -83,7 +83,7 @@ namespace m.format.conv
                     if (inPre)
                     {
                         // Check for unexpected characters inside <pre> block
-                        string t = ParseTag(html, ref pos, out string tagL, out int start);
+                        string t = ParseTag(html, ref pos, out _, out int start);
                         pos = start;
                         t = t.Replace("<", "").Replace(">", "").Replace("/", "");
                         if (
@@ -536,7 +536,6 @@ namespace m.format.conv
                 inCode = true;
                 string atr = GetAttribute(tag, "class");
                 codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
-                string nx2 = html.Substring(pos + 1, 20);
                 Out.Append(atr.Length > 0 ? " " + atr : "");
             }
 

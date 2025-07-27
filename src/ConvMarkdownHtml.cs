@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.0.1</version>
-    /// <date>2025-07-26</date>
+    /// <version>2.0.2</version>
+    /// <date>2025-07-27</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -394,7 +394,6 @@ namespace m.format.conv
                     if (PrevState != State.CodeBlock)
                     {
                         CloseBlock();
-                        if (string.IsNullOrEmpty(lang)) { lang = "text"; }
                         Out.Append($"<pre><code class=\"{lang}\">\n");
                         bool endBlock = false;
                         while (!endBlock && ++LineNum < LinesCount)
@@ -1599,25 +1598,17 @@ namespace m.format.conv
         /// <summary>
         /// Determines if the given line is a code fence in markdown format.
         /// </summary>
-        private bool IsCodeFence(string line, out string fence, out string language)
+        private bool IsCodeFence(string trimLine, out string fence, out string language)
         {
             fence = null;
             language = null;
 
-            if (string.IsNullOrWhiteSpace(line)) { return false; }
+            if (string.IsNullOrWhiteSpace(trimLine)) { return false; }
 
-            if (line.StartsWith("```") || line.StartsWith("~~~"))
+            if (trimLine.StartsWith("```") || trimLine.StartsWith("~~~"))
             {
-                int firstSpace = line.IndexOf(' ');
-                if (firstSpace == -1)
-                {
-                    fence = line;
-                }
-                else
-                {
-                    fence = line.Substring(0, firstSpace);
-                    language = line.Substring(firstSpace + 1).Trim();
-                }
+                fence = trimLine.Substring(0, 3);
+                language = trimLine.Length > 3 ? trimLine.Substring(3).Trim() : "text";
                 return true;
             }
             return false;
@@ -1946,7 +1937,7 @@ namespace m.format.conv
             if (openLi) { sb.Append("</li>\n"); }
 
             // Close all remaining open <ul> and <li>
-            for (int i = prevLevel; i > headings[0].Level; i--)
+            for (int i = prevLevel; i > headings[0].Level && indentLevel > 1; i--)
             {
                 indentLevel--;
                 sb.Append(Indent(indentLevel) + "</ul>\n");
