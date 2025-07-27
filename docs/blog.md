@@ -145,15 +145,15 @@ It’s ideal for batch-processing Markdown or handling user-submitted content.
 
 Instead of building a framework, I created a **single-file class** you can just drop into your project and use like this:
 
-```csharp
+``` csharp
 string html = ConvMarkdownHtml.Convert(markdown);
 ```
 
-```csharp
+``` csharp
 string markdown = ConvHtmlMarkdown.Convert(html);
 ```
 
-```csharp
+``` csharp
 string html = ConvGuideHtml.Convert(amigaGuide);
 ```
 
