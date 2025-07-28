@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+  <meta charset="utf-8">
   <title>My Document Title</title>
   <meta name="author" content="Miloš Perunović">
   <meta name="description" content="This is a sample Markdown document to demonstrate various Markdown features.">
@@ -10,6 +10,7 @@
 </head>
 <body>
 
+<!-- Table of Contents -->
 <ul>
   <li><a href="#basic-text-formatting-strongboldstrong-emitalicem-delstrikethroughdel-markhighlightedmark">Basic Text Formatting (<strong>Bold</strong>, <em>Italic</em>, <del>Strikethrough</del>, <mark>Highlighted</mark>)</a>  </li>
   <li><a href="#images-links-and-email">Images, Links, and Email</a>  </li>
@@ -31,6 +32,7 @@
 <p>Nested <strong>bold <em>italic</em> bold</strong></p>
 <p>*this is not italic*</p>
 <p># this is not heading</p>
+
 <h2 id="images-links-and-email">Images, Links, and Email</h2>
 <p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo" title="HTML 5 Logo">.</p>
 <p><a href="https://example.com">link</a></p>
@@ -45,18 +47,22 @@
 <p>x^</p>
 <p>This is some text with a footnote.<sup><a href="#fn1" id="ref1" title="This is > text of the **first** footnote. [link](https://example.com)
 This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
+
 <hr>
+
 <h2 id="media-embedding">Media Embedding</h2>
 <video width="320" height="240" controls>
   <source src="https://www.w3schools.com/tags/movie.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+
 <h2 id="task-list">Task List</h2>
 <ul>
   <li><input type="checkbox" checked>Done</li>
   <li><input type="checkbox" >In progress</li>
   <li><input type="checkbox" >Not started</li>
 </ul>
+
 <h2 id="tables">Tables</h2>
 <table>
   <thead>
@@ -81,11 +87,13 @@ This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:
 </table>
 <p>Here goes more text with a second footnote.<sup><a href="#fnnote2" id="refnote2" title="This is the **second** footnote.">note2</a></sup></p>
 <br>
+
 <h2 id="code-blocks">Code Blocks</h2>
 <pre><code class="csharp">
 int x = 5;
 bool ok = x &gt; 0;
 </code></pre>
+
 <h2 id="escaped-characters">Escaped characters</h2>
 <p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
 <p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
@@ -97,12 +105,14 @@ bool ok = x &gt; 0;
  second line (v1).</p>
 <p>Paragraph first line<br>
  second line (v2).</p>
+
 <h2 id="quotes-and-citations">Quotes and Citations</h2>
 <blockquote>
 <p>Read the <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a> documentation for more information.</p>
 <p>This document is written in Markdown format.</p>
 <p>Markdown is easy to read and write, and can be easily converted to HTML or other formats.</p>
 </blockquote>
+
 <h2 id="lists">Lists</h2>
 <ul>
   <li>aaa<ul>
@@ -129,12 +139,14 @@ bool ok = x &gt; 0;
     <li>ddd</li>
 </ol>
 </ul>
+
 <h2 id="warnings-test">Warnings test</h2>
 <p>Unclosed <strong>bold</strong></p>
 <p>Unclosed <em>italic</em></p>
 <p>Incorrectly written character for&nbsp; bold</p>
 <p>Incorrectly written character for&nbsp; italic</p>
 <br>
+
 <div class="footnotes">
 <ul>
 <li id="fn1"><sup>1</sup> This is &gt; text of the <strong>first</strong> footnote. <a href="https://example.com">link</a><br>
@@ -142,6 +154,7 @@ This is the second line of the <strong>first</strong> footnote. <a href="#ref1" 
 <li id="fnnote2"><sup>note2</sup> This is the <strong>second</strong> footnote. <a href="#refnote2" class="footnote-backref">↩</a></li>
 </ul>
 </div>
+
 <div class="warnings" style="background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;">
   <h2>⚠️ WARNINGS</h2>
   <ul>
@@ -151,5 +164,6 @@ This is the second line of the <strong>first</strong> footnote. <a href="#ref1" 
     <li>Line 141: Incorrectly written character for "italic" [pos 34]</li>
   </ul>
 </div>
+
 </body>
 </html>
