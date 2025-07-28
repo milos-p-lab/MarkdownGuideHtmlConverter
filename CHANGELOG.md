@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.3] - 2025-07-28
+
+### Changed
+- Improved MD → HTML conversion: Readability and formatting of the generated HTML code.
+
 ## [2.0.2] - 2025-07-27
 
 ### Fixed
