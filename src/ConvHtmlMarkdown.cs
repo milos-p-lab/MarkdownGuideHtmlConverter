@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.0.0</version>
-    /// <date>2025-07-25</date>
+    /// <version>2.0.3</version>
+    /// <date>2025-07-28</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -272,6 +272,39 @@ namespace m.format.conv
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Adds an empty line to the Markdown output.
+        /// This method ensures that there are two newlines before the next content,
+        /// which is the standard way to separate paragraphs in Markdown.
+        /// </summary>
+        /// <param name="outLen">Length of the output string.</param>
+        private void EnsureEmptyLine(int outLen)
+        {
+            if (outLen < 2 || (Out[outLen - 1] == '\n' && Out[outLen - 2] == '\n'))
+            {
+                return;
+            }
+            if (outLen >= 1 && Out[outLen - 1] == '\n')
+            {
+                Out.Append('\n');
+            }
+            else
+            {
+                Out.Append("\n\n");
+            }
+        }
+
+        /// <summary>
+        /// Adds a new row to the Markdown output.
+        /// This method ensures that a new line is added before the next content,
+        /// which is important for maintaining the structure of the Markdown document.
+        /// If the last character is not a newline, it appends a newline character.
+        /// </summary>
+        private void EnsureNewline(char lastChar)
+        {
+            if (lastChar != '\n') { Out.Append('\n'); }
+        }
+
         #endregion
 
         #region HTML tag processing
@@ -482,7 +515,7 @@ namespace m.format.conv
                 }
                 else
                 {
-                    AddEmptyLine(outLen);
+                    EnsureEmptyLine(outLen);
                 }
             }
 
@@ -492,7 +525,7 @@ namespace m.format.conv
                 inTxt = true;
                 inHeading = true;
                 int level = tag[2] - '0';
-                AddEmptyLine(outLen);
+                EnsureEmptyLine(outLen);
                 Out.Append($"{new string('#', level)} ");
 
                 //string id = GetAttribute(tag, "id");
@@ -526,7 +559,7 @@ namespace m.format.conv
             // Preformatted text
             else if (inPre && tagL == "<pre>")
             {
-                AddEmptyLine(Out.Length);
+                EnsureEmptyLine(Out.Length);
                 Out.Append("```");
             }
 
@@ -616,7 +649,7 @@ namespace m.format.conv
                         }
                         if (!inList)
                         {
-                            AddEmptyLine(outLen);
+                            EnsureEmptyLine(outLen);
                         }
                         inList = true;
                         ListLevel++;
@@ -629,11 +662,11 @@ namespace m.format.conv
                             olNum = 0;
                             inList = false;
                         }
-                        AddNewRow(lastChar);
+                        EnsureNewline(lastChar);
                         break;
                     case "<li>":
                         inTxt = true;
-                        AddNewRow(lastChar);
+                        EnsureNewline(lastChar);
                         if (inOrdList)
                         {
                             olNum++;
@@ -666,14 +699,14 @@ namespace m.format.conv
 
                     case "</pre>":
                         inPre = false;
-                        AddNewRow(lastChar);
+                        EnsureNewline(lastChar);
                         Out.Append("```\n\n");
                         break;
 
                     // Code blocks
                     case "</code>":
                         inCode = false;
-                        AddNewRow(lastChar);
+                        EnsureNewline(lastChar);
                         break;
 
                     // Blockquotes
@@ -682,7 +715,7 @@ namespace m.format.conv
                         inBlockquote = true;
                         firstLineBlockquote = true;
                         contBlockquote = false;
-                        AddNewRow(lastChar);
+                        EnsureNewline(lastChar);
                         break;
                     case "</blockquote>":
                         inTxt = false;
@@ -701,7 +734,7 @@ namespace m.format.conv
                         }
                         else
                         {
-                            AddEmptyLine(outLen);
+                            EnsureEmptyLine(outLen);
                             Out.Append("\\");
                         }
                         break;
@@ -710,7 +743,7 @@ namespace m.format.conv
                     case "<hr>":
                     case "<hr/>":
                     case "<hr />":
-                        AddEmptyLine(outLen);
+                        EnsureEmptyLine(outLen);
                         Out.Append("---\n");
                         break;
 
@@ -774,39 +807,6 @@ namespace m.format.conv
             return end > start ? tag.Substring(start, end - start) : "";
         }
 
-        /// <summary>
-        /// Adds an empty line to the Markdown output.
-        /// This method ensures that there are two newlines before the next content,
-        /// which is the standard way to separate paragraphs in Markdown.
-        /// </summary>
-        /// <param name="outLen">Length of the output string.</param>
-        private void AddEmptyLine(int outLen)
-        {
-            if (outLen < 2 || (Out[outLen - 1] == '\n' && Out[outLen - 2] == '\n'))
-            {
-                return;
-            }
-            if (outLen >= 1 && Out[outLen - 1] == '\n')
-            {
-                Out.Append('\n');
-            }
-            else
-            {
-                Out.Append("\n\n");
-            }
-        }
-
-        /// <summary>
-        /// Adds a new row to the Markdown output.
-        /// This method ensures that a new line is added before the next content,
-        /// which is important for maintaining the structure of the Markdown document.
-        /// If the last character is not a newline, it appends a newline character.
-        /// </summary>
-        private void AddNewRow(char lastChar)
-        {
-            if (lastChar != '\n') { Out.Append('\n'); }
-        }
-
         #endregion
 
         #region Table processing
@@ -867,7 +867,7 @@ namespace m.format.conv
                     else if (tag == "</table>")
                     {
                         inTable = false;
-                        AddEmptyLine(Out.Length);
+                        EnsureEmptyLine(Out.Length);
                     }
                     else if (tag.StartsWith("<tr"))
                     {
@@ -1011,9 +1011,9 @@ namespace m.format.conv
             // Generate a report of any warnings
             if (Warnings.Count > 0)
             {
-                AddEmptyLine(Out.Length);
+                EnsureEmptyLine(Out.Length);
                 Out.Append(new string('-', 52) + "\n");
-                AddEmptyLine(Out.Length);
+                EnsureEmptyLine(Out.Length);
                 Out.Append("## ⚠️ WARNINGS\n\n");
                 foreach (string desc in Warnings)
                 {

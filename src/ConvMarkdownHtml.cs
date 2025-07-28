@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.0.2</version>
-    /// <date>2025-07-27</date>
+    /// <version>2.0.3</version>
+    /// <date>2025-07-28</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -64,7 +64,7 @@ namespace m.format.conv
                 (head ?? "") +
                 "</head>\n" +
                 "<body>\n" +
-                $"{body}" +
+                $"{body}\n" +
                 "</body>\n" +
                 "</html>\n";
         }
@@ -141,24 +141,6 @@ namespace m.format.conv
         /// This stack is used to keep track of the closing tags for lists (ordered and unordered lists).
         /// </summary>
         private readonly Stack<string> ListClosingTags = new Stack<string>();
-
-        /// <summary>
-        /// Escapes HTML special characters in the input string.
-        /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.
-        /// </summary>
-        private static string EscapeHtml(string input)
-        {
-            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-        }
-
-        /// <summary>
-        /// Escapes HTML special characters in the input string.
-        /// This method replaces characters like '&', '<', '>', and '"' with their corresponding HTML entities.
-        /// </summary>
-        private static string EscapeHtmlQ(string input)
-        {
-            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
-        }
 
         /// <summary>
         /// Converts Markdown document to HTML.
@@ -289,6 +271,7 @@ namespace m.format.conv
                 {
                     CurrState = State.Heading;
                     CloseBlock();
+                    EnsureEmptyLine();
                     line = $"<h{level} id=\"{id}\">{content}</h{level}>\n";
                 }
 
@@ -371,6 +354,7 @@ namespace m.format.conv
                 {
                     CurrState = State.HorizontalRule;
                     CloseBlock();
+                    EnsureEmptyLine();
                     line = "<hr>\n";
                 }
 
@@ -471,6 +455,7 @@ namespace m.format.conv
             // Add footnote definitions at the end of the document
             if (UsedFootnotes.Count > 0)
             {
+                EnsureEmptyLine();
                 Out.Append("<div class=\"footnotes\">\n<ul>\n");
 
                 foreach (string id in UsedFootnotes)
@@ -490,7 +475,10 @@ namespace m.format.conv
 
             // Generate Table of Contents (TOC) and insert it into the body
             string toc = GenerateToc(TocHeadings);
-            Out.Replace("{{TOC_PLACEHOLDER}}", toc);
+            if (toc.Length > 0)
+            {
+                Out.Replace("{{TOC_PLACEHOLDER}}", toc);
+            }
 
             return Out.ToString();
         }
@@ -569,6 +557,46 @@ namespace m.format.conv
             {
                 ListState = State.Empty;
                 ListLastLevel = 0;
+            }
+        }
+
+        /// <summary>
+        /// Escapes HTML special characters in the input string.
+        /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.
+        /// </summary>
+        private static string EscapeHtml(string input)
+        {
+            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+        }
+
+        /// <summary>
+        /// Escapes HTML special characters in the input string.
+        /// This method replaces characters like '&', '<', '>', and '"' with their corresponding HTML entities.
+        /// </summary>
+        private static string EscapeHtmlQ(string input)
+        {
+            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+        }
+
+        /// <summary>
+        /// Adds an empty line to the Markdown output.
+        /// This method ensures that there are two newlines before the next content,
+        /// which is the standard way to separate paragraphs in Markdown.
+        /// </summary>
+        private void EnsureEmptyLine()
+        {
+            int outLen = Out.Length;
+            if (outLen < 2 || (Out[outLen - 1] == '\n' && Out[outLen - 2] == '\n'))
+            {
+                return;
+            }
+            if (outLen >= 1 && Out[outLen - 1] == '\n')
+            {
+                Out.Append('\n');
+            }
+            else
+            {
+                Out.Append("\n\n");
             }
         }
 
@@ -1890,7 +1918,7 @@ namespace m.format.conv
             int indentLevel = 0;
             bool openLi = false;
 
-            sb.Append("\n" + Indent(indentLevel) + "<ul>\n");
+            sb.Append("\n<!-- Table of Contents -->\n" + Indent(indentLevel) + "<ul>\n");
             indentLevel++;
 
             for (int i = 0; i < headings.Count; i++)
@@ -1945,7 +1973,7 @@ namespace m.format.conv
             }
 
             indentLevel--;
-            sb.Append(Indent(indentLevel) + "</ul>\n\n");
+            sb.Append(Indent(indentLevel) + "</ul>");
             return sb.ToString();
         }
 
@@ -2112,6 +2140,7 @@ namespace m.format.conv
             // Generate a report of any warnings
             if (Warnings.Count > 0)
             {
+                EnsureEmptyLine();
                 Out.Append(
                     "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
                     "  <h2>⚠️ WARNINGS</h2>\n" +
