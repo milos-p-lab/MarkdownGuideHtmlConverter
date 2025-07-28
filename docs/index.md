@@ -1,5 +1,5 @@
 ---
-title: "# Markdown ⇄ HTML and AmigaGuide → HTML Converter"
+title: "Markdown ⇄ HTML and AmigaGuide → HTML Converter"
 layout: default
 description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide → HTML converter written in C#."
 ---
