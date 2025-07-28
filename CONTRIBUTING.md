@@ -14,7 +14,7 @@ Thank you for your interest in contributing! Whether it's reporting a bug, sugge
 ### 💡 Suggest Features
 
 - Propose ideas via [Discussions](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/discussions) or Issues.
-- Check the [ROADMAP.md](ROADMAP.md) for existing or planned features.
+- Check the [ROADMAP.md](docs/ROADMAP.md) for existing or planned features.
 
 ### 🔧 Submit a Pull Request
 
