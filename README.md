@@ -22,16 +22,7 @@ It’s designed to be:
 
 Unlike large tools like Pandoc, this converter is implemented as a single C# file per direction, making it easy to embed directly into your console, desktop, or web projects.
 
-🧱 Supported Conversion Features
-
-- Nearly all core Markdown syntax (headings, lists, links, images, code, tables, footnotes…)
-- AmigaGuide keywords, nodes, and formatting elements
-- Raw HTML passthrough
-- Built-in XSS-safe conversion for Markdown and HTML input
-- Syntax and structural warning system for safer, cleaner output
-- Reversible conversion for supported syntax (Markdown ⇄ HTML)
-
-Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
+🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
 > 🗓️ **Date:** 2025-07-25
