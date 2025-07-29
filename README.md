@@ -1,6 +1,6 @@
 # Markdown ⇄ HTML and AmigaGuide → HTML Converter
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/) [![Discussions](https://img.shields.io/github/discussions/milos-p-lab/MarkdownGuideHtmlConverter?label=Discussions)](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/discussions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/)
 
 ## 🧩 About
 
