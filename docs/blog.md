@@ -1,7 +1,5 @@
 # Why I Built a C# Markdown to / from HTML Converter (That’s Actually Fast and Safe)
 
-> ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-07-25  
 > **Description:** "A lightweight, safe and complete `.md` to `.html`, `.html` to `.md`, and `.guide` to `.html` converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
 Markdown is great. HTML is everywhere. Turning one into the other *should* be easy, right?
@@ -199,3 +197,5 @@ mdoc input.guide output.html
 ---
 
 If you're tired of bloated or unsafe Markdown tools — try this minimalist approach. I built it for me, but maybe it's exactly what you need too.
+
+> ✍️ **Author:** Miloš Perunović  
