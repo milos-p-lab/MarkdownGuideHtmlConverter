@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.0.3</version>
-    /// <date>2025-07-28</date>
+    /// <version>2.1.0</version>
+    /// <date>2025-08-02</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -21,9 +21,9 @@ namespace m.format.conv
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        public static string Convert(string html)
+        public static string Convert(string html, bool markCodeBlock = true)
         {
-            return new ConvHtmlMarkdown().ToMarkdownBody(html);
+            return new ConvHtmlMarkdown().ToMarkdownBody(html, markCodeBlock);
         }
 
         /// <summary>
@@ -43,18 +43,21 @@ namespace m.format.conv
         /// </summary>
         private readonly StringBuilder TextBuffer = new StringBuilder();
 
+        private bool MarkCodeBlock;
+
         /// <summary>
         /// Converts HTML document to Markdown.
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        private string ToMarkdownBody(string html)
+        private string ToMarkdownBody(string html, bool markCodeBlock)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
             int len = html.Length;
             Out = new StringBuilder(len); // Pre-allocate space for the Markdown output
 
+            MarkCodeBlock = markCodeBlock;
             inPre = false; // Flag to indicate if we are inside a <pre> block
             char prevChr = '\0'; // Previous character for space handling
             bool repeatSpc = false; // Flag to indicate if found a repeated space character
@@ -79,27 +82,15 @@ namespace m.format.conv
                 // Check for opening tag
                 else if (c == '<')
                 {
-                    bool tagOk = true;
                     if (inPre)
                     {
-                        // Check for unexpected characters inside <pre> block
-                        string t = ParseTag(html, ref pos, out _, out int start);
-                        pos = start;
-                        t = t.Replace("<", "").Replace(">", "").Replace("/", "");
-                        if (
-                            !t.StartsWith("pre") && !t.StartsWith("code") && !t.StartsWith("span") &&
-                            t != "b" && t != "i" && t != "u" && t != "strong" && t != "em"
-                            )
-                        {
-                            tagOk = false;
-                            ReportWarning($"Unexpected character `{c}` inside `<pre>` block.");
-                        }
+                        ProcessTagInPre(html, len, ref pos);
                     }
-                    if (tagOk)
+                    else
                     {
                         ProcessTag(html, len, ref pos);
-                        continue;
                     }
+                    continue;
                 }
 
                 // Check for double space or tab characters
@@ -115,7 +106,14 @@ namespace m.format.conv
                     // Check for HTML entities
                     if (DecodeHtmlEntity(html, ref pos, out char decoded))
                     {
-                        TextBuffer.Append(decoded);
+                        if (markCodeBlock)
+                        {
+                            TextBuffer.Append(decoded);
+                        }
+                        else
+                        {
+                            TextBuffer.Append(EscapeMarkdownChars(decoded.ToString()));
+                        }
                         continue;
                     }
                 }
@@ -129,7 +127,7 @@ namespace m.format.conv
                     {
                         ReportWarning($"Unexpected character `{c}` inside `<pre>` block.");
                     }
-                    TextBuffer.Append(html[pos]);
+                    TextBuffer.Append(c);
                 }
                 else if (inTxt && c != '\n')
                 {
@@ -166,6 +164,10 @@ namespace m.format.conv
 
             return Out.ToString();
         }
+
+        #endregion
+
+        #region Helper methods
 
         /// <summary>
         /// Decodes HTML entities in the given HTML string.
@@ -356,12 +358,15 @@ namespace m.format.conv
         /// This method parses the tag, updates the Markdown output, and manages the context based on the tag type.
         /// It handles various HTML tags such as paragraphs, headings, links, lists, blockquotes,...
         /// </summary>
+        /// <param name="html">The HTML string.</param>
+        /// <param name="len">The length of the HTML string.</param>
+        /// <param name="pos">The current position in the HTML string.</param>
         private void ProcessTag(string html, int len, ref int pos)
         {
             // Parses an HTML tag from the given position in the HTML string.
-            string tag = ParseTag(html, ref pos, out string tagL, out int start);
+            string tagA = ParseTag(html, ref pos, out string tag, out int start);
 
-            char tagChr = tag.Length >= 3 ? tagL[1] : '\0';
+            char tagChr1 = tag.Length >= 3 ? tag[1] : '\0';
             bool isParTag = false, isHeadingTag = false;
             bool improperClosed = false;
 
@@ -374,22 +379,22 @@ namespace m.format.conv
                     {
                         FrontMatter.Append("---\n");
                     }
-                    if (tagL == "</title>")
+                    if (tag == "</title>")
                     {
                         FrontMatter.Append($"title: {TextBuffer.ToString().Trim()}").Append('\n');
                         return;
                     }
-                    else if (tagL.StartsWith("<meta"))
+                    else if (tag.StartsWith("<meta"))
                     {
-                        string name = GetAttribute(tag, "name");
-                        string cont = GetAttribute(tag, "content");
+                        string name = GetAttribute(tagA, "name");
+                        string cont = GetAttribute(tagA, "content");
                         if (name.Length > 0)
                         {
                             FrontMatter.Append($"{name}: {DecodeHtmlText(cont.Trim())}");
                             FrontMatter.Append('\n');
                         }
                     }
-                    else if (tagL == "</head>")
+                    else if (tag == "</head>")
                     {
                         inHead = false;
                         inTxt = false;
@@ -400,7 +405,7 @@ namespace m.format.conv
                     }
                     return;
                 }
-                else if (tagChr == 'h' && tagL.StartsWith("<head"))
+                else if (tagChr1 == 'h' && tag.StartsWith("<head"))
                 {
                     inHead = true;
                     inTxt = true;
@@ -409,14 +414,14 @@ namespace m.format.conv
             }
 
             // Preformatted text
-            if (tagChr == 'p' && tagL == "<pre>")
+            if (tagChr1 == 'p' && tag == "<pre>")
             {
                 inPre = true;
                 preAddLine = pos + 1 < len && html[pos + 1] != '\n';
             }
 
             // Paragraph tags
-            else if (tagChr == 'p' && (tag[2] == '>' || tag[2] == ' '))
+            else if (tagChr1 == 'p' && (tag[2] == '>' || tag[2] == ' '))
             {
                 isParTag = true;
                 if ((inTxt && !inBlockquote) || inHeading)
@@ -427,7 +432,7 @@ namespace m.format.conv
             }
 
             // Heading tags
-            else if (tagChr == 'h' && char.IsDigit(tag[2]))
+            else if (tagChr1 == 'h' && char.IsDigit(tag[2]))
             {
                 isHeadingTag = true;
                 if (inTxt || inHeading)
@@ -455,7 +460,7 @@ namespace m.format.conv
                         }
                         else
                         {
-                            Out.Append(" text");
+                            if (MarkCodeBlock) { Out.Append(" text"); }
                             if (preAddLine) { Out.Append("\n"); }
                         }
                         content = TextBuffer.ToString();
@@ -537,56 +542,56 @@ namespace m.format.conv
             }
 
             // Links
-            else if (tagChr == 'a' && tagL.StartsWith("<a "))
+            else if (tagChr1 == 'a' && tag.StartsWith("<a "))
             {
                 inLink = true;
-                href = GetAttribute(tag, "href");
+                href = GetAttribute(tagA, "href");
             }
 
             // Span
-            else if (tagChr == 's' && tagL.StartsWith("<span"))
+            else if (tagChr1 == 's' && tag.StartsWith("<span"))
             {
                 // Ignore span tags for now
             }
 
             // Tables
-            else if (tagChr == 't' && tagL.StartsWith("<table"))
+            else if (tagChr1 == 't' && tag.StartsWith("<table"))
             {
                 pos = start;
                 ParseTable(html, ref pos);
             }
 
             // Preformatted text
-            else if (inPre && tagL == "<pre>")
+            else if (inPre && tag == "<pre>")
             {
                 EnsureEmptyLine(Out.Length);
-                Out.Append("```");
+                if (MarkCodeBlock) { Out.Append("```"); }
             }
 
             // Code blocks
-            else if (tagChr == 'c' && tagL.StartsWith("<code"))
+            else if (tagChr1 == 'c' && tag.StartsWith("<code"))
             {
                 inCode = true;
-                string atr = GetAttribute(tag, "class");
+                string atr = GetAttribute(tagA, "class");
                 codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
-                Out.Append(atr.Length > 0 ? " " + atr : "");
+                if (MarkCodeBlock) { Out.Append(atr.Length > 0 ? " " + atr : ""); }
             }
 
             // Images
-            else if (tagChr == 'i' && tagL.StartsWith("<img"))
+            else if (tagChr1 == 'i' && tag.StartsWith("<img"))
             {
-                string src = GetAttribute(tag, "src");
-                string alt = GetAttribute(tag, "alt");
+                string src = GetAttribute(tagA, "src");
+                string alt = GetAttribute(tagA, "alt");
                 Out.Append($"![{alt}]({src})");
             }
 
             // Task lists with checkboxes
-            else if (tagChr == 'i' && inList && !inOrdList && tagL.StartsWith("<input"))
+            else if (tagChr1 == 'i' && inList && !inOrdList && tag.StartsWith("<input"))
             {
-                string atr = GetAttribute(tag, "type");
+                string atr = GetAttribute(tagA, "type");
                 if (atr == "checkbox")
                 {
-                    if (tagL.Contains("checked"))
+                    if (tag.Contains("checked"))
                     {
                         Out.Append("[x] ");
                     }
@@ -598,10 +603,10 @@ namespace m.format.conv
             }
 
             // Ignore doctype, and html/body tags
-            else if (tagChr != '!' && (tagChr != 'h' || !tagL.StartsWith("<html")) && (tagChr != 'b' || !tagL.StartsWith("<body")))
+            else if (tagChr1 != '!' && (tagChr1 != 'h' || !tag.StartsWith("<html")) && (tagChr1 != 'b' || !tag.StartsWith("<body")))
             {
                 // Handle different HTML tags
-                switch (tagL)
+                switch (tag)
                 {
                     // Paragraphs
                     case "</p>":
@@ -699,8 +704,9 @@ namespace m.format.conv
 
                     case "</pre>":
                         inPre = false;
+                        inCode = false;
                         EnsureNewline(lastChar);
-                        Out.Append("```\n\n");
+                        if (MarkCodeBlock) { Out.Append("```\n\n"); }
                         break;
 
                     // Code blocks
@@ -771,6 +777,70 @@ namespace m.format.conv
                         inTxt = !tag.StartsWith("</");
                         break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Processes an HTML tag within a <pre> block.
+        /// </summary>
+        /// <param name="html">The HTML string.</param>
+        /// <param name="len">The length of the HTML string.</param>
+        /// <param name="pos">The current position in the HTML string.</param>
+        private void ProcessTagInPre(string html, int len, ref int pos)
+        {
+            string tagA = ParseTag(html, ref pos, out string tag, out int start);
+
+            if (tag == "</pre>")
+            {
+                pos = start;
+                ProcessTag(html, len, ref pos);
+            }
+            else if (tag.StartsWith("<code"))
+            {
+                inCode = true;
+                string atr = GetAttribute(tagA, "class");
+                codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
+                if (MarkCodeBlock) { Out.Append(atr.Length > 0 ? " " + atr : ""); }
+            }
+            else if (tag == "<i>" || tag == "</i>" || tag == "<em>" || tag == "</em>")
+            {
+                TextBuffer.Append("*");
+            }
+            else if (tag == "<b>" || tag == "</b>" || tag == "<strong>" || tag == "</strong>")
+            {
+                TextBuffer.Append("**");
+            }
+            else if (tag == "<del>" || tag == "</del>")
+            {
+                TextBuffer.Append("~~");
+            }
+            else if (tag == "<mark>" || tag == "</mark>")
+            {
+                TextBuffer.Append("==");
+            }
+            else if (tag.StartsWith("<a href"))
+            {
+                string href = GetAttribute(tagA, "href");
+                int i = html.IndexOf("</a>", pos);
+                if (i > -1)
+                {
+                    string name = html.Substring(pos + 1, i - pos - 1);
+                    TextBuffer.Append($"[{name}]({href})");
+                }
+            }
+            else if (tag.StartsWith("<a id"))
+            {
+                TextBuffer.Append($"{tagA}</a>");
+            }
+            else if (tag == "</a>" || tag.StartsWith("<!--") || tag.StartsWith("<code") || tag == "</code>" || tag.StartsWith("<span") || tag == "</span>")
+            {
+                //
+            }
+            else
+            {
+                TextBuffer.Append('<');
+                ReportWarning("Unexpected character `<` inside `<pre>` block.");
+                pos = start;
             }
         }
 
@@ -1023,6 +1093,5 @@ namespace m.format.conv
         }
 
         #endregion
-
     }
 }

@@ -560,6 +560,10 @@ namespace m.format.conv
             }
         }
 
+        #endregion
+
+        #region Helper methods
+
         /// <summary>
         /// Escapes HTML special characters in the input string.
         /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.

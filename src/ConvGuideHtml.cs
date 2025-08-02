@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Text;
 
 namespace m.format.conv
@@ -9,11 +8,13 @@ namespace m.format.conv
     /// <summary>
     /// Converts AmigaGuide to HTML.
     /// </summary>
-    /// <version>2.0.0</version>
-    /// <date>2025-07-22</date>
+    /// <version>2.1.0</version>
+    /// <date>2025-08-02</date>
     /// <author>Miloš Perunović</author>
-    public static class ConvGuideHtml
+    public class ConvGuideHtml
     {
+        #region Main methods for converting Markdown to HTML
+
         /// <summary>
         /// Converts AmigaGuide document to HTML.
         /// </summary>
@@ -27,22 +28,20 @@ namespace m.format.conv
 
             // Convert AmigaGuide to HTML body
             // This method will also extract metadata from the document, such as title.
-            string body = ToHtmlBody(guide, out Dictionary<string, string> metadata);
+            string body = new ConvGuideHtml().ToHtmlBody(guide, out Dictionary<string, string> metadata);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
             if (!metadata.ContainsKey("title")) { metadata["title"] = "Untitled Document"; }
             foreach (KeyValuePair<string, string> pair in metadata)
             {
-                string key = pair.Key.ToLowerInvariant();
-
-                if (key == "title")
+                if (pair.Key == "title")
                 {
-                    meta.Append($"<title>{WebUtility.HtmlEncode(pair.Value)}</title>\n");
+                    meta.Append($"  <title>{EscapeHtml(pair.Value)}</title>\n");
                 }
                 else
                 {
-                    meta.Append($"<meta name=\"{WebUtility.HtmlEncode(pair.Key)}\" content=\"{WebUtility.HtmlEncode(pair.Value)}\">\n");
+                    meta.Append($"  <meta name=\"{EscapeHtml(pair.Key)}\" content=\"{EscapeHtml(pair.Value)}\">\n");
                 }
             }
 
@@ -54,9 +53,23 @@ namespace m.format.conv
                 "<!DOCTYPE html>\n" +
                 $"<html lang=\"{lang}\">\n" +
                 "<head>\n" +
-                "<meta charset=\"utf-8\">" +
+                "  <meta charset=\"utf-8\">\n" +
                 (meta.Length > 0 ? meta.ToString() : "") +
-                (head ?? "") +
+                (head ??
+                "  <style>\n" +
+                "    .btn {\n" +
+                "    display: inline-block;\n" +
+                "    padding: 3px 7px;\n" +
+                "    background: #eee;\n" +
+                "    border: 1px solid #ccc;\n" +
+                "    text-decoration: none;\n" +
+                "    color: #333;\n" +
+                "    }\n" +
+                "    .btn:hover {\n" +
+                "      background: #2f8bc1;\n" +
+                "    }\n" +
+                "  </style>\n"
+                ) +
                 "</head>\n" +
                 "<body>\n" +
                 $"{body}" +
@@ -65,28 +78,34 @@ namespace m.format.conv
         }
 
         /// <summary>
+        /// StringBuilder for accumulating the HTML output.
+        /// This is used to build the final HTML string efficiently.
+        /// </summary>
+        private StringBuilder Out;
+
+        private StringBuilder Buffer;
+
+        /// <summary>
+        /// Dictionary to hold metadata extracted from the AmigaGuide document.
+        /// </summary>
+        private readonly Dictionary<string, string> Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Converts an AmigaGuide document to HTML.
         /// </summary>
         /// <param name="doc">AmigaGuide document</param>
         /// <param name="metadata">Document title.</param>
         /// <returns>HTML representation of the AmigaGuide document</returns>
-        private static string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
+        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
         {
             int len = doc.Length;
-            StringBuilder Out = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
-            metadata = new Dictionary<string, string>();
+            Out = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
+            Buffer = new StringBuilder();
+            Out.Append("<pre>\n");
 
-            bool skip = true;
-            bool btnContents = true;
-            bool nodeMain = true;
-
-            Out.Append("<div style=\"white-space: pre; font-family: monospace;\">\n");
-
-            for (int i = 0; i < len; i++)
+            for (int pos = 0; pos < len; pos++)
             {
-                char c = doc[i];
-                string tag = "";
-                string cmd = "";
+                char c = doc[pos];
 
                 switch (c)
                 {
@@ -106,157 +125,213 @@ namespace m.format.conv
                         break;
 
                     case '\\':
-                        if (i < len - 1)
+                        if (pos < len - 1)
                         {
-                            if (doc[i + 1] == '\\')
+                            if (doc[pos + 1] == '\\')
                             {
                                 Out.Append("\\");
-                                i++;
+                                pos++;
                             }
-                            else if (doc[i + 1] == '@')
+                            else if (doc[pos + 1] == '@')
                             {
                                 Out.Append("@");
-                                i++;
+                                pos++;
                             }
                         }
                         break;
 
                     case '@':
-                        {
-                            if (++i < len && doc[i] == '{')
-                            {
-                                // Extracting the tag.
-                                while (++i < len && doc[i] != '}')
-                                {
-                                    tag += doc[i];
-                                }
-
-                                if (tag == "i" || tag == "b" || tag == "u")
-                                {
-                                    tag = $"<{tag}>";
-                                }
-                                else if (tag == "ui" || tag == "ub" || tag == "uu")
-                                {
-                                    tag = $"</{tag.Substring(1, 1)}>";
-                                }
-                                else if (tag[0] == '"')
-                                {
-                                    string[] args = ParseArguments(tag);
-                                    if (args.Length > 2)
-                                    {
-                                        tag = CreateButton(args[2], args[0]);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Extracting the command.
-
-                                i--;
-                                int ti = i;
-                                while (++i < len && doc[i] != '\n' && doc[i] != '\r')
-                                {
-                                    cmd += doc[i];
-                                }
-
-                                string argLine = "";
-                                int j = cmd.IndexOf(' ');
-                                if (j == -1)
-                                {
-                                    cmd = cmd.ToLower();
-                                }
-                                else
-                                {
-                                    argLine = cmd.Substring(j + 1);
-                                    cmd = cmd.Substring(0, j).ToLower();
-                                }
-
-                                string[] args = ParseArguments(argLine);
-
-                                if (cmd == "node")
-                                {
-                                    btnContents = true;
-                                    skip = false;
-                                    if (args.Length > 0)
-                                    {
-                                        Out.Append("<a id=\"" + args[0].ToLower().Replace(' ', '_') + "\"></a>");
-                                        if (args.Length > 1 && !nodeMain)
-                                        {
-                                            string s = args[1] ?? args[0];
-                                            Out.Append($"<h2>{s}</h2>");
-                                        }
-                                    }
-                                }
-                                else if (cmd == "endnode")
-                                {
-                                    skip = true;
-                                    if (btnContents && !nodeMain)
-                                    {
-                                        tag = CreateButton("main", "Contents");
-                                    }
-                                    tag += "<hr>\n";
-                                    nodeMain = false;
-                                }
-                                else if ((cmd == "toc" || cmd == "prev" || cmd == "next") && args.Length > 0)
-                                {
-                                    btnContents = false;
-                                    string txt = cmd.Replace("toc", "Contents").Replace("prev", "Browse <").Replace("next", "Browse >");
-                                    tag = CreateButton(args[0], txt);
-                                }
-                                else if (cmd == "database" && args.Length > 0)
-                                {
-                                    metadata["title"] = WebUtility.HtmlEncode(args[0]);
-                                }
-                                else if (cmd == "title" && args.Length > 0)
-                                {
-                                    if (nodeMain)
-                                    {
-                                        metadata["title"] = WebUtility.HtmlEncode(args[0]);
-                                    }
-                                    Out.Append($"<h2>{args[0]}</h2>");
-                                }
-                                else
-                                {
-                                    // Unknown command or encoding error.
-                                    tag = "";
-                                    i = ti;
-                                    if (!skip)
-                                    {
-                                        // Encoding error.
-                                        Out.Append("@");
-                                    }
-                                    else
-                                    {
-                                        // Unknown command is passed as a comment.
-                                        Out.Append($"<!--@{cmd}{(argLine.Length > 0 ? " " + WebUtility.HtmlEncode(argLine) : "")}-->\n");
-                                    }
-                                }
-                            }
-
-                            Out.Append(tag);
-                            break;
-                        }
+                        ProcessCommand(doc, len, ref pos);
+                        break;
 
                     default:
-                        if (!skip)
+                        if (inNode)
                         {
                             Out.Append(c);
+                        }
+                        else
+                        {
+                            Buffer.Append(c);
                         }
                         break;
                 }
             }
 
-            Out.Append("</div>\n");
+            Out.Append("</pre>\n");
 
+            metadata = Metadata;
             return Out.ToString();
         }
 
         /// <summary>
-        /// Creates an HTML button element.
+        /// Creates an HTML link with a button style.
+        /// The link will point to an anchor with the specified href.
         /// </summary>
-        private static string CreateButton(string href, string txt)
+        private static string CreateLink(string href, string txt)
         {
-            return $"<input type=\"button\" onclick=\"location.href='#{href.ToLower().Replace(' ', '_')}';\" value=\"{WebUtility.HtmlEncode(txt)}\">";
+            return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(txt)}</a>";
+        }
+
+        #endregion
+
+        #region Command processing methods
+
+        /// <summary>
+        /// Flag to indicate if we are currently inside a node.
+        /// </summary>
+        private bool inNode = false;
+
+        /// <summary>
+        /// Processes a command in the AmigaGuide document.
+        /// This method handles commands like `@node`, `@toc`, `@title`, etc
+        /// </summary>
+        /// <param name="doc">The AmigaGuide document</param>
+        /// <param name="len">The length of the document</param>
+        /// <param name="pos">The current position in the document</param>
+        /// <returns>The processed command as a string</returns>
+        private void ProcessCommand(string doc, int len, ref int pos)
+        {
+            string res = "";
+
+            if (++pos < len && doc[pos] == '{')
+            {
+                // Attributes command.
+                while (++pos < len && doc[pos] != '}')
+                {
+                    res += doc[pos];
+                }
+
+                if (res == "i" || res == "b" || res == "u")
+                {
+                    res = $"<{res}>";
+                }
+                else if (res == "ui" || res == "ub" || res == "uu")
+                {
+                    res = $"</{res.Substring(1, 1)}>";
+                }
+                else if (res.Length > 0 && res[0] == '"')
+                {
+                    string[] args = ParseArguments(res);
+                    if (args.Length > 2)
+                    {
+                        res = CreateLink(args[2], args[0]);
+                    }
+                }
+                else
+                {
+                    res = "⚠️ Unknown attribute: " + res;
+                }
+            }
+            else
+            {
+                // Global commands.
+                pos--;
+                string cmdA = "";
+                while (++pos < len && doc[pos] != '\n' && doc[pos] != '\r')
+                {
+                    cmdA += doc[pos];
+                }
+
+                string argLine = "";
+                int j = cmdA.IndexOf(' ');
+                if (j != -1)
+                {
+                    argLine = cmdA.Substring(j + 1);
+                    cmdA = cmdA.Substring(0, j);
+                }
+
+                string[] args = ParseArguments(argLine);
+
+                string cmd = cmdA.ToLower();
+
+                switch (cmd)
+                {
+                    case "node":
+                        if (Buffer.Length > 1)
+                        {
+                            string buff = Buffer.ToString().Trim(' ', '\n', '\r');
+                            if (buff.Length > 0)
+                            {
+                                Out.Append($"<!-- guide-preamble: {buff} -->");
+                            }
+                            Buffer.Clear();
+                        }
+                        if (args.Length > 0)
+                        {
+                            inNode = true;
+                            res = "<a id=\"" + args[0].ToLower().Replace(' ', '_') + "\"></a>";
+                            if (args.Length > 1)
+                            {
+                                string s = args[1] ?? args[0];
+                                res += $"</pre>\n<h2>{EscapeHtml(s)}</h2>\n<pre>";
+                            }
+                        }
+
+                        break;
+
+                    case "endnode":
+                        inNode = false;
+                        res = "</pre>\n<hr>\n<pre>\n";
+                        break;
+
+                    default:
+                        if (args.Length > 0)
+                        {
+                            switch (cmd)
+                            {
+                                case "toc":
+                                case "prev":
+                                case "next":
+                                    string txt = cmd.Replace("toc", "Contents").Replace("prev", "Browse <").Replace("next", "Browse >");
+                                    res = CreateLink(args[0], txt);
+                                    break;
+                                case "database":
+                                    Metadata["title"] = args[0];
+                                    break;
+                                case "master":
+                                case "width":
+                                case "wordwrap":
+                                case "smartwrap":
+                                    res = $"<!-- ignored-command: @{cmdA} {EscapeHtml(argLine)} -->";
+                                    break;
+                                case "title":
+                                    Metadata["title"] = args[0];
+                                    res = $"</pre>\n<h1>{EscapeHtml(args[0])}</h1>\n<pre>\n";
+                                    break;
+                                case "author":
+                                    Metadata["author"] = args[0];
+                                    break;
+                                case "rem":
+                                case "remark":
+                                    res = $"<!--{EscapeHtml(argLine)}-->\n";
+                                    break;
+                                default:
+                                    res = $"@{$"{cmdA} {EscapeHtml(argLine)}".Trim()}\n";
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            res = $"@{$"{cmdA} {EscapeHtml(argLine)}".Trim()}\n";
+                        }
+
+                        break;
+                }
+            }
+            Out.Append(res);
+        }
+
+        #endregion
+
+        #region Helper methods
+
+        /// <summary>
+        /// Escapes HTML special characters in the input string.
+        /// This method replaces characters like '&', '<', and '>' with their corresponding HTML entities.
+        /// </summary>
+        private static string EscapeHtml(string input)
+        {
+            return input.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
         }
 
         /// <summary>
@@ -272,7 +347,7 @@ namespace m.format.conv
             int i = 0;
             while (i < input.Length)
             {
-                // skip all whitespace characters
+                // Skip all whitespace characters
                 while (i < input.Length && Char.IsWhiteSpace(input[i])) { i++; }
 
                 if (i >= input.Length) { break; }
@@ -281,8 +356,8 @@ namespace m.format.conv
 
                 if (input[i] == '\"')
                 {
-                    // starts quoted argument
-                    i++; // skip first quote
+                    // Starts quoted argument
+                    i++; // Skip first quote
                     int start = i;
 
                     while (i < input.Length && input[i] != '\"') { i++; }
@@ -291,7 +366,7 @@ namespace m.format.conv
 
                     if (i < input.Length && input[i] == '\"')
                     {
-                        i++; // skip closing quote
+                        i++; // Skip closing quote
                     }
                 }
                 else
@@ -308,5 +383,7 @@ namespace m.format.conv
 
             return result.ToArray();
         }
+
+        #endregion
     }
 }
