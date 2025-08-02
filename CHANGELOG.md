@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2025-08-02
+
+### Added
+- 🆕 mdoc.exe: Added conversion support for **AmigaGuide → Markdown**.
+  - Usage: Run `mdoc.exe input.guide output.md` to convert AmigaGuide files to Markdown.
+  - Note: Some advanced AmigaGuide features may not be fully supported; see documentation for details.
+- 📂 Source code for mdoc.exe is now available in the repository (`src`).
+
+### Changed
+- 🎯 AmigaGuide → HTML conversion improvements:
+  - Button styles have been updated for better consistency and appearance. (Replaced `input type="button"` elements with `a href` links styled via CSS.)
+    - Improved rendering of `<h2>`, `<pre>`, and `<hr>` elements for better compatibility with Markdown.
+    - Added support for the commands `@rem`, `@remark`, and `@author`.
+    - Improved parsing flow.
+
+### Fixed
+- 🐞 HTML → MD conversion: Tags `<b>`, `<i>`, and `<a href...` are now correctly supported within `<pre>` blocks.
+
 ## [2.0.3] - 2025-07-28
 
 ### Changed
@@ -19,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MD → HTML conversion: Convert improperly started fenced code blocks (e.g., ````csharp`).
 
 ## [2.0.1] - 2025-07-26
+
 ### Changed
 - Improved MD → HTML conversion: Enhanced detection of YAML front matter:
   - Added support for meta tags: `version`, `description`, `keywords`, `license`.
