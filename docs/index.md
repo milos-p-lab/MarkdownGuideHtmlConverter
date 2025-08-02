@@ -1,12 +1,12 @@
 ---
-title: "Markdown ⇄ HTML and AmigaGuide → HTML Converter"
+title: "Markdown ⇄ HTML and AmigaGuide → HTML/Markdown Converter"
 layout: default
-description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide → HTML converter written in C#."
+description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide → HTML/Markdown converter written in C#."
 ---
 
-# Markdown ⇄ HTML and AmigaGuide → HTML Converter
+# Markdown ⇄ HTML and AmigaGuide → HTML/Markdown Converter
 
-**A lightweight, reliable, and secure Markdown ⇄ HTML and AmigaGuide → HTML converter built in C#.**
+**A lightweight, reliable, and secure Markdown ⇄ HTML and AmigaGuide → HTML/Markdown converter built in C#.**
 
 👉 GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
 
@@ -58,7 +58,7 @@ Supports:
   - Supports title and custom meta tags for HTML `<head>`
 - 🚨 Warnings for syntax and security issues
 
-### Converts AmigaGuide `.guide` files to HTML `.html`
+### Converts AmigaGuide `.guide` files to HTML `.html` and Markdown `.md`
 
 - Converts core AmigaGuide commands:
   - nodes (`@NODE`, `@ENDNODE`)
@@ -122,6 +122,7 @@ No setup needed — just download and run:
 mdoc input.md output.html
 mdoc input.html output.md
 mdoc input.guide output.html
+mdoc input.guide output.md
 ```
 
 Works on Windows with .NET Framework 4.0+

@@ -1,111 +1,203 @@
-# 🛠️ Bringing VB6 Back to Life on Windows 10/11 — Without Virtual Machines
+# Why I Built a C# Markdown to/from HTML, and AmigaGuide to HTML/Markdown Converter
 
-Modern Windows systems (10, 11, and even 24H2) can still run and compile legacy VB6 projects — but only with the right combination of setup, registration, and compatibility tweaks. This project packages everything you need into a single self-extracting installer: **no VM required**, no registry headaches, no missing OCXs.
+> **Description:** "A lightweight, safe and complete `.md` to `.html`, `.html` to `.md`, and `.guide` to `.html` / `.md` converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
-Whether you're fixing a 20-year-old tool, exploring classic codebases, or simply feel at home in the VB6 IDE, this project gives you a ready-to-use experience.
+Markdown is great. HTML is everywhere. Turning one into the other *should* be easy, right?
 
-## 🧩 Why This Project Exists
+Well — not always.
 
-Like many developers with a long history in Windows programming, I still occasionally need to maintain or run legacy Visual Basic 6.0 applications. Whether it's for preserving old utilities, analyzing historical code, or simply accessing data created in a previous era, the need for a working VB6 IDE still arises.
+In my personal and professional work, I needed a reliable Markdown to HTML converter that could:
 
-Unfortunately, setting up VB6 on modern systems — especially Windows 10 and 11 — has become increasingly problematic. While some opt for virtual machines or compatibility layers, I wanted a **simple, fast, and direct** solution that didn't require any VMs, no sketchy patches, and no endless DLL troubleshooting.
+- Be embedded in **console, desktop, or web applications**
+- Produce **clean, W3C-valid HTML5**
+- Offer **full feature support**, including task lists, footnotes, tables, TOC, etc.
+- Provide **XSS protection** out-of-the-box
+- Remain **small, fast, and dependency-free**
 
-That's how this project began.
+After trying several popular tools — Pandoc, Typora, VS Code Markdown preview — I ran into limitations I couldn’t accept.
 
----
+## 🔍 Why Not Use Pandoc or Typora?
 
-## ⚙️ Challenges with Running VB6 on Windows 10/11
+These tools are powerful. But they weren't right for my needs:
 
-Getting VB6 to run on Windows 11 (especially 24H2) wasn't straightforward. Here are some of the common issues I faced:
+| Tool    | Limitations                                                  |
+| ------- | ------------------------------------------------------------ |
+| Pandoc  | Heavy binary, slow execution, poor table rendering, no task lists |
+| Typora  | Lacks XSS protection, doesn't support multi-line footnotes, inconsistent HTML |
+| VS Code | Basic preview only, no customization                         |
 
-- The **original installer fails** or freezes on modern Windows.
-- The IDE loads, but **fails to render** certain controls like `Toolbar`, `StatusBar`, or `ImageList`.
-- The infamous `MSCOMCTL.OCX` is either missing or fails to register properly.
-- **Double Agent** (used as a modern MS Agent replacement) must be manually registered.
-- Running old `.exe` files compiled in VB6 often fails without **runtime dependencies**.
-- Antivirus software occasionally flags **self-extracting archives** (SFX) as false positives.
+When you care about **structure, safety, and full feature coverage**, even powerful tools fall short.
 
----
+As someone who needed a fast, embeddable Markdown to / from HTML converter in **C#**, I couldn't find anything that met all of these goals:
 
-## 🔄 The Process: Trial and Error
+✅ Small and dependency-free  
+✅ Fully supports advanced Markdown (TOC, footnotes, tables, tasks...)  
+✅ XSS-safe and robust for user input  
+✅ Easy to integrate into **console**, **desktop**, or **web apps**
 
-The process was a mix of research, scripting, testing on fresh machines, and documenting every detail. After manually assembling all required components and resolving DLL and OCX registrations, I bundled everything into a **WinRAR self-extracting executable**.
-
-✅ Tested successfully on:
-
-- **Windows 11 (23H2, 24H2)**
-- **Windows 10 (22H2)**
-- **Windows 7 SP1**
-- **Windows XP SP3**
-
-In all cases, VB6 IDE launched correctly, projects loaded and compiled, and ActiveX controls worked inside the designer — without needing a virtual machine.
+So I built it.
 
 ---
 
-## 🧪 Delay Launcher: Solving `Process.Start()` Issues
+## Markdown to HTML Converter
 
-One interesting part of this project was the creation of `delaycmd.exe` — a small utility that **delays execution of another program** by a few seconds. While this may seem trivial, it's often essential for:
+### ✅ Markdown Supported Features
 
-- Ensuring registry keys or COM components are fully registered before launch.
-- Delaying startup in scripts, without relying on PowerShell or batch tricks.
-- Working around race conditions during installations or first-run setups.
+- Headings (`#`, `##`, `###`, etc.)
+- Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
+- Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
+- Multi-level **ordered lists** and **unordered lists**
+- Mixed nesting of **ordered and unordered lists**
+- **Task lists** (with checkbox states)
+- Blockquotes
+- Code blocks (**code fences**)
+- **Inline code**
+- Horizontal rules
+- **Links**
+- **Images**
+- **Tables**  
+  - Column alignment (left / center / right)
+- **Footnotes**  
+  - Clickable references and backlinks
+  - Multi-line footnote definitions
+  - Inline styles supported inside footnotes
+- **Raw HTML** elements  
+  - Embedding arbitrary HTML tags inside Markdown
+  - Self-closing tags (e.g. `<br>`)
+  - Audio/video tags for media embedding
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
+- **Table of Contents (TOC)** generation  
+  - Automatically collects all headings during parsing
+  - Generates hierarchical TOC as nested lists
+  - Optionally inserts TOC at `[TOC]` marker in the document
 
-Unlike C#’s `Process.Start()` or Java’s `Runtime.getRuntime().exec()`, which may exit before child processes are fully initialized, this utility offers **precise control** in a native binary with zero dependencies.
+✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
+
+### 🔐 Security Considerations
+
+This converter includes built-in logic to detect and sanitize potentially dangerous HTML input:
+
+- Detects and blocks tags such as `<script>`, `<iframe>`, `<object>`, and other potentially unsafe HTML elements.
+- Blocks dangerous attributes like `onerror`, `onclick`, `onload`, etc.
+- Decodes and analyzes **HTML entity encoding** (e.g. `&#106;...`) and **URL encoding** (e.g. `%6a%61...`) to prevent obfuscated XSS attacks.
+- Automatically inserts warnings for any detected issues, allowing users to fix Markdown syntax errors without breaking the conversion process.
+
+No external libraries or HTML sanitizers are required — the security logic is fully self-contained.
+
+### 🚨 Warnings for Syntax and Security Issues
+
+- The converter detects common Markdown syntax mistakes (e.g., unclosed **bold**, *italic*, ==highlight==, etc.).
+- It also scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+- Instead of halting the conversion, all issues are collected and displayed as a styled warning block appended to the end of the generated HTML.
+- Each warning includes the line number (and optionally the position) where the issue occurred.
+- Inline fallback styling is used to ensure visibility of warnings, even without custom CSS.
+- This feature improves robustness, especially for automated batch conversions or unverified input sources.
+
+It’s ideal for batch-processing Markdown or handling user-submitted content.
 
 ---
 
-## 📦 What's in the Package?
+## HTML to Markdown Converter
 
-The archive includes:
+### ✅ HTML Supported Features
 
-- Visual Basic 6.0 IDE (fully functional)
-- All essential ActiveX controls and design-time libraries
-- Pre-registered components (`MSCOMCTL.OCX`, `MSFLXGRD.OCX`, `MSCHRT20.OCX`, etc.)
-- IDE fixes for Windows 10/11 (e.g., `msstkprp.dll` for toolbar editing)
-- Automated setup via `.bat` and `.reg` files
-- No patching or hex-editing — just unpack and use
+- Headings (`<h1>`–`<h6>`)
+- Basic text styles (`<strong>`, `<em>`, `<del>`, `<mark>`)
+- Subscript and superscript (e.g., `<sub>`, `<sup>`)
+- Span elements with class attributes (e.g., `<span class="lang-en">`)
+- Blockquotes
+- Ordered lists and unordered lists
+- Task lists (with checkbox states)
+- Links
+- Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`)
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- Preformatted text blocks (e.g., `<pre>...</pre>`)
+- Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
+- **Front matter** (YAML metadata block)  
+  - Supports title and custom meta tags for HTML `<head>`
 
----
+### 🚨 Warnings for HTML Syntax and Security Issues
 
-## 🧩 Optional: MS Agent Compatibility (Double Agent)
-
-VB6 originally supported Microsoft Agent — a discontinued animation/speech system. If your old project used MS Agent, it will fail on modern Windows, as the original agents are deprecated and unsupported.
-
-Instead, you can use **[Double Agent](https://doubleagent.sourceforge.net/)** — a drop-in replacement compatible with `AgentCtl.Agent` components.
-
-To enable it:
-
-1. Download and install Double Agent from the official site.
-2. Your existing VB6 forms using MS Agent will work without modification.
-
-This is not bundled in the main installer to reduce size and because only a small number of legacy projects depend on it.
-
----
-
-## 🔍 Additional Examples
-
-Some old utilities and small tools have been extracted and modernized as part of this effort. These are placed in a separate folder:
-
-➡️ [vb6-projects](https://github.com/milos-p-lab/VB6-on-Windows-11/tree/main/vb6-projects)
-
-This includes:
-
-- delaycmd — a utility for delaying the launch of a program without leaving an open Command Prompt window. Useful in scripting and installer logic.
-- Source code (.vbp, .frm, .bas) is included for learning or reuse.
-
-None of these examples are included in the main setup (Visual-Basic-6-for-Win10-11.exe) to keep it clean and focused. You can browse and build them separately if needed.
-
-## ⚠️ About Compatibility
-
-Although tested on several systems, **I can't guarantee it will work on all hardware and configurations**. Use it at your own discretion — especially in production environments. This is not a Microsoft-supported solution, but a community-driven effort to **preserve legacy tools**.
+- The converter detects common HTML syntax mistakes (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks).
+- Instead of halting the conversion, all issues are collected and reported at the end of the HTML output.
 
 ---
 
-## 🙌 Final Thoughts
+## AmigaGuide to HTML/Markdown Converter
 
-Visual Basic 6.0 may be old, but its speed, simplicity, and RAD capabilities still make it relevant for certain use cases. With this setup, I hope to help others keep their tools alive, preserve old projects, or simply explore a fascinating part of programming history — without resorting to virtual machines or unsafe hacks.
+### ✅ AmigaGuide Supported Features
 
-Feel free to contribute, open issues, or share your experience with this setup.
+- Converts core AmigaGuide commands:
+  - nodes (`@NODE`, `@ENDNODE`)
+  - navigation links (`@TOC`, `@NEXT`, `@PREV`)
+  - basic text styles (`@{b}`, `@{i}`, `@{u}`)
+- Preserves the document’s structure for a retro feel
+- Generates clean HTML navigation buttons between nodes
+- Escapes special HTML characters to safely display content
+
+---
+
+## ⚡ One C# File. One Line to Use It
+
+Instead of building a framework, I created a **single-file class** you can just drop into your project and use like this:
+
+``` csharp
+string html = ConvMarkdownHtml.Convert(markdown);
+```
+
+``` csharp
+string markdown = ConvHtmlMarkdown.Convert(html);
+```
+
+``` csharp
+string html = ConvGuideHtml.Convert(amigaGuide);
+```
+
+Done. No NuGet packages. No third-party libs. No surprises.
+
+---
+
+## 🌟 Additional Benefits
+
+- Fast conversion (e.g. a ~100-page book converts in just a few tens of milliseconds on a standard PC)
+- Compatible with both .NET Framework 4.x and .NET 7/8/9
+- Minimal footprint (just a few tens of KB)
+- Supports custom CSS themes for beautiful HTML rendering
+- No dependencies on external DLLs or tools like Pandoc
+- 🛡️ **Built-in XSS protection** — automatically detects dangerous tags, attributes, and obfuscated payloads for safer HTML output
+
+---
+
+## 🧠 Design Philosophy
+
+One C# file. One method.
+
+- ⚡ No runtime dependencies
+- 🛡️ Safety and standards-compliance by default
+- 🔧 Easy to read, fork, modify, extend
+
+---
+
+## 📦 Try It or Fork It
+
+🔹 Just want to test it? Download the `.exe` and run:
+
+```cmd
+mdoc input.md output.html
+mdoc input.html output.md
+mdoc input.guide output.html
+mdoc input.guide output.md
+```
+
+🔹 Want to embed or extend it? Just copy the `.cs` file into your project and you're done.
+
+> 👉 GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
+
+---
+
+If you're tired of bloated or unsafe Markdown tools — try this minimalist approach. I built it for me, but maybe it's exactly what you need too.
 
 ---
 
