@@ -26,7 +26,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-01
+> 🗓️ **Date:** 2025-08-04
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
@@ -160,7 +160,7 @@ Unlike many existing tools that either oversimplify or bloat the output, this co
 - **Front matter** (YAML metadata block)  
   - Supports title and custom meta tags for HTML `<head>`
 
-### 🚨 Warnings for HTML Syntax and Security Issues
+### 🚨 Warnings for HTML Syntax Issues
 
 - The converter detects common HTML syntax mistakes (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks).
 - Instead of halting the conversion, all issues are collected and reported at the end of the HTML output.
@@ -184,12 +184,17 @@ This converter enables viewing **.guide documents** (AmigaGuide format) directly
 ### ✅ AmigaGuide Supported Features
 
 - Converts core AmigaGuide commands:
-  - nodes (`@NODE`, `@ENDNODE`)
-  - navigation links (`@TOC`, `@NEXT`, `@PREV`)
-  - basic text styles (`@{b}`, `@{i}`, `@{u}`)
+  - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
+  - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
+
+### 🚨 Warnings for AmigaGuide Syntax Issues
+
+- The converter detects common AmigaGuide syntax mistakes (e.g., improperly closed tags, unknown commands).
+- Instead of halting the conversion, all issues are collected and reported at the end of the HTML output.
 
 ### ⚙️ Usage (AmigaGuide to HTML)
 

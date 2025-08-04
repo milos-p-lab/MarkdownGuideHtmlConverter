@@ -7,38 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2025-08-04
+
+### Added
+
+- 🆕 HTML → Markdown conversion:
+  - Add method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
+  - Add support for additional block elements (e.g., `<div>`).
+- 🆕 AmigaGuide → HTML conversion:
+  - 🚨 Added warnings for syntax issues (e.g., improperly closed tags, unknown commands).
+  - Add method to close improperly closed tags (e.g., `@{b}`, `@{i}`, `@{u}`).
+  - Add global command `@VER$` for version information
+  - Add global command `@(c)` for copyright information
+  - Add attribute command `@{plain}` for plain text
+  - Add attribute command `@{"Doc" ALink "doc.guide/intro"}` for document links
+  - Add attribute command `@{"Doc" System "<command> doc.readme"}` This command executes the AmigaDOS command named in `<command>`.
+
+### Changed
+
+- AmigaGuide → HTML conversion: Improved processing commands `@title`, `@author`
+
 ## [2.1.0] - 2025-08-02
 
 ### Added
-- 🆕 mdoc.exe: Added conversion support for **AmigaGuide → Markdown**.
-  - Usage: Run `mdoc.exe input.guide output.md` to convert AmigaGuide files to Markdown.
-  - Note: Some advanced AmigaGuide features may not be fully supported; see documentation for details.
+
+- 🆕 mdoc.exe: Added conversion support for **AmigaGuide → Markdown**:
+  - Usage: Run `mdoc.exe input.guide output.md` to convert AmigaGuide files to Markdown
+  - Note: Some advanced AmigaGuide features may not be fully supported; see documentation for details
 - 📂 Source code for mdoc.exe is now available in the repository (`src`).
 
 ### Changed
+
 - 🎯 AmigaGuide → HTML conversion improvements:
   - Button styles have been updated for better consistency and appearance. (Replaced `input type="button"` elements with `a href` links styled via CSS.)
-    - Improved rendering of `<h2>`, `<pre>`, and `<hr>` elements for better compatibility with Markdown.
-    - Added support for the commands `@rem`, `@remark`, and `@author`.
-    - Improved parsing flow.
+    - Improved rendering of `<h2>`, `<pre>`, and `<hr>` elements for better compatibility with Markdown
+    - Added support for the commands `@rem`, `@remark`, and `@author`
+    - Improved parsing flow
 
 ### Fixed
+
 - 🐞 HTML → MD conversion: Tags `<b>`, `<i>`, and `<a href...` are now correctly supported within `<pre>` blocks.
 
 ## [2.0.3] - 2025-07-28
 
 ### Changed
+
 - Improved MD → HTML conversion: Readability and formatting of the generated HTML code.
 
 ## [2.0.2] - 2025-07-27
 
 ### Fixed
+
 - MD → HTML conversion: TOC generation now supports documents with skipped heading levels (e.g., `#`, `###` without an intervening `##`).
 - MD → HTML conversion: Convert improperly started fenced code blocks (e.g., ````csharp`).
 
 ## [2.0.1] - 2025-07-26
 
 ### Changed
+
 - Improved MD → HTML conversion: Enhanced detection of YAML front matter:
   - Added support for meta tags: `version`, `description`, `keywords`, `license`.
   - Enhanced detection of empty front matter blocks and end-of-front-matter marker (`...`).
@@ -47,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2025-07-25
 
 ### Added
+
 - 🚨 HTML → MD conversion: Added warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks). (2025-07-25)
 - 🆕 MD → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
 - 🆕 HTML → MD conversion:
@@ -74,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example: mdoc input.html output.md.
 
 ### Changed
+
 - HTML → MD conversion: (2025-07-24)
   - Improved handling of improperly closed paragraph tags.
   - Enhanced handling of `<br>` tags to ensure proper line breaks in Markdown output.
@@ -88,66 +116,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] – 2025-07-19
 
 ### Added
+
 - ⚠️ New warning system for malformed Markdown syntax (e.g., unclosed `**`, `*`, `==`).
 - 🚨 Warrnings for XSS and phishing attempts (e.g., `<script>`, malformed `<a href>`, etc.).
   - Warnings are collected during parsing and displayed at the end of the HTML output.
   - Default visual styling for warnings via inline `<div>` styling (visible even without external CSS).
 
 ### Fixed
+
 - Resolved issue where an unclosed block at the end of a Markdown file could lead to improperly terminated HTML output.
 - 🐛 Resolved issue with basic styling across multiline paragraphs (e.g., `**bold**` or `*italic*` spanning multiple lines).
 
 ## [1.2.3] – 2025-07-18
 
 ### Changed
+
 - TOC HTML code readability improvements (indentation).
 
 ### Fixed
+
 - Minor issues with `img` tag attributes (like `title` and `alt`).
 - TOC nested `ul` tag rendering, and fixed incorrect rendering of inline styles within TOC entries.
 
 ## [1.2.2] – 2025-07-17
 
 ### Fixed
+
 - Rendering of inline styles within headings.
 - Special character escaping in inline paragraph text.
 
 ## [1.2.1] – 2025-07-17
 
 ### Added
+
 - 🧪 Optional: Command-line Tool (mdoc.exe) for users who want to try the converter without integrating it into a project.
 
 ## [1.2.0] – 2025-07-16
 
 ### Added
+
 - 🆕 Support for Table of Contents (TOC) generation.
   - Automatically inserts a hierarchical TOC at the [TOC] marker in the document.
 
 ## [1.1.2] – 2025-07-15
 
 ### Changed
+
 - ⚡ Improved performance (~4x) of Markdown inline parsing by optimizing autolink and email link detection.
 
 ### Added
+
 - Support for line breaks `<br>` if the line ends with a backslash `\`, or if the line contains only a backslash `\`.
 
 ## [1.1.1] – 2025-07-12
 
 ### Added
+
 - Support for strikethrough text (~~strikethrough~~).
 - Support for highlighted text (==highlighted==).
 
 ### Fixed
+
 - Resolved issue with improper handling of stacked unordered/ordered lists.
 
 ## [1.1.0] – 2025-07-11
 
 ### Added
+
 - 🆕 Detection and warning mechanism for potential XSS and phishing attempts.
 
 ## [1.0.2] – 2025-07-07
 
 ### Added
+
 - Support for plain URLs (`https://example.com`).
 - Autolink format (`<https://example.com>`).
 - Email links (`user@example.com`, `<user@example.com>`).
@@ -155,11 +196,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] – 2025-07-06
 
 ### Added
+
 - Basic support for inline HTML tags within Markdown.
 
 ## [1.0.0] – 2025-07-05
 
 ### Added
+
 - Initial release.
 - Markdown to HTML conversion.
 - AmigaGuide to HTML conversion.
