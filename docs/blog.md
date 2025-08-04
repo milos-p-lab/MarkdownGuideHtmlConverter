@@ -130,12 +130,15 @@ It’s ideal for batch-processing Markdown or handling user-submitted content.
 ### ✅ AmigaGuide Supported Features
 
 - Converts core AmigaGuide commands:
-  - nodes (`@NODE`, `@ENDNODE`)
-  - navigation links (`@TOC`, `@NEXT`, `@PREV`)
-  - basic text styles (`@{b}`, `@{i}`, `@{u}`)
+  - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
+  - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
+- 🚨 Warnings for syntax issues
+
+✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
 ---
 

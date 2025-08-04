@@ -56,17 +56,19 @@ Supports:
 - Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
 - **Front matter** (YAML metadata block)  
   - Supports title and custom meta tags for HTML `<head>`
-- 🚨 Warnings for syntax and security issues
+- 🚨 Warnings for syntax issues
 
 ### Converts AmigaGuide `.guide` files to HTML `.html` and Markdown `.md`
 
 - Converts core AmigaGuide commands:
-  - nodes (`@NODE`, `@ENDNODE`)
-  - navigation links (`@TOC`, `@NEXT`, `@PREV`)
-  - basic text styles (`@{b}`, `@{i}`, `@{u}`)
+  - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
+  - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
+- 🚨 Warnings for syntax issues
+- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ---
 
