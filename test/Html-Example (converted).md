@@ -1,7 +1,7 @@
 ---
 title: Document Title
 author: Firstname Lastname
-date: 2025-07-25
+date: 2025-08-04
 ---
 
 # Test Document Title
@@ -26,6 +26,7 @@ second line (v2).
 
 ``` text
  - Preformatted
+ - bold
  - text block
 ```
 
@@ -154,13 +155,21 @@ Unclosed paragraph: Unsclosed paragraph 1
 
 Unclosed paragraph: Unsclosed paragraph 2
 
+**Unclosed bold text**
+
+*Unclosed emphatic text*
+
 ----------------------------------------------------
 
 ## ⚠️ WARNINGS
 
-- Line 49: Unexpected character `<` inside `<pre>` block.
-- Line 50: Unexpected character `>` inside `<pre>` block.
-- Line 158: Unknown HTML entity.
-- Line 159: Unknown HTML entity: &wrong;.
-- Line 160: Improperly closed paragraph/heading tag
+- Line 50: Unexpected character `<` inside `<pre>` block.
+- Line 51: Unexpected character `>` inside `<pre>` block.
+- Line 159: Unknown HTML entity.
+- Line 160: Unknown HTML entity: &wrong;.
 - Line 161: Improperly closed paragraph/heading tag
+- Line 162: Improperly closed paragraph/heading tag
+- Line 163: Improperly closed paragraph/heading tag
+- Line <= 164: Unclosed bold tag
+- Line 164: Improperly closed paragraph/heading tag
+- Line <= 165: Unclosed italic tag
