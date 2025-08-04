@@ -193,24 +193,43 @@ namespace m.format.conv
             string link = linkType.Trim().ToLower();
             switch (link)
             {
-
-                // Link in the same document
+                // Link to another node in the same document or another document
                 case "link":
-                    return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(text)}</a>";
-
-
-                // Link to another AmigaGuide (HTML) document
                 case "alink":
                     {
-                        string path = href;
-                        string[] a = path.Split('/');
-                        if (a.Length > 1)
+                        try
                         {
-                            path = path.Substring(0, a[0].Length);
-                            path = Path.ChangeExtension(path, "html");
-                            path = path + "#" + href.Substring(a[0].Length + 1).ToLower().Replace(' ', '_');
+                            string path = href;
+                            string node = "";
+                            string ext = Path.GetExtension(path).ToLower();
+                            int i = path.LastIndexOf('/');
+                            if (i > -1)
+                            {
+                                // Link to a node in another document
+                                node = path.Substring(i + 1).ToLower().Replace(' ', '_');
+                                path = path.Substring(0, i);
+                                path = Path.ChangeExtension(path, "html");
+                                node = "#" + href.Substring(i + 1).ToLower().Replace(' ', '_');
+                            }
+                            else if (ext == ".guide")
+                            {
+                                // If the path is a .guide file, change it to .html
+                                path = Path.ChangeExtension(path, "html");
+                            }
+                            else
+                            {
+                                // If the path does not contain a '/', and is not a .guide file,
+                                // treat it as a node in the current document
+                                node = "#" + path.ToLower().Replace(' ', '_');
+                                path = "";
+                            }
+                            return $"<a href=\"{path}{EscapeHtml(node)}\" class=\"btn\">{EscapeHtml(text)}</a>";
                         }
-                        return $"<a href=\"{path}\" class=\"btn\">{EscapeHtml(text)}</a>";
+                        catch (Exception ex)
+                        {
+                            ReportWarning(ex.Message);
+                            return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(text)}</a>";
+                        }
                     }
 
                 // Execute system command
@@ -342,7 +361,7 @@ namespace m.format.conv
 
             if (++pos < len && doc[pos] == '{')
             {
-                // ===== Attributes command =====
+                // ======== Attributes command ========
                 string atr = "";
                 while (++pos < len && doc[pos] != '}')
                 {
@@ -433,7 +452,7 @@ namespace m.format.conv
 
                 switch (cmd)
                 {
-                    // ===== Node commands =====
+                    // ======== Node commands ========
                     case "node":
                         WriteBufferedText();
                         if (args.Length > 0)
@@ -459,11 +478,12 @@ namespace m.format.conv
                         res = CreateLink(linkType: "Link", href: arg, text: text);
                         break;
 
-                    // ===== Global commands =====
+                    // ======== Global commands ========
                     case "database":
                         Metadata["title"] = arg;
                         break;
                     case "master":
+                    case "help":
                     case "index":
                     case "width":
                     case "wordwrap":
