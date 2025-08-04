@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.1.0</version>
-    /// <date>2025-08-02</date>
+    /// <version>2.2.0</version>
+    /// <date>2025-08-04</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -21,9 +21,9 @@ namespace m.format.conv
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        public static string Convert(string html, bool markCodeBlock = true)
+        public static string Convert(string html, bool ignoreWarnings = false, bool markCodeBlock = true)
         {
-            return new ConvHtmlMarkdown().ToMarkdownBody(html, markCodeBlock);
+            return new ConvHtmlMarkdown().ToMarkdownBody(html, ignoreWarnings, markCodeBlock);
         }
 
         /// <summary>
@@ -43,6 +43,8 @@ namespace m.format.conv
         /// </summary>
         private readonly StringBuilder TextBuffer = new StringBuilder();
 
+        private bool IgnoreWarnings;
+
         private bool MarkCodeBlock;
 
         /// <summary>
@@ -50,17 +52,19 @@ namespace m.format.conv
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        private string ToMarkdownBody(string html, bool markCodeBlock)
+        private string ToMarkdownBody(string html, bool ignoreWarnings, bool markCodeBlock)
         {
+            IgnoreWarnings = ignoreWarnings;
+            MarkCodeBlock = markCodeBlock;
+
             Stopwatch sw = Stopwatch.StartNew();
 
             int len = html.Length;
             Out = new StringBuilder(len); // Pre-allocate space for the Markdown output
 
-            MarkCodeBlock = markCodeBlock;
-            inPre = false; // Flag to indicate if we are inside a <pre> block
-            char prevChr = '\0'; // Previous character for space handling
-            bool repeatSpc = false; // Flag to indicate if found a repeated space character
+            inPre = false;                // Flag to indicate if we are inside a <pre> block
+            char prevChr = '\0';          // Previous character for space handling
+            bool repeatSpc = false;       // Flag to indicate if found a repeated space character
 
             // Main loop to process the HTML document
             for (int pos = 0; pos < len; pos++)
@@ -118,8 +122,6 @@ namespace m.format.conv
                     }
                 }
 
-                prevChr = c;
-
                 if (inPre)
                 {
                     // Preformatted text
@@ -148,13 +150,15 @@ namespace m.format.conv
                         TextBuffer.Append(c);
                     }
                 }
+
+                prevChr = c;
             }
 
-            // Process any remaining text in the buffer
-            if (TextBuffer.Length > 0)
-            {
-                Out.Append(TextBuffer.ToString().Trim());
-            }
+            CloseUnclosedTags(Out);
+
+            // Write any buffered text to the output.
+            // This is necessary to ensure that any text accumulated in the TextBuffer is written to the output.
+            if (TextBuffer.Length > 0) { Out.Append(EscapeMarkdownChars(TextBuffer.ToString().Trim())); }
 
             GenerateWarningsReport();
 
@@ -326,11 +330,6 @@ namespace m.format.conv
         private bool skipHead, inHead, inTxt, inHeading, inList, inOrdList, inPre, inCode, inLink;
 
         /// <summary>
-        /// Item number for ordered lists.
-        /// </summary>
-        private int olNum;
-
-        /// <summary>
         /// Flags to track the state of blockquotes.
         /// These flags help manage how blockquotes are formatted in the Markdown output.
         /// </summary>
@@ -352,6 +351,16 @@ namespace m.format.conv
         /// This is used to determine the indentation level for list items in the Markdown output.
         /// </summary>
         private int ListLevel;
+
+        /// <summary>
+        /// Item number for ordered lists.
+        /// </summary>
+        private int OlNum;
+
+        /// <summary>
+        /// Counters for the number of open tags.
+        /// </summary>
+        private int CntBld, CntItl, CntHl, CntDel;
 
         /// <summary>
         /// Processes an HTML tag at the current position in the HTML string.
@@ -554,6 +563,12 @@ namespace m.format.conv
                 // Ignore span tags for now
             }
 
+            // Div
+            else if (tagChr1 == 'd' && tag.StartsWith("<div"))
+            {
+                // Ignore div tags for now
+            }
+
             // Tables
             else if (tagChr1 == 't' && tag.StartsWith("<table"))
             {
@@ -610,6 +625,7 @@ namespace m.format.conv
                 {
                     // Paragraphs
                     case "</p>":
+                        CloseUnclosedTags(Out);
                         inTxt = false;
                         BuffSpc = false;
                         if (inBlockquote)
@@ -625,23 +641,54 @@ namespace m.format.conv
                     // Basic text formatting
                     case "<strong>":
                     case "<b>":
-                    case "</strong>":
-                    case "</b>":
+                        CntBld++;
                         Out.Append("**");
                         break;
+                    case "</strong>":
+                    case "</b>":
+                        if (CntBld > 0)
+                        {
+                            CntBld--;
+                            Out.Append("**");
+                        }
+                        break;
+
                     case "<em>":
                     case "<i>":
-                    case "</em>":
-                    case "</i>":
+                        CntItl++;
                         Out.Append("*");
                         break;
+                    case "</em>":
+                    case "</i>":
+                        if (CntItl > 0)
+                        {
+                            CntItl--;
+                            Out.Append("*");
+                        }
+                        break;
+
                     case "<del>":
-                    case "</del>":
+                        CntDel++;
                         Out.Append("~~");
                         break;
+                    case "</del>":
+                        if (CntDel > 0)
+                        {
+                            CntDel--;
+                            Out.Append("~~");
+                        }
+                        break;
+
                     case "<mark>":
-                    case "</mark>":
+                        CntHl++;
                         Out.Append("==");
+                        break;
+                    case "</mark>":
+                        if (CntHl > 0)
+                        {
+                            CntHl--;
+                            Out.Append("==");
+                        }
                         break;
 
                     // Ordered and unordered lists
@@ -650,7 +697,7 @@ namespace m.format.conv
                         inOrdList = tag == "<ol>";
                         if (inOrdList && ListLevel == 0)
                         {
-                            olNum = 0;
+                            OlNum = 0;
                         }
                         if (!inList)
                         {
@@ -664,7 +711,7 @@ namespace m.format.conv
                         ListLevel--;
                         if (ListLevel == 0)
                         {
-                            olNum = 0;
+                            OlNum = 0;
                             inList = false;
                         }
                         EnsureNewline(lastChar);
@@ -674,8 +721,8 @@ namespace m.format.conv
                         EnsureNewline(lastChar);
                         if (inOrdList)
                         {
-                            olNum++;
-                            Out.Append(inList ? $"{new string(' ', (ListLevel - 1) * 2)}{olNum}. " : "- ");
+                            OlNum++;
+                            Out.Append(inList ? $"{new string(' ', (ListLevel - 1) * 2)}{OlNum}. " : "- ");
                         }
                         else
                         {
@@ -755,6 +802,9 @@ namespace m.format.conv
 
                     // Span
                     case "</span>":
+
+                    // Divs
+                    case "</div>":
                         break;
 
                     // Subscripts and superscripts
@@ -770,6 +820,7 @@ namespace m.format.conv
                     // Ignore other tags
                     case "</body>":
                     case "</html>":
+                        CloseUnclosedTags(Out);
                         break;
 
                     // Unknown or unsupported tags
@@ -790,57 +841,63 @@ namespace m.format.conv
         {
             string tagA = ParseTag(html, ref pos, out string tag, out int start);
 
-            if (tag == "</pre>")
+            switch (tag)
             {
-                pos = start;
-                ProcessTag(html, len, ref pos);
-            }
-            else if (tag.StartsWith("<code"))
-            {
-                inCode = true;
-                string atr = GetAttribute(tagA, "class");
-                codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
-                if (MarkCodeBlock) { Out.Append(atr.Length > 0 ? " " + atr : ""); }
-            }
-            else if (tag == "<i>" || tag == "</i>" || tag == "<em>" || tag == "</em>")
-            {
-                TextBuffer.Append("*");
-            }
-            else if (tag == "<b>" || tag == "</b>" || tag == "<strong>" || tag == "</strong>")
-            {
-                TextBuffer.Append("**");
-            }
-            else if (tag == "<del>" || tag == "</del>")
-            {
-                TextBuffer.Append("~~");
-            }
-            else if (tag == "<mark>" || tag == "</mark>")
-            {
-                TextBuffer.Append("==");
-            }
-            else if (tag.StartsWith("<a href"))
-            {
-                string href = GetAttribute(tagA, "href");
-                int i = html.IndexOf("</a>", pos);
-                if (i > -1)
-                {
-                    string name = html.Substring(pos + 1, i - pos - 1);
-                    TextBuffer.Append($"[{name}]({href})");
-                }
-            }
-            else if (tag.StartsWith("<a id"))
-            {
-                TextBuffer.Append($"{tagA}</a>");
-            }
-            else if (tag == "</a>" || tag.StartsWith("<!--") || tag.StartsWith("<code") || tag == "</code>" || tag.StartsWith("<span") || tag == "</span>")
-            {
-                //
-            }
-            else
-            {
-                TextBuffer.Append('<');
-                ReportWarning("Unexpected character `<` inside `<pre>` block.");
-                pos = start;
+                case "</pre>":
+                    CloseUnclosedTags(Out);
+                    pos = start;
+                    ProcessTag(html, len, ref pos);
+                    break;
+
+
+                // Ignore basic formatting tags inside <pre> block
+                case "<b>":
+                case "<strong>":
+                case "</b>":
+                case "</strong>":
+                case "<i>":
+                case "<em>":
+                case "</i>":
+                case "</em>":
+                case "<del>":
+                case "</del>":
+                case "<mark>":
+                case "</mark>":
+                    break;
+
+                default:
+                    if (tag.StartsWith("<a href"))
+                    {
+                        string href = GetAttribute(tagA, "href");
+                        int i = html.IndexOf("</a>", pos);
+                        if (i > -1)
+                        {
+                            string name = html.Substring(pos + 1, i - pos - 1);
+                            TextBuffer.Append($"[{name}]({href})");
+                        }
+                    }
+                    else if (tag.StartsWith("<a id"))
+                    {
+                        TextBuffer.Append($"{tagA}</a>");
+                    }
+                    else if (tag.StartsWith("<code"))
+                    {
+                        inCode = true;
+                        string atr = GetAttribute(tagA, "class");
+                        codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
+                        if (MarkCodeBlock) { Out.Append(atr.Length > 0 ? " " + atr : ""); }
+                    }
+                    else if (tag == "</a>" || tag.StartsWith("<!--") || tag == "</code>" || tag.StartsWith("<span") || tag == "</span>")
+                    {
+                        //
+                    }
+                    else
+                    {
+                        TextBuffer.Append('<');
+                        ReportWarning("Unexpected character `<` inside `<pre>` block.");
+                        pos = start;
+                    }
+                    break;
             }
         }
 
@@ -875,6 +932,38 @@ namespace m.format.conv
             start += attrName.Length + 2;
             int end = tag.IndexOf('"', start);
             return end > start ? tag.Substring(start, end - start) : "";
+        }
+
+        /// <summary>
+        /// Closes any unclosed tags in the Markdown output, and reports warnings for each unclosed tag.
+        /// This method ensures that all opened tags are properly closed before the end of the document.
+        /// </summary>
+        private void CloseUnclosedTags(StringBuilder sb)
+        {
+            while (CntItl > 0)
+            {
+                sb.Append("*");
+                ReportWarning("Unclosed italic tag", before: true);
+                CntItl--;
+            }
+            while (CntBld > 0)
+            {
+                sb.Append("**");
+                ReportWarning("Unclosed bold tag", before: true);
+                CntBld--;
+            }
+            while (CntHl > 0)
+            {
+                sb.Append("==");
+                ReportWarning("Unclosed mark tag", before: true);
+                CntHl--;
+            }
+            while (CntDel > 0)
+            {
+                sb.Append("~~");
+                ReportWarning("Unclosed del tag", before: true);
+                CntDel--;
+            }
         }
 
         #endregion
@@ -1068,9 +1157,9 @@ namespace m.format.conv
         /// Reports a warning encountered during HTML parsing.
         /// </summary>
         /// <param name="desc">Description of the warning.</param>
-        private void ReportWarning(string desc, bool inPrevLine = false)
+        private void ReportWarning(string desc, bool before = false, bool inPrevLine = false)
         {
-            Warnings.Add($"Line {(inPrevLine ? LineNum - 1 : LineNum)}: {desc}");
+            Warnings.Add((before ? "Line <= " : "Line ") + (inPrevLine ? LineNum - 1 : LineNum) + ": " + desc);
         }
 
         /// <summary>
@@ -1079,7 +1168,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (Warnings.Count > 0)
+            if (!IgnoreWarnings && Warnings.Count > 0)
             {
                 EnsureEmptyLine(Out.Length);
                 Out.Append(new string('-', 52) + "\n");

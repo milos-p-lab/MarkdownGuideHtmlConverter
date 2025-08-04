@@ -18,15 +18,15 @@ namespace mdoc
         /// If no output file path is provided, the output file will have the same name as the input file,
         /// but with the appropriate extension based on the conversion direction.
         /// </remarks>
-        /// <version>2.1.0</version>
-        /// <date>2025-08-02</date>
+        /// <version>2.2.0</version>
+        /// <date>2025-08-04</date>
         /// <author>Miloš Perunović</author>
         private static void Main(string[] args)
         {
 #if DEBUG
             args = new string[2];
-            args[0] = @"R:\Temp\test.html";
-            args[1] = @"R:\Temp\test.md";
+            args[0] = @"R:\Temp\test.guide";
+            args[1] = @"R:\Temp\test.html";
 #endif
             if (args.Length < 1)
             {
@@ -52,69 +52,69 @@ namespace mdoc
             string outContent;
             string outExt;
 
-            try
+            //try
+            //{
+            // Determine output file path
+            if (args.Length > 1)
             {
-                // Determine output file path
-                if (args.Length > 1)
+                outPath = args[1];
+                outExt = Path.GetExtension(outPath).ToLowerInvariant();
+                outPath = Path.ChangeExtension(outPath, outExt);
+            }
+            else
+            {
+                // No output file specified, determine based on input file extension
+                switch (inExt)
                 {
-                    outPath = args[1];
-                    outExt = Path.GetExtension(outPath).ToLowerInvariant();
-                    outPath = Path.ChangeExtension(outPath, outExt);
-                }
-                else
-                {
-                    // No output file specified, determine based on input file extension
-                    switch (inExt)
-                    {
-                        case ".md":
-                            outExt = ".html";
-                            break;
-                        case ".html":
-                            outExt = ".md";
-                            break;
-                        case ".guide":
-                            outExt = ".html";
-                            break;
-                        default:
-                            outExt = ".unknown";
-                            break;
-                    }
-                    outPath = Path.ChangeExtension(inPath, outExt);
-                }
-
-                // Read the input file content
-                Encoding enc = inExt == ".guide" ? Encoding.GetEncoding("windows-1250") : Encoding.UTF8;
-                string inContent = File.ReadAllText(inPath, enc);
-
-                // Perform conversion based on input and output extensions
-                string convDirection = $"{inExt} -> {outExt}";
-                switch (convDirection)
-                {
-                    case ".md -> .html":
-                        outContent = ConvMarkdownHtml.Convert(inContent);
+                    case ".md":
+                        outExt = ".html";
                         break;
-                    case ".html -> .md":
-                        outContent = ConvHtmlMarkdown.Convert(inContent);
+                    case ".html":
+                        outExt = ".md";
                         break;
-                    case ".guide -> .html":
-                        outContent = ConvGuideHtml.Convert(inContent);
-                        break;
-                    case ".guide -> .md":
-                        outContent = ConvHtmlMarkdown.Convert(ConvGuideHtml.Convert(inContent), markCodeBlock: false);
+                    case ".guide":
+                        outExt = ".html";
                         break;
                     default:
-                        Console.WriteLine($"Error: Unsupported conversion direction: {$"{convDirection}"}");
-                        return;
+                        outExt = ".unknown";
+                        break;
                 }
+                outPath = Path.ChangeExtension(inPath, outExt);
+            }
 
-                // Write the converted content to the output file
-                File.WriteAllText(outPath, outContent);
-                Console.WriteLine($"Conversion successful: {inPath} -> {outPath}");
-            }
-            catch (Exception ex)
+            // Read the input file content
+            Encoding enc = inExt == ".guide" ? Encoding.GetEncoding("windows-1250") : Encoding.UTF8;
+            string inContent = File.ReadAllText(inPath, enc);
+
+            // Perform conversion based on input and output extensions
+            string convDirection = $"{inExt} -> {outExt}";
+            switch (convDirection)
             {
-                Console.WriteLine($"An error occurred during conversion: {ex.Message}");
+                case ".md -> .html":
+                    outContent = ConvMarkdownHtml.Convert(inContent);
+                    break;
+                case ".html -> .md":
+                    outContent = ConvHtmlMarkdown.Convert(inContent);
+                    break;
+                case ".guide -> .html":
+                    outContent = ConvGuideHtml.Convert(inContent);
+                    break;
+                case ".guide -> .md":
+                    outContent = ConvHtmlMarkdown.Convert(ConvGuideHtml.Convert(inContent), ignoreWarnings: true, markCodeBlock: false);
+                    break;
+                default:
+                    Console.WriteLine($"Error: Unsupported conversion direction: {$"{convDirection}"}");
+                    return;
             }
+
+            // Write the converted content to the output file
+            File.WriteAllText(outPath, outContent);
+            Console.WriteLine($"Conversion successful: {inPath} -> {outPath}");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"An error occurred during conversion: {ex.Message}");
+            //}
         }
     }
 }

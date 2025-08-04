@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace m.format.conv
@@ -8,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts AmigaGuide to HTML.
     /// </summary>
-    /// <version>2.1.0</version>
-    /// <date>2025-08-02</date>
+    /// <version>2.2.0</version>
+    /// <date>2025-08-04</date>
     /// <author>Miloš Perunović</author>
     public class ConvGuideHtml
     {
@@ -83,7 +84,12 @@ namespace m.format.conv
         /// </summary>
         private StringBuilder Out;
 
-        private StringBuilder Buffer;
+        private StringBuilder TextBuffer;
+
+        /// <summary>
+        /// Current line number.
+        /// </summary>
+        private int LineNum = 1;
 
         /// <summary>
         /// Dictionary to hold metadata extracted from the AmigaGuide document.
@@ -100,12 +106,15 @@ namespace m.format.conv
         {
             int len = doc.Length;
             Out = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
-            Buffer = new StringBuilder();
+            TextBuffer = new StringBuilder();
             Out.Append("<pre>\n");
 
             for (int pos = 0; pos < len; pos++)
             {
                 char c = doc[pos];
+
+                // Count new lines
+                if (c == '\n') { LineNum++; }
 
                 switch (c)
                 {
@@ -151,13 +160,21 @@ namespace m.format.conv
                         }
                         else
                         {
-                            Buffer.Append(c);
+                            TextBuffer.Append(c);
                         }
                         break;
                 }
             }
 
             Out.Append("</pre>\n");
+
+            CloseUnclosedTags(Out);
+
+            // Write any buffered text to the output.
+            // This is necessary to ensure that any text accumulated in the TextBuffer is written to the output.
+            WriteBufferedText();
+
+            GenerateWarningsReport();
 
             metadata = Metadata;
             return Out.ToString();
@@ -167,158 +184,53 @@ namespace m.format.conv
         /// Creates an HTML link with a button style.
         /// The link will point to an anchor with the specified href.
         /// </summary>
-        private static string CreateLink(string href, string txt)
+        /// <param name="linkType">Type of the link (e.g. "link", "alink", "system")</param>
+        /// <param name="href">The href attribute for the link</param>
+        /// <param name="text">The text to display for the link</param>
+        /// <returns>An HTML anchor element with the specified href and text</returns>
+        private string CreateLink(string linkType, string href, string text)
         {
-            return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(txt)}</a>";
-        }
-
-        #endregion
-
-        #region Command processing methods
-
-        /// <summary>
-        /// Flag to indicate if we are currently inside a node.
-        /// </summary>
-        private bool inNode = false;
-
-        /// <summary>
-        /// Processes a command in the AmigaGuide document.
-        /// This method handles commands like `@node`, `@toc`, `@title`, etc
-        /// </summary>
-        /// <param name="doc">The AmigaGuide document</param>
-        /// <param name="len">The length of the document</param>
-        /// <param name="pos">The current position in the document</param>
-        /// <returns>The processed command as a string</returns>
-        private void ProcessCommand(string doc, int len, ref int pos)
-        {
-            string res = "";
-
-            if (++pos < len && doc[pos] == '{')
+            string link = linkType.Trim().ToLower();
+            switch (link)
             {
-                // Attributes command.
-                while (++pos < len && doc[pos] != '}')
-                {
-                    res += doc[pos];
-                }
 
-                if (res == "i" || res == "b" || res == "u")
-                {
-                    res = $"<{res}>";
-                }
-                else if (res == "ui" || res == "ub" || res == "uu")
-                {
-                    res = $"</{res.Substring(1, 1)}>";
-                }
-                else if (res.Length > 0 && res[0] == '"')
-                {
-                    string[] args = ParseArguments(res);
-                    if (args.Length > 2)
+                // Link in the same document
+                case "link":
+                    return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(text)}</a>";
+
+
+                // Link to another AmigaGuide (HTML) document
+                case "alink":
                     {
-                        res = CreateLink(args[2], args[0]);
+                        string path = href;
+                        string[] a = path.Split('/');
+                        if (a.Length > 1)
+                        {
+                            path = path.Substring(0, a[0].Length);
+                            path = Path.ChangeExtension(path, "html");
+                            path = path + "#" + href.Substring(a[0].Length + 1).ToLower().Replace(' ', '_');
+                        }
+                        return $"<a href=\"{path}\" class=\"btn\">{EscapeHtml(text)}</a>";
                     }
-                }
-                else
-                {
-                    res = "⚠️ Unknown attribute: " + res;
-                }
+
+                // Execute system command
+                case "system":
+                    {
+                        string path = href;
+                        string[] a = path.Split(' ');
+
+                        if (a.Length > 1)
+                        {
+                            path = path.Substring(a[0].Length).Trim();
+                        }
+                        return $"<a href=\"{path}\" class=\"btn\">{EscapeHtml(text)}</a>";
+                    }
+
+                // Unknown link type
+                default:
+                    ReportWarning("Unknown link type: " + link);
+                    return $"<a href=\"#{href.ToLower().Replace(' ', '_')}\" class=\"btn\">{EscapeHtml(text)}</a>";
             }
-            else
-            {
-                // Global commands.
-                pos--;
-                string cmdA = "";
-                while (++pos < len && doc[pos] != '\n' && doc[pos] != '\r')
-                {
-                    cmdA += doc[pos];
-                }
-
-                string argLine = "";
-                int j = cmdA.IndexOf(' ');
-                if (j != -1)
-                {
-                    argLine = cmdA.Substring(j + 1);
-                    cmdA = cmdA.Substring(0, j);
-                }
-
-                string[] args = ParseArguments(argLine);
-
-                string cmd = cmdA.ToLower();
-
-                switch (cmd)
-                {
-                    case "node":
-                        if (Buffer.Length > 1)
-                        {
-                            string buff = Buffer.ToString().Trim(' ', '\n', '\r');
-                            if (buff.Length > 0)
-                            {
-                                Out.Append($"<!-- guide-preamble: {buff} -->");
-                            }
-                            Buffer.Clear();
-                        }
-                        if (args.Length > 0)
-                        {
-                            inNode = true;
-                            res = "<a id=\"" + args[0].ToLower().Replace(' ', '_') + "\"></a>";
-                            if (args.Length > 1)
-                            {
-                                string s = args[1] ?? args[0];
-                                res += $"</pre>\n<h2>{EscapeHtml(s)}</h2>\n<pre>";
-                            }
-                        }
-
-                        break;
-
-                    case "endnode":
-                        inNode = false;
-                        res = "</pre>\n<hr>\n<pre>\n";
-                        break;
-
-                    default:
-                        if (args.Length > 0)
-                        {
-                            switch (cmd)
-                            {
-                                case "toc":
-                                case "prev":
-                                case "next":
-                                    string txt = cmd.Replace("toc", "Contents").Replace("prev", "Browse <").Replace("next", "Browse >");
-                                    res = CreateLink(args[0], txt);
-                                    break;
-                                case "database":
-                                    Metadata["title"] = args[0];
-                                    break;
-                                case "master":
-                                case "width":
-                                case "wordwrap":
-                                case "smartwrap":
-                                    res = $"<!-- ignored-command: @{cmdA} {EscapeHtml(argLine)} -->";
-                                    break;
-                                case "title":
-                                    Metadata["title"] = args[0];
-                                    res = $"</pre>\n<h1>{EscapeHtml(args[0])}</h1>\n<pre>\n";
-                                    break;
-                                case "author":
-                                    Metadata["author"] = args[0];
-                                    break;
-                                case "rem":
-                                case "remark":
-                                    res = $"<!--{EscapeHtml(argLine)}-->\n";
-                                    break;
-                                default:
-                                    res = $"@{$"{cmdA} {EscapeHtml(argLine)}".Trim()}\n";
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            res = $"@{$"{cmdA} {EscapeHtml(argLine)}".Trim()}\n";
-                        }
-
-                        break;
-                }
-            }
-            Out.Append(res);
         }
 
         #endregion
@@ -382,6 +294,282 @@ namespace m.format.conv
             }
 
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// Writes the buffered text to the output.
+        /// This method is called to flush the accumulated text buffer into the HTML output.
+        /// </summary>
+        private void WriteBufferedText()
+        {
+            if (TextBuffer.Length > 1)
+            {
+                string buff = TextBuffer.ToString().Trim(' ', '\n', '\r');
+                if (buff.Length > 0)
+                {
+                    Out.Append($"<!-- pre/post-node text (guide preamble): {buff} -->");
+                }
+                TextBuffer.Clear();
+            }
+        }
+
+        #endregion
+
+        #region Command processing methods
+
+        /// <summary>
+        /// Flag to indicate if we are currently inside a node.
+        /// </summary>
+        private bool inNode;
+
+        /// <summary>
+        /// Counters for the number of open tags.
+        /// </summary>
+        private int CntBld, CntItl, CntUnd;
+
+        /// <summary>
+        /// Processes a command in the AmigaGuide document.
+        /// This method handles commands like `@node`, `@toc`, `@title`, etc
+        /// </summary>
+        /// <param name="doc">The AmigaGuide document</param>
+        /// <param name="len">The length of the document</param>
+        /// <param name="pos">The current position in the document</param>
+        /// <returns>The processed command as a string</returns>
+        private void ProcessCommand(string doc, int len, ref int pos)
+        {
+            string res = "";
+            int start = pos;
+
+            if (++pos < len && doc[pos] == '{')
+            {
+                // ===== Attributes command =====
+                string atr = "";
+                while (++pos < len && doc[pos] != '}')
+                {
+                    atr += doc[pos];
+                }
+
+                switch (atr.ToLower())
+                {
+                    case "b":
+                        if (CntBld <= 0) { CntBld++; res = "<strong>"; }
+                        else { ReportWarning("Repeated bold tag"); }
+                        break;
+                    case "ub":
+                        if (CntBld > 0) { CntBld--; res = "</strong>"; }
+                        else { ReportWarning("Closing bold tag without opening"); }
+                        break;
+
+                    case "i":
+                        if (CntItl <= 0) { CntItl++; res = "<em>"; }
+                        else { ReportWarning("Repeated italic tag"); }
+                        break;
+                    case "ui":
+                        if (CntItl > 0) { CntItl--; res = "</em>"; }
+                        else { ReportWarning("Closing italic tag without opening"); }
+                        break;
+
+                    case "u":
+                        if (CntUnd <= 0) { CntUnd++; res = "<u>"; }
+                        else { ReportWarning("Repeated underline tag"); }
+                        break;
+                    case "uu":
+                        if (CntUnd > 0) { CntUnd--; res = "</u>"; }
+                        else { ReportWarning("Closing underline tag without opening"); }
+                        break;
+
+                    case "plain":
+                        CloseUnclosedTags(Out, false);
+                        break;
+
+                    default:
+                        if (atr.Length > 0 && atr[0] == '"')
+                        {
+                            string[] args = ParseArguments(atr);
+                            if (args.Length > 2)
+                            {
+                                res = CreateLink(linkType: args[1], href: args[2], text: args[0]);
+                            }
+                            else
+                            {
+                                ReportWarning($"Unknown Attribute command: @{{{atr}}}");
+                                if (pos == len) { pos = start; return; }
+                            }
+                        }
+                        else
+                        {
+                            ReportWarning($"Unknown Attribute command: @{{{atr}}}");
+                            if (pos == len) { pos = start; return; }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                // ===== Global and node commands =====
+                pos--;
+                string cmdA = "";
+                while (++pos < len && doc[pos] != '\n' && doc[pos] != '\r')
+                {
+                    cmdA += doc[pos];
+                }
+
+                // Count new lines
+                if (pos < len && doc[pos] == '\n') { LineNum++; }
+
+                string argLine = "";
+                int i = cmdA.IndexOf(' ');
+                if (i != -1)
+                {
+                    argLine = cmdA.Substring(i + 1);
+                    cmdA = cmdA.Substring(0, i);
+                }
+                string cmd = cmdA.ToLower();
+
+                string[] args = ParseArguments(argLine);
+                string arg = args.Length > 0 ? args[0] : "";
+
+                bool closeUnclosedTags = true;
+
+                switch (cmd)
+                {
+                    // ===== Node commands =====
+                    case "node":
+                        WriteBufferedText();
+                        if (args.Length > 0)
+                        {
+                            inNode = true;
+                            res = "<a id=\"" + arg.ToLower().Replace(' ', '_') + "\"></a>";
+                            if (args.Length > 1)
+                            {
+                                string s = args[1] ?? arg;
+                                res += $"</pre>\n<h2>{EscapeHtml(s)}</h2>\n<pre>";
+                            }
+                        }
+                        break;
+                    case "endnode":
+                        inNode = false;
+                        res = "</pre>\n<hr>\n<pre>\n";
+                        break;
+
+                    case "toc":
+                    case "prev":
+                    case "next":
+                        string text = cmd.Replace("toc", "Contents").Replace("prev", "Browse <").Replace("next", "Browse >");
+                        res = CreateLink(linkType: "Link", href: arg, text: text);
+                        break;
+
+                    // ===== Global commands =====
+                    case "database":
+                        Metadata["title"] = arg;
+                        break;
+                    case "master":
+                    case "index":
+                    case "width":
+                    case "wordwrap":
+                    case "smartwrap":
+                    case "font":
+                        res = $"<!-- ignored-command: @{cmdA} {EscapeHtml(argLine)} -->";
+                        break;
+
+                    case "title":
+                        Metadata["title"] = arg.Trim('"', ' ');
+                        res = $"</pre>\n<h1>{EscapeHtml(arg)}</h1>\n<pre>\n";
+                        break;
+                    case "$ver:":
+                        Metadata["version"] = arg.Trim('"', ' ');
+                        break;
+                    case "author":
+                        Metadata["author"] = arg.Trim('"', ' ');
+                        break;
+                    case "(c)":
+                        Metadata["copyright"] = arg.Trim('"', ' ');
+                        break;
+
+                    case "rem":
+                    case "remark":
+                        res = $"<!--{EscapeHtml(argLine)}-->\n";
+                        break;
+
+                    default:
+                        res = $"@{$"{cmdA} {EscapeHtml(argLine)}".Trim()}\n";
+                        closeUnclosedTags = false;
+                        break;
+                }
+                if (closeUnclosedTags)
+                {
+                    CloseUnclosedTags(Out);
+                }
+            }
+            Out.Append(res);
+        }
+
+        /// <summary>
+        /// Closes any unclosed tags in the HTML output, and reports warnings for each unclosed tag.
+        /// This method ensures that all opened tags are properly closed before the end of the document.
+        /// </summary>
+        private void CloseUnclosedTags(StringBuilder sb, bool report = true)
+        {
+            while (CntUnd > 0)
+            {
+                sb.Append("</u>");
+                if (report) { ReportWarning("Unclosed underline tag", before: true); }
+                CntUnd--;
+            }
+            while (CntItl > 0)
+            {
+                sb.Append("</em>");
+                if (report) { ReportWarning("Unclosed italic tag", before: true); }
+                CntItl--;
+            }
+            while (CntBld > 0)
+            {
+                sb.Append("</strong>");
+                if (report)
+                { ReportWarning("Unclosed bold tag", before: true); }
+                CntBld--;
+            }
+        }
+
+        #endregion
+
+        #region Warnings processing
+
+        /// <summary>
+        /// List of warnings encountered during Markdown parsing.
+        /// This list is used to collect warnings about potential issues in the Markdown text,
+        /// such as unclosed tags or incorrect formatting.
+        /// </summary>
+        private readonly List<string> Warnings = new List<string>();
+
+        /// <summary>
+        /// Reports a warning encountered during Markdown parsing.
+        /// </summary>
+        /// <param name="desc">Description of the warning.</param>
+        private void ReportWarning(string desc, bool before = false)
+        {
+            Warnings.Add((before ? "Line &lt;= " : "Line ") + LineNum + ": " + EscapeHtml(desc));
+        }
+
+        /// <summary>
+        /// Generates a report of any warnings encountered during Markdown parsing.
+        /// </summary>
+        private void GenerateWarningsReport()
+        {
+            // Generate a report of any warnings
+            if (Warnings.Count > 0)
+            {
+                Out.Append(
+                    "\n<hr>\n" +
+                    "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
+                    "  <h2>⚠️ WARNINGS</h2>\n" +
+                    "  <ul>\n");
+                foreach (string desc in Warnings)
+                {
+                    Out.Append($"    <li>{desc}</li>\n");
+                }
+                Out.Append("  </ul>\n</div>\n");
+            }
         }
 
         #endregion

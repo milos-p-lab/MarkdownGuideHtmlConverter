@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.0.3</version>
-    /// <date>2025-07-28</date>
+    /// <version>2.2.0</version>
+    /// <date>2025-08-04</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -609,6 +609,11 @@ namespace m.format.conv
         #region Inline conversions
 
         /// <summary>
+        /// Counters for the number of open tags.
+        /// </summary>
+        private int CntBld, CntItl, CntHl, CntDel, CntSub, CntSup;
+
+        /// <summary>
         /// Parses a line of text and converts inline style markers (e.g., bold, italic) into corresponding HTML tags.
         /// </summary>
         /// <returns>
@@ -622,8 +627,6 @@ namespace m.format.conv
             int len = line.Length;
 
             if (len == 0) { return ""; }
-
-            int bld = 0, itl = 0, hl = 0, del = 0, sub = 0, sup = 0;
 
             // Check if the line contains a URL or email address to skip auto-link checks
             bool skipCheckAutolink = true;
@@ -802,23 +805,23 @@ namespace m.format.conv
                     // Bold + Italic
                     if (c2 == '*' && c3 == '*')
                     {
-                        if (bld == 0 && itl == 0 && c2 != ' ')
+                        if (CntBld == 0 && CntItl == 0 && c2 != ' ')
                         {
                             pos += 2;
-                            bld++; itl++; res.Append("<strong><em>");
+                            CntBld++; CntItl++; res.Append("<strong><em>");
                         }
                         else
                         {
-                            if (itl > 0)
+                            if (CntItl > 0)
                             {
                                 pos++;
-                                itl--;
+                                CntItl--;
                                 res.Append("</em>");
                             }
-                            if (bld > 0)
+                            if (CntBld > 0)
                             {
                                 pos++;
-                                bld--;
+                                CntBld--;
                                 res.Append("</strong>");
                             }
                         }
@@ -829,13 +832,13 @@ namespace m.format.conv
                     else if (c2 == '*')
                     {
                         pos++;
-                        if (bld == 0 && c3 != ' ')
+                        if (CntBld == 0 && c3 != ' ')
                         {
-                            bld++; res.Append("<strong>");
+                            CntBld++; res.Append("<strong>");
                         }
-                        else if (bld > 0)
+                        else if (CntBld > 0)
                         {
-                            bld--; res.Append("</strong>");
+                            CntBld--; res.Append("</strong>");
                         }
                         else
                         {
@@ -847,13 +850,13 @@ namespace m.format.conv
                     // Italic
                     else
                     {
-                        if (itl == 0 && c2 != ' ')
+                        if (CntItl == 0 && c2 != ' ')
                         {
-                            itl++; res.Append("<em>");
+                            CntItl++; res.Append("<em>");
                         }
-                        else if (itl > 0)
+                        else if (CntItl > 0)
                         {
-                            itl--; res.Append("</em>");
+                            CntItl--; res.Append("</em>");
                         }
                         else
                         {
@@ -868,7 +871,7 @@ namespace m.format.conv
                 {
                     int j = pos + 2;
 
-                    if (hl == 0)
+                    if (CntHl == 0)
                     {
                         // Check that there are not more than 2 '=' characters
                         if (j < len && line[j] == '=')
@@ -887,13 +890,13 @@ namespace m.format.conv
                             continue;
                         }
 
-                        hl++;
+                        CntHl++;
                         res.Append("<mark>");
                     }
                     else
                     {
                         // Closing highlight tag
-                        hl--;
+                        CntHl--;
                         res.Append("</mark>");
                     }
 
@@ -906,7 +909,7 @@ namespace m.format.conv
                 {
                     int j = pos + 2;
 
-                    if (hl == 0)
+                    if (CntHl == 0)
                     {
                         // Check that there are not more than 2 '~' characters
                         if (j < len && line[j] == '~')
@@ -925,13 +928,13 @@ namespace m.format.conv
                             continue;
                         }
 
-                        hl++;
+                        CntHl++;
                         res.Append("<del>");
                     }
                     else
                     {
                         // Closing strikethrough tag
-                        hl--;
+                        CntHl--;
                         res.Append("</del>");
                     }
 
@@ -942,15 +945,15 @@ namespace m.format.conv
                 // Subscript
                 else if (c == '~' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
                 {
-                    if (sub == 0)
+                    if (CntSub == 0)
                     {
-                        sub++;
+                        CntSub++;
                         res.Append("<sub>");
                         continue;
                     }
                     else
                     {
-                        sub--;
+                        CntSub--;
                         res.Append("</sub>");
                         continue;
                     }
@@ -959,15 +962,15 @@ namespace m.format.conv
                 // Superscript
                 else if (c == '^' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
                 {
-                    if (sup == 0)
+                    if (CntSup == 0)
                     {
-                        sup++;
+                        CntSup++;
                         res.Append("<sup>");
                         continue;
                     }
                     else
                     {
-                        sup--;
+                        CntSup--;
                         res.Append("</sup>");
                         continue;
                     }
@@ -979,31 +982,7 @@ namespace m.format.conv
                 }
             }
 
-            // Fix unclosed tags from the markdown document
-            while (itl > 0)
-            {
-                res.Append("</em>");
-                ReportWarning("Unclosed italic tag");
-                itl--;
-            }
-            while (bld > 0)
-            {
-                res.Append("</strong>");
-                ReportWarning("Unclosed bold tag");
-                bld--;
-            }
-            while (hl > 0)
-            {
-                res.Append("</mark>");
-                ReportWarning("Unclosed mark tag");
-                hl--;
-            }
-            while (del > 0)
-            {
-                res.Append("</del>");
-                ReportWarning("Unclosed del tag");
-                del--;
-            }
+            CloseUnclosedTags(Out);
 
             // Convert double spaces to non-breaking spaces
             string s = res.ToString();
@@ -1454,6 +1433,38 @@ namespace m.format.conv
 
             endIndex = i < len ? i : len - 1;
             return true;
+        }
+
+        /// <summary>
+        /// Closes any unclosed tags in the HTML output, and reports warnings for each unclosed tag.
+        /// This method ensures that all opened tags are properly closed before the end of the document.
+        /// </summary>
+        private void CloseUnclosedTags(StringBuilder sb)
+        {
+            while (CntItl > 0)
+            {
+                sb.Append("</em>");
+                ReportWarning("Unclosed italic tag");
+                CntItl--;
+            }
+            while (CntBld > 0)
+            {
+                sb.Append("</strong>");
+                ReportWarning("Unclosed bold tag");
+                CntBld--;
+            }
+            while (CntHl > 0)
+            {
+                sb.Append("</mark>");
+                ReportWarning("Unclosed mark tag");
+                CntHl--;
+            }
+            while (CntDel > 0)
+            {
+                sb.Append("</del>");
+                ReportWarning("Unclosed del tag");
+                CntDel--;
+            }
         }
 
         #endregion
@@ -2144,8 +2155,8 @@ namespace m.format.conv
             // Generate a report of any warnings
             if (Warnings.Count > 0)
             {
-                EnsureEmptyLine();
                 Out.Append(
+                    "\n<hr>\n" +
                     "<div class=\"warnings\" style=\"background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;\">\n" +
                     "  <h2>⚠️ WARNINGS</h2>\n" +
                     "  <ul>\n");
