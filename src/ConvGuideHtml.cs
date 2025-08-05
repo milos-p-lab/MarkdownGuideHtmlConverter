@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts AmigaGuide to HTML.
     /// </summary>
-    /// <version>2.2.0</version>
-    /// <date>2025-08-04</date>
+    /// <version>2.2.1</version>
+    /// <date>2025-08-05</date>
     /// <author>Miloš Perunović</author>
     public class ConvGuideHtml
     {
