@@ -3,7 +3,6 @@
 ## 📌 Reporting Vulnerabilities
 
 If you discover a vulnerability such as:
-
 - Possible **XSS bypasses**
 - Incorrect HTML escaping or injection
 - Footnote or raw HTML parsing issues
