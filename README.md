@@ -26,7 +26,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-04
+> 🗓️ **Date:** 2025-08-05
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
@@ -183,17 +183,19 @@ This converter enables viewing **.guide documents** (AmigaGuide format) directly
 
 ### ✅ AmigaGuide Supported Features
 
-- Converts core AmigaGuide commands:
+- Converts the most widely used AmigaGuide commands (rare or advanced commands may not be fully supported):
   - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
   - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
-  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)  
+    - For example, `@{"Doc" ALINK "doc.guide/intro"}` creates a link to another node, and `@{"Doc" SYSTEM "<command> doc.readme"}` runs a system command when clicked.  
+    - See [AmigaGuide documentation](https://wiki.amigaos.net/wiki/AmigaGuide_101) for more details on these command forms.
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
 
 ### 🚨 Warnings for AmigaGuide Syntax Issues
 
-- The converter detects common AmigaGuide syntax mistakes (e.g., improperly closed tags, unknown commands).
+- The converter detects common AmigaGuide syntax mistakes (e.g., improperly closed tags, repeated tags, unknown commands, link syntax errors, etc.).
 - Instead of halting the conversion, all issues are collected and reported at the end of the HTML output.
 
 ### ⚙️ Usage (AmigaGuide to HTML)
