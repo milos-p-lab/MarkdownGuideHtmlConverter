@@ -23,13 +23,13 @@ namespace m.format.conv
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
         /// <returns>HTML representation of the AmigaGuide document</returns>
-        public static string Convert(string guide, string lang = "en", string head = null)
+        public static string Convert(string guide, string lang = "en", string head = null, bool ignoreWarnings = false)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
             // Convert AmigaGuide to HTML body
             // This method will also extract metadata from the document, such as title.
-            string body = new ConvGuideHtml().ToHtmlBody(guide, out Dictionary<string, string> metadata);
+            string body = new ConvGuideHtml().ToHtmlBody(guide, out Dictionary<string, string> metadata, ignoreWarnings);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -102,11 +102,14 @@ namespace m.format.conv
         /// <param name="doc">AmigaGuide document</param>
         /// <param name="metadata">Document title.</param>
         /// <returns>HTML representation of the AmigaGuide document</returns>
-        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
+        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings)
         {
+            IgnoreWarnings = ignoreWarnings;
+
             int len = doc.Length;
             Out = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
             TextBuffer = new StringBuilder();
+
             Out.Append("<pre>\n");
 
             for (int pos = 0; pos < len; pos++)
@@ -555,6 +558,8 @@ namespace m.format.conv
 
         #region Warnings processing
 
+        private bool IgnoreWarnings;
+
         /// <summary>
         /// List of warnings encountered during Markdown parsing.
         /// This list is used to collect warnings about potential issues in the Markdown text,
@@ -577,7 +582,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (Warnings.Count > 0)
+            if (!IgnoreWarnings && Warnings.Count > 0)
             {
                 Out.Append(
                     "\n<hr>\n" +

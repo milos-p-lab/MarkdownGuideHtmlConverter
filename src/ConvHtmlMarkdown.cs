@@ -43,8 +43,6 @@ namespace m.format.conv
         /// </summary>
         private readonly StringBuilder TextBuffer = new StringBuilder();
 
-        private bool IgnoreWarnings;
-
         private bool MarkCodeBlock;
 
         /// <summary>
@@ -1145,6 +1143,8 @@ namespace m.format.conv
         #endregion
 
         #region Warnings processing
+
+        private bool IgnoreWarnings;
 
         /// <summary>
         /// List of warnings encountered during HTML parsing.

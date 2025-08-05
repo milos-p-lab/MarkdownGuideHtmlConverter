@@ -25,13 +25,13 @@ namespace m.format.conv
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
         /// <returns>HTML representation of the markdown document</returns>
-        public static string Convert(string md, string lang = "en", string head = null)
+        public static string Convert(string md, string lang = "en", string head = null, bool ignoreWarnings = false)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
             // Convert Markdown to HTML body
             // This method will also extract metadata from the document, such as title, author, and date.
-            string body = new ConvMarkdownHtml().ToHtmlBody(md, out Dictionary<string, string> metadata);
+            string body = new ConvMarkdownHtml().ToHtmlBody(md, out Dictionary<string, string> metadata, ignoreWarnings);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -148,13 +148,15 @@ namespace m.format.conv
         /// <param name="doc">Markdown document</param>
         /// <param name="metadata">Document metadata. This includes title, author, date,...</param>
         /// <returns>HTML representation of the markdown</returns>
-        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata)
+        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings)
         {
+            IgnoreWarnings = ignoreWarnings;
+
             Out = new StringBuilder(doc.Length * 2); // Pre-allocate space for the HTML output
+            metadata = new Dictionary<string, string>();
 
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             LinesCount = Lines.Length;
-            metadata = new Dictionary<string, string>();
 
             int startLine = 0;
             int emptyCnt = 0;
@@ -2131,6 +2133,8 @@ namespace m.format.conv
 
         #region Warnings processing
 
+        private bool IgnoreWarnings;
+
         /// <summary>
         /// List of warnings encountered during Markdown parsing.
         /// This list is used to collect warnings about potential issues in the Markdown text,
@@ -2153,7 +2157,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (Warnings.Count > 0)
+            if (!IgnoreWarnings && Warnings.Count > 0)
             {
                 Out.Append(
                     "\n<hr>\n" +
