@@ -186,8 +186,8 @@ This converter enables viewing **.guide documents** (AmigaGuide format) directly
 - Converts the most widely used AmigaGuide commands (rare or advanced commands may not be fully supported):
   - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
   - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
-  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" ALINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)  
-    - For example, `@{"Doc" ALINK "doc.guide/intro"}` creates a link to another node, and `@{"Doc" SYSTEM "<command> doc.readme"}` runs a system command when clicked.  
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" LINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
+    - For example, `@{"Doc" LINK "doc.guide/intro"}` creates a link to a node in another document (the `LINK` command specifies the target node or file), and `@{"Doc" SYSTEM "<command> doc.readme"}` opens documents with external commands (the `SYSTEM` command executes a system command, such as opening a file with an external viewer).
     - See [AmigaGuide documentation](https://wiki.amigaos.net/wiki/AmigaGuide_101) for more details on these command forms.
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
