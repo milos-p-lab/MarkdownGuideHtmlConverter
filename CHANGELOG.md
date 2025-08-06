@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - 🆕 HTML → MD conversion:
-  - Add method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
-  - Add support for additional block elements (e.g., `<div>`).
+  - Added method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
+  - Added support for additional block elements (e.g., `<div>`).
 - 🆕 AmigaGuide → HTML conversion:
   - 🚨 Added warnings for syntax issues (e.g., improperly closed tags, unknown commands).
   - Added method to close improperly closed tags (e.g., `@{b}`, `@{i}`, `@{u}`).
