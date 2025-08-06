@@ -11,6 +11,7 @@ These features are already implemented and functional:
 ### Markdown to HTML Conversion
 
 - Headings (`#`, `##`, `###`, etc.)
+- Heading underlining (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
 - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
 - Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
 - Blockquotes
@@ -25,8 +26,9 @@ These features are already implemented and functional:
 - Raw HTML passthrough (audio, video, etc.)
 - YAML front-matter → meta tags
 - Automatic Table of Contents `[TOC]`
+- 🚨 Warnings for syntax and security issues (e.g., unclosed **bold**, *italic*, ==highlight==, etc.)
 - 🛡️ Built-in **XSS protection** with sanitization of dangerous content
-- 🚨 Warnings for syntax and security issues
+- 🚨 Warnings for security issues (e.g., embedded &lt;script&gt; tags or suspicious links)
 - ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ### HTML to Markdown Conversion
@@ -46,17 +48,21 @@ These features are already implemented and functional:
 - Code blocks with language highlighting (e.g., `<pre><code class="language-csharp">...</code></pre>`)
 - **Front matter** (YAML metadata block)  
   - Supports title and custom meta tags for HTML `<head>`
-- 🚨 Warnings for syntax and security issues
+- 🚨 Warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks)
 
 ### AmigaGuide to HTML Conversion
 
-- Converts core AmigaGuide commands:
-  - Nodes (`@NODE`, `@ENDNODE`)
-  - Navigation links (`@TOC`, `@NEXT`, `@PREV`)
-  - Basic text styles (`@{b}`, `@{i}`, `@{u}`)
+- Converts the most widely used AmigaGuide commands (rare or advanced commands may not be fully supported):
+  - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
+  - Global commands (`@DATABASE`, `@VER$`, `@(C)`, `@TITLE`, `@AUTHOR`)
+  - Attribute commands (`@{B}`, `@{I}`, `@{U}`, `@{PLAIN}`, `@{"Doc" LINK "doc.guide/intro"}`, `@{"Doc" SYSTEM "<command> doc.readme"}`)
+    - For example, `@{"Doc" LINK "doc.guide/intro"}` creates a link to a node in another document (the `LINK` command specifies the target node or file), and `@{"Doc" SYSTEM "<command> doc.readme"}` opens documents with external commands (the `SYSTEM` command executes a system command, such as opening a file with an external viewer).
+    - See [AmigaGuide documentation](https://wiki.amigaos.net/wiki/AmigaGuide_101) for more details on these command forms.
 - Preserves the document’s structure for a retro feel
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
+- 🚨 Warnings for syntax issues (e.g., improperly closed tags, repeated tags, unknown commands, link syntax errors, etc.)
+- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
 ---
 
@@ -91,4 +97,4 @@ Feel free to open an issue or start a discussion here:
 
 ---
 
-Thanks for using and supporting this project! 🙏
+Thanks for using and supporting this project!
