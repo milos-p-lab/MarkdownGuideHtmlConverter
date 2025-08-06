@@ -1,0 +1,27 @@
+@database Test.guide
+@Master Amigaguide.texinfo
+@$VER: Test v2.2.0 (2025-08-04)
+@font phxmagyar.font 8
+@(c) 2025 Milo� Perunovi�
+@author "Milo� Perunovi�"
+@index Index
+@wordwrap
+@Width 76
+
+@node "Main" "Main node"
+
+@{b}Bold @{i}Italic @{u}Underline @{PLAIN}Plain
+    
+@{b}Unclosed bold
+
+@{b}Repeated bold tag
+
+@{i}Unclosed Italic tag
+
+@{i}Repeated Italic tag
+
+@{u}Unclosed Underline tag
+
+@{u}Repeated Underline tag
+
+@endnode

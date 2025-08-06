@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>  Document Title  </title>
+<meta name="author" content="Firstname Lastname">
+<meta name="date" content="2025-08-04">
+</head>
+
+<body>
+
+<h1>  Test Document Title  </h1>
+
+<h2 id="break-line">Break line</h2>
+
+<br />
+
+<p>Paragraph   first line<br>
+ second line (v1).</p>
+<p>Paragraph	 first line<br>
+ second line (v2).</p>
+
+<h2 id="task-list">Task List</h2>
+<ul>
+  <li><input type="checkbox" checked>Done</li>
+  <li><input type="checkbox" checked>In progress</li>
+  <li><input type="checkbox" >Not started</li>
+</ul>
+
+<h2 id="code-blocks">Code Blocks</h2>
+
+<pre>
+ - Preformatted
+ - <strong>bold</strong>
+ - text block
+</pre>
+
+<pre>One line</pre>
+<p>Next paragraph</p>
+
+<p>Code Snippet:</p>
+<pre><code class="csharp">
+int x = 5;
+bool ok = x &gt; 0;
+</code></pre>
+
+<pre><code class="csharp">int x = 6;
+bool ok = x &gt; 1;</code></pre>
+
+<pre>
+bool wrong1 = x < 0;
+bool wrong2 = x > 0;
+</pre>
+
+<h2 id="subscripts-and-superscripts">Subscripts and Superscripts</h2>
+<p>Water H<sub>2</sub>O.<br>E = mc<sup>2</sup>.</p>
+
+<unk> Unsupported tag </unk>
+
+<h2 id="images">Images</h2>
+<p>This is an image <img src="https://www.w3schools.com/html/html5.gif" alt="HTML 5 Logo" title="HTML 5 Logo">.</p>
+
+<h2 id="unordered-list">Ordered, Unordered List</h2>
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ul>
+
+<ol>
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ol>
+
+<h2 id="quotes-and-citations">Quotes and Citations</h2>
+
+<h3>Multiple Lines blockquote</h3>
+<blockquote>
+<p>Read the <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a> documentation for more information.</p>
+<p>This document is written in Markdown format.</p>
+<p>Markdown is easy to read and write, and can be easily converted to HTML or other formats.</p>
+</blockquote>
+
+<h3>Single Line blockquote</h3>
+<blockquote>
+  For 50 years, WWF has been protecting the future of nature.
+</blockquote>
+
+<h2 id="basic-text-formatting-strongboldstrong-emitalicem-delstrikethroughdel-markhighlightedmark">Basic Text Formatting (<strong>Bold</strong>, <em>Italic</em>, <del>Strikethrough</del>, <mark>Highlighted</mark>)</h2>
+
+<p><strong>Bold</strong>, <em>Italic</em>, <del>Strikethrough</del>, <mark>Highlighted</mark></p>
+<p>Normal * <strong>bold</strong> <em>italic</em> <strong><em>bolditalic</em></strong> normal</p>
+
+<p>*this is not italic*</p>
+<p># this is not heading</p>
+
+<p>  Nested <strong>bold <em>italic</em> bold</strong></p>
+<p>Normal normal <strong>bold<br>
+ continues</strong> normal</p>
+
+ <p>Normal normal <em>italic continues</em> normal</p>
+
+<p><b>ADIABATIC PROCESSES</b> – <i>Gr. <span class="lang-gr">adiabatos</span> – which cannot be crossed</i></p>
+
+<p>Normal * <em>italic</em> <strong>bold</strong> <strong><em>bolditalic</em></strong> normal <del>strikethrough</del> <mark>highlighted</mark> normal <strong><mark>highlighted bold</mark></strong> normal == nohighlighted== ~~ nostrikethrough~~ normal</p>
+
+<h2 id="links-and-email">Links and Email</h2>
+<p><a href="https://example.com">Link example</a></p>
+<p><a href="http://google.com">http://google.com</a></p>
+<a href="http://google.com">http://google.com</a>
+<p><a href="mailto:user@example.com" class="email-link">user@example.com</a></p>
+<a href="mailto:user@example.com" class="email-link">user@example.com</a>
+
+<h2 id="tables">Tables</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&lt;First Name&gt;</th>
+      <th style="text-align:center">&amp;Last Name</th>
+      <th style="text-align:right">Age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">John</td>
+      <td style="text-align:center">Smith</td>
+      <td style="text-align:right">50</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">Jane</td>
+      <td style="text-align:center">Doe</td>
+      <td style="text-align:right">40</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+<tr><th>Name</th><th style='text-align:center'>Age</th></tr>
+<tr><td>John</td><td>25</td></tr>
+</table>
+
+<hr>
+<h2 id="media-embedding">Media Embedding</h2>
+<video width="320" height="240" controls>
+  <source src="https://www.w3schools.com/tags/movie.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<h2 id="escaped-characters">Escaped characters</h2>
+<p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
+<p>&amp; &lt; &gt; &quot; &euro; &amp;xxx; are HTML entities.</p>
+<pre><code class="markdown">
+&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;euro; are HTML entities.
+</code></pre>
+<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
+
+<!--Warnings-->
+
+<p>Unclosed HTML entity:  &nbsp</p>
+<p>Unknown HTML entity: &wrong;</p>
+<h3>Unclosed heading
+<p>Unclosed paragraph: Unsclosed paragraph 1
+<p>Unclosed paragraph: Unsclosed paragraph 2
+<p><strong>Unclosed bold text</p>
+<p><em>Unclosed emphatic text</p>
+</body>
+</html>
