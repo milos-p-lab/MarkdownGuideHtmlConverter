@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.2.1</version>
-    /// <date>2025-08-05</date>
+    /// <version>2.2.2</version>
+    /// <date>2025-08-06</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -268,17 +268,8 @@ namespace m.format.conv
                     continue;
                 }
 
-                // Heading
-                else if (firstChar == '#' && ProcessHeading(line, out int level, out string content, out string id))
-                {
-                    CurrState = State.Heading;
-                    CloseBlock();
-                    EnsureEmptyLine();
-                    line = $"<h{level} id=\"{id}\">{content}</h{level}>\n";
-                }
-
                 // Unordered list, task lists
-                else if (IsUnorderedList(line, indentSpc, indentPos, out level, out _, out content))
+                else if (IsUnorderedList(line, indentSpc, indentPos, out int level, out _, out string content))
                 {
                     string inputBox = "";
                     if (TryParseTaskList(line, out string content2, out bool isChecked))
@@ -352,12 +343,21 @@ namespace m.format.conv
                 }
 
                 // Horizontal rule
-                else if (IsHorizontalRule(trimLine))
+                else if ((firstChar == '-' || firstChar == '*' || firstChar == '_') && CurrState == State.Empty && IsHorizontalRule(trimLine))
                 {
                     CurrState = State.HorizontalRule;
                     CloseBlock();
                     EnsureEmptyLine();
                     line = "<hr>\n";
+                }
+
+                // Heading
+                else if (ProcessHeading(line, out level, out content, out string id))
+                {
+                    CurrState = State.Heading;
+                    CloseBlock();
+                    EnsureEmptyLine();
+                    line = $"<h{level} id=\"{id}\">{content}</h{level}>\n";
                 }
 
                 // Blockquote
@@ -1496,7 +1496,7 @@ namespace m.format.conv
         /// Determines if the given line is a heading in markdown format.
         /// </summary>
         /// <remarks>
-        /// A valid markdown heading starts with 1 to 6 consecutive '#' characters, followed by a space and then the heading content.
+        /// A valid markdown heading starts with 1 to 6 consecutive '#' characters, followed by a space and then the heading content, or an underline in the next line.
         /// </remarks>
         /// <param name="line">Line of text to evaluate.</param>
         /// <param name="level">
@@ -1510,17 +1510,50 @@ namespace m.format.conv
             content = "";
             id = "";
 
-            int i = 0;
-
-            while (i < line.Length && line[i] == '#')
+            // Check the next line for heading underlining
+            int nextLineHead = 0;
+            if (CurrState == State.Empty && LineNum < LinesCount)
             {
-                level++;
-                i++;
+                string nextLine = Lines[LineNum + 1];
+                if (nextLine.Length >= 3)
+                {
+                    if (nextLine[0] == '=' && nextLine.StartsWith("===") && nextLine.TrimEnd('=').Length == 0)
+                    {
+                        nextLineHead = 1;
+                    }
+                    else if (nextLine[0] == '-' && nextLine.StartsWith("---") && nextLine.TrimEnd('-').Length == 0)
+                    {
+                        nextLineHead = 2;
+                    }
+                }
             }
 
-            if (level > 0 && level <= 6 && i < line.Length && line[i] == ' ')
+            int i = 0;
+
+            if (nextLineHead > 0)
             {
-                content = ParseInlineStyles(line.Substring(i + 1).Trim());
+                // If the next line is a heading underlining, we treat this line as a heading
+                level = nextLineHead;
+                LineNum++;
+            }
+            else if (line[0] == '#')
+            {
+                // Check for heading level
+                int len = line.Length;
+                while (i < len && line[i] == '#')
+                {
+                    level++;
+                    i++;
+                }
+                if (i >= len || line[i] != ' ')
+                {
+                    return false;
+                }
+            }
+
+            if (level > 0 && level <= 6)
+            {
+                content = ParseInlineStyles(line.Substring(i).Trim());
                 id = GenerateAnchorId(content);
                 TocHeadings.Add(new HeadingInfo
                 {

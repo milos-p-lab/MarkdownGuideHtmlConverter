@@ -1,5 +1,6 @@
 ﻿using m.format.conv;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -12,30 +13,53 @@ namespace mdoc
         /// - Markdown (.md) to HTML (.html)
         /// - HTML (.html) to Markdown (.md)
         /// - AmigaGuide (.guide) to HTML (.html)
+        /// - AmigaGuide (.guide) to Markdown (.md)
+        /// - Text (.txt) to HTML (.html)
         /// </summary>
         /// <param name="args">Command line arguments: input file path and optional output file path.</param>
         /// <remarks>
         /// If no output file path is provided, the output file will have the same name as the input file,
         /// but with the appropriate extension based on the conversion direction.
         /// </remarks>
-        /// <version>2.2.0</version>
-        /// <date>2025-08-04</date>
+        /// <version>2.2.2</version>
+        /// <date>2025-08-06</date>
         /// <author>Miloš Perunović</author>
         private static void Main(string[] args)
         {
 #if DEBUG
             args = new string[2];
-            args[0] = @"R:\Temp\test.guide";
+            args[0] = @"R:\Temp\test.txt";
             args[1] = @"R:\Temp\test.html";
 #endif
+            // Parse switches
+            bool ignoreWarnings = false;
+
+            List<string> remainingArgs = new List<string>();
+            foreach (string arg in args)
+            {
+                switch (arg)
+                {
+                    case "--ignore-warnings":
+                        ignoreWarnings = true;
+                        break;
+                    default:
+                        remainingArgs.Add(arg);
+                        break;
+                }
+            }
+
+            args = remainingArgs.ToArray();
+
             if (args.Length < 1)
             {
-                Console.WriteLine("Usage: mdoc <input_file> [output_file]");
-                Console.WriteLine("Supported conversions:");
-                Console.WriteLine("  .md  -> .html");
-                Console.WriteLine("  .html -> .md");
-                Console.WriteLine("  .guide -> .html");
-                Console.WriteLine("  .guide -> .md");
+                Console.WriteLine(
+                    "Usage: mdoc <input_file> [output_file]\n" +
+                    "Supported conversions:\n" +
+                    "  .md    -> .html\n" +
+                    "  .html  -> .md\n" +
+                    "  .guide -> .html\n" +
+                    "  .guide -> .md\n" +
+                    "  .txt   -> .html");
                 return;
             }
 
@@ -73,10 +97,11 @@ namespace mdoc
                             outExt = ".md";
                             break;
                         case ".guide":
+                        case ".txt":
                             outExt = ".html";
                             break;
                         default:
-                            outExt = ".unknown";
+                            outExt = "?";
                             break;
                     }
                     outPath = Path.ChangeExtension(inPath, outExt);
@@ -91,16 +116,19 @@ namespace mdoc
                 switch (convDirection)
                 {
                     case ".md -> .html":
-                        outContent = ConvMarkdownHtml.Convert(inContent);
+                        outContent = ConvMarkdownHtml.Convert(inContent, ignoreWarnings: ignoreWarnings);
                         break;
                     case ".html -> .md":
-                        outContent = ConvHtmlMarkdown.Convert(inContent);
+                        outContent = ConvHtmlMarkdown.Convert(inContent, ignoreWarnings: ignoreWarnings);
                         break;
                     case ".guide -> .html":
-                        outContent = ConvGuideHtml.Convert(inContent);
+                        outContent = ConvGuideHtml.Convert(inContent, ignoreWarnings: ignoreWarnings);
                         break;
                     case ".guide -> .md":
                         outContent = ConvHtmlMarkdown.Convert(ConvGuideHtml.Convert(inContent), ignoreWarnings: true, markCodeBlock: false);
+                        break;
+                    case ".txt -> .html":
+                        outContent = ConvMarkdownHtml.Convert(inContent, ignoreWarnings: true);
                         break;
                     default:
                         Console.WriteLine($"Error: Unsupported conversion direction: {$"{convDirection}"}");
