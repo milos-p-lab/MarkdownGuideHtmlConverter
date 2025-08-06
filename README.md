@@ -14,6 +14,7 @@ MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for 
 - HTML5 → Markdown
 - AmigaGuide → HTML5
 - AmigaGuide → Markdown
+- Plain text → HTML5 (experimental)
 
 It’s designed to be:
 
@@ -26,7 +27,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-05
+> 🗓️ **Date:** 2025-08-06
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
@@ -50,6 +51,7 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 ### ✅ Markdown Supported Features
 
 - Headings (`#`, `##`, `###`, etc.)
+- Heading underlining (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
 - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
 - Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
 - Multi-level **ordered lists** and **unordered lists**
@@ -238,6 +240,7 @@ mdoc input.md output.html
 mdoc input.html output.md
 mdoc input.guide output.html
 mdoc input.guide output.md
+mdoc input.txt output.html
 ```
 
 📁 **Location**

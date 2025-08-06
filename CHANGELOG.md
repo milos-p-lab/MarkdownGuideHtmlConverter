@@ -7,21 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.2] - 2025-08-06
+
+### Added
+
+- ✅ MD → HTML conversion: Added support underlining headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2).
+- ✅ CLI tool mdoc.exe: Added support for `--ignore-warnings` command-line option to ignore warnings during conversion.
+- 🧪 CLI tool mdoc.exe: Experimental `.txt` to HTML conversion support (based on MD -> HTML conversion) (e.g., `mdoc.exe input.txt output.html`).
+
+## [2.2.1] - 2025-08-05
+
+### Added
+
+- Added parameter `ignoreWarnings = false` to ignore warnings during conversion (`ConvMarkdownHtml.Convert` and `ConvGuideHtml.Convert`).
+
 ## [2.2.0] - 2025-08-04
 
 ### Added
 
-- 🆕 HTML → Markdown conversion:
+- 🆕 HTML → MD conversion:
   - Add method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
   - Add support for additional block elements (e.g., `<div>`).
 - 🆕 AmigaGuide → HTML conversion:
   - 🚨 Added warnings for syntax issues (e.g., improperly closed tags, unknown commands).
-  - Add method to close improperly closed tags (e.g., `@{b}`, `@{i}`, `@{u}`).
-  - Add global command `@VER$` for version information
-  - Add global command `@(c)` for copyright information
-  - Add attribute command `@{plain}` for plain text
-  - Add attribute command `@{"Doc" ALink "doc.guide/intro"}` for document links
-  - Add attribute command `@{"Doc" System "<command> doc.readme"}` This command executes the AmigaDOS command named in `<command>`.
+  - Added method to close improperly closed tags (e.g., `@{b}`, `@{i}`, `@{u}`).
+  - Added global command `@VER$` for version information
+  - Added global command `@(c)` for copyright information
+  - Added attribute command `@{plain}` for plain text
+  - Added attribute command `@{"Doc" ALink "doc.guide/intro"}` for document links
+  - Added attribute command `@{"Doc" System "<command> doc.readme"}` This command executes the AmigaDOS command named in `<command>`.
 
 ### Changed
 
@@ -31,10 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 🆕 mdoc.exe: Added conversion support for **AmigaGuide → Markdown**:
+- 🆕 CLI tool mdoc.exe: Added conversion support for **AmigaGuide → Markdown**:
   - Usage: Run `mdoc.exe input.guide output.md` to convert AmigaGuide files to Markdown
   - Note: Some advanced AmigaGuide features may not be fully supported; see documentation for details
-- 📂 Source code for mdoc.exe is now available in the repository (`src`).
+- 📂 Source code for CLI tool mdoc.exe is now available in the repository (`src`).
 
 ### Changed
 
