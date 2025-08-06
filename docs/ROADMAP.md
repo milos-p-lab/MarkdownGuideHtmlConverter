@@ -29,7 +29,7 @@ These features are already implemented and functional:
 - 🚨 Warnings for syntax and security issues (e.g., unclosed **bold**, *italic*, ==highlight==, etc.)
 - 🛡️ Built-in **XSS protection** with sanitization of dangerous content
 - 🚨 Warnings for security issues (e.g., embedded &lt;script&gt; tags or suspicious links)
-- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
+- ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
 ### HTML to Markdown Conversion
 
@@ -62,7 +62,7 @@ These features are already implemented and functional:
 - Generates clean HTML navigation buttons between nodes
 - Escapes special HTML characters to safely display content
 - 🚨 Warnings for syntax issues (e.g., improperly closed tags, repeated tags, unknown commands, link syntax errors, etc.)
-- ✅ Produces **clean, semantic HTML** — easy to embed anywhere
+- ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
 ---
 
