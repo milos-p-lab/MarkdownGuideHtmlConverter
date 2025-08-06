@@ -19,6 +19,7 @@ description: "Fast, safe and feature-complete Markdown â‡„ HTML and AmigaGuide â
 Supports:
 
 - Headings (`#`, `##`, `###`, etc.)
+- Heading underlining (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
 - Basic text styles (**bold**, *italic*, ~~strikethrough~~, ==highlighted==)
 - Subscript and superscript (e.g., `H~2~O`, `E=mc^2^`)
 - Blockquotes
