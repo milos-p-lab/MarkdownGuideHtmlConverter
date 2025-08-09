@@ -71,6 +71,15 @@ Supports:
 - 🚨 Warnings for syntax issues
 - ✅ Produces **clean, semantic HTML** — easy to embed anywhere
 
+### Converts Plain Text `.txt` files to HTML `.html`
+
+- Recognizes simple headings (e.g. `Title\n------`)
+- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Adds paragraph tags and basic inline formatting
+- Escapes unsafe characters (`<`, `>`, `&`) automatically
+- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
+- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
 ---
 
 ## 💡 Key Design Goal
@@ -97,6 +106,10 @@ string markdown = ConvHtmlMarkdown.Convert(html);
 
 ```csharp
 string html = ConvGuideHtml.Convert(amigaGuide);
+```
+
+```csharp
+string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
 ```
 
 No runtime dependencies, no configuration, no surprises.
@@ -126,6 +139,7 @@ mdoc input.md output.html
 mdoc input.html output.md
 mdoc input.guide output.html
 mdoc input.guide output.md
+mdoc input.txt output.html
 ```
 
 Works on Windows with .NET Framework 4.0+

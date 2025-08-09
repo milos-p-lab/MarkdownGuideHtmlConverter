@@ -64,6 +64,15 @@ These features are already implemented and functional:
 - 🚨 Warnings for syntax issues (e.g., improperly closed tags, repeated tags, unknown commands, link syntax errors, etc.)
 - ✅ The generated HTML code is **valid according to W3C standards**, verified through the [W3C Validator](https://validator.w3.org/).
 
+### Plain Text to HTML Conversion
+
+- Recognizes simple headings (e.g. `Title\n------`)
+- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Adds paragraph tags and basic inline formatting
+- Escapes unsafe characters (`<`, `>`, `&`) automatically
+- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
+- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
 ---
 
 ## 🚧 In Progress / Planned

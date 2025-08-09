@@ -52,6 +52,8 @@ So I built it.
 - **Task lists** (with checkbox states)
 - Blockquotes
 - Code blocks (**code fences**)
+  - fenced code blocks (e.g., ```csharp)
+  - indented code blocks (e.g., indented by 4 spaces or a tab)
 - **Inline code**
 - Horizontal rules
 - **Links**
@@ -143,6 +145,19 @@ It’s ideal for batch-processing Markdown or handling user-submitted content.
 
 ---
 
+## 📄 Smart Plain Text to HTML Converter
+
+This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
+
+- Recognizes simple headings (e.g. `Title\n------`)
+- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Adds paragraph tags and basic inline formatting
+- Escapes unsafe characters (`<`, `>`, `&`) automatically
+- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
+- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
+---
+
 ## ⚡ One C# File. One Line to Use It
 
 Instead of building a framework, I created a **single-file class** you can just drop into your project and use like this:
@@ -157,6 +172,10 @@ string markdown = ConvHtmlMarkdown.Convert(html);
 
 ``` csharp
 string html = ConvGuideHtml.Convert(amigaGuide);
+```
+
+``` csharp
+string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
 ```
 
 Done. No NuGet packages. No third-party libs. No surprises.
