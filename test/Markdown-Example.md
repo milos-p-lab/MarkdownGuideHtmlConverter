@@ -85,6 +85,11 @@ int x = 5;
 bool ok = x > 0;
 ```
 
+Code blocks can also be written like this:
+
+    10 print "Hello, World!"
+    20 goto 10
+
 ## Escaped characters
 
 Characters <, >, &, and " can be used in Markdown without issues.

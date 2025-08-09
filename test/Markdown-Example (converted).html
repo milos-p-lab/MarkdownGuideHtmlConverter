@@ -95,6 +95,11 @@ This is the second line of the **first** footnote.">1</a></sup> <a href="mailto:
 int x = 5;
 bool ok = x &gt; 0;
 </code></pre>
+<p>Code blocks can also be written like this:</p>
+<pre><code class="text">
+    10 print "Hello, World!"
+    20 goto 10
+</code></pre>
 
 <h2 id="escaped-characters">Escaped characters</h2>
 <p>Characters &lt;, &gt;, &amp;, and " can be used in Markdown without issues.</p>
@@ -143,8 +148,8 @@ bool ok = x &gt; 0;
 </ul>
 
 <h2 id="warnings-test">Warnings test</h2>
-<p></strong>Unclosed <strong>bold</p>
-<p></em>Unclosed <em>italic</p>
+<p>Unclosed <strong>bold</strong></p>
+<p>Unclosed <em>italic</em></p>
 <p>Incorrectly written character for&nbsp; bold</p>
 <p>Incorrectly written character for&nbsp; italic</p>
 <br>
@@ -161,10 +166,11 @@ This is the second line of the <strong>first</strong> footnote. <a href="#ref1" 
 <div class="warnings" style="background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;">
   <h2>⚠️ WARNINGS</h2>
   <ul>
-    <li>Line 138: Unclosed bold tag</li>
-    <li>Line 140: Unclosed italic tag</li>
-    <li>Line 142: Incorrectly written character for "bold" [pos 35]</li>
-    <li>Line 144: Incorrectly written character for "italic" [pos 34]</li>
+    <li>Line 89: Code block style [Expected: fenced; Actual: indented]</li>
+    <li>Line 143: Unclosed bold tag</li>
+    <li>Line 145: Unclosed italic tag</li>
+    <li>Line 147: Incorrectly written character for "bold" [pos 35]</li>
+    <li>Line 149: Incorrectly written character for "italic" [pos 34]</li>
   </ul>
 </div>
 
