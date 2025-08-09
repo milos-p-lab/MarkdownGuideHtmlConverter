@@ -86,7 +86,7 @@ Supports:
 
 This library was built with one major principle in mind:
 
-> **Minimal, dependency-free, plug-and-play Markdown ⇄ HTML and AmigaGuide → HTML conversion.**
+> **Minimal, dependency-free, plug-and-play Markdown ⇄ HTML, AmigaGuide → HTML/MD, and Smart plain text → HTML conversion.**
 
 It is designed to be seamlessly integrated into:
 
