@@ -14,10 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🆕 Smart plain text `.txt` to HTML conversion (based on Markdown → HTML converter):
   - Converts plain text files to HTML with basic formatting.
   - Automatic detection of file encoding (e.g., UTF-8, ASCII).
+  - Added support uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
   - Supports headings, paragraphs, lists, links, pipe tables, and code blocks.
+  - Support for indented code blocks (e.g., indented by 4 spaces or a tab).
   - Usage: `string html = ConvHtmlMarkdown.SmartTxtConvert(txt);`.
-- ✅ Markdown → HTML conversion: Support for indented code blocks (e.g., indented by 4 spaces or a tab).
-- ✅ Smart Plain text → HTML conversion: Added support uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
 - 🆕 CLI tool mdoc.exe:
   - Added smart plain text conversion. Usage: `mdoc.exe input.txt output.html`
   - Added support for `--encoding=<encoding>` command-line option to specify the input file encoding (e.g., `windows-1250`, `utf-8`, `ascii`).
@@ -48,10 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 🆕 HTML → Markdown conversion:
+- ✅ HTML → Markdown conversion:
   - Added method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
   - Added support for additional block elements (e.g., `<div>`).
-- 🆕 AmigaGuide → HTML conversion:
+- ✅ AmigaGuide → HTML conversion:
   - 🚨 Added warnings for syntax issues (e.g., improperly closed tags, unknown commands).
   - Added method to close improperly closed tags (e.g., `@{b}`, `@{i}`, `@{u}`).
   - Added global command `@VER$` for version information
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🆕 CLI tool mdoc.exe: Added conversion support for **AmigaGuide → Markdown**:
   - Usage: Run `mdoc.exe input.guide output.md` to convert AmigaGuide files to Markdown
   - Note: Some advanced AmigaGuide features may not be fully supported; see documentation for details
-- 📂 Source code for CLI tool mdoc.exe is now available in the repository (`src`).
+- 📂 Source code for CLI tool mdoc.exe is now available in the repository ([src](./src/)).
 
 ### Changed
 
@@ -112,12 +112,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - 🚨 HTML → Markdown conversion: Added warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks). (2025-07-25)
-- 🆕 Markdown → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
-- 🆕 HTML → Markdown conversion:
+- ✅ Markdown → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
+- ✅ HTML → Markdown conversion support:
   - Support for subscript and superscript (e.g., `<sub>`, `<sup>`).
   - Support for front matter (YAML metadata block).
-- 🆕 HTML → Markdown conversion: Support for task lists (e.g., `<li><input type="checkbox" checked>Done</li>`). (2025-07-24)
-- 🆕 HTML → Markdown conversion support: (2025-07-23)
+  - Support for task lists (e.g., `<li><input type="checkbox" checked>Done</li>`). (2025-07-24)
   - Horizontal rules (e.g., `<hr>`, `<hr />`).
   - Links and email links (e.g., `<a href="https://example.com">`, `<a href="mailto:user@example.com">`).
   - Ordered lists.
@@ -125,25 +124,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Code blocks with language highlighting (e.g., `<pre><code class="csharp">...</code></pre>`).
   - Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`).
   - Tables with alignment (e.g., `| --- | :---: | ---: |`).
-- HTML → Markdown conversion support: [2025-07-22]
   - Strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
   - Span elements with class attributes (e.g., `<span class="mark">`).
   - Links (e.g., `<a href="https://example.com"`).
-- 💥 Initial HTML → Markdown converter (2025-07-21)
+- 🆕 Initial HTML → Markdown converter
   - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, unordered lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.
   - Reversible conversion supported for standard Markdown-generated HTML.
-- 📦 New CLI support in mdoc.exe:
+- ✅ New CLI support in mdoc.exe:
   - Example: mdoc input.html output.md.
 
 ### Changed
 
-- HTML → Markdown conversion: (2025-07-24)
+- HTML → Markdown conversion:
   - Improved handling of improperly closed paragraph tags.
   - Enhanced handling of `<br>` tags to ensure proper line breaks in Markdown output.
   - Enhanced handling of double space characters in paragraphs to ensure proper line breaks in Markdown output.
-- Rename class for clarity (2025-07-22)
+- Rename class for clarity:
   - `Markdown.cs` to `ConvMarkdownHtml.cs`
   - `HtmlMd.cs` to `ConvHtmlMarkdown.cs`
   - `AmigaGuide.cs` to `ConvGuideHtml.cs`
