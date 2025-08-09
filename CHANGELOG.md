@@ -7,13 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2025-08-09
+
+### Added
+
+- 🆕 Smart plain text `.txt` to HTML conversion (based on Markdown → HTML converter):
+  - Converts plain text files to HTML with basic formatting.
+  - Automatic detection of file encoding (e.g., UTF-8, ASCII).
+  - Supports headings, paragraphs, lists, links, pipe tables, and code blocks.
+  - Usage: `string html = ConvHtmlMarkdown.SmartTxtConvert(txt);`.
+- ✅ Markdown → HTML conversion: Support for indented code blocks (e.g., indented by 4 spaces or a tab).
+- ✅ Smart Plain text → HTML conversion: Added support uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
+- 🆕 CLI tool mdoc.exe:
+  - Added smart plain text conversion. Usage: `mdoc.exe input.txt output.html`
+  - Added support for `--encoding=<encoding>` command-line option to specify the input file encoding (e.g., `windows-1250`, `utf-8`, `ascii`).
+    - If `--encoding` is not specified, the default input encoding for `.txt` and `.guide` files is `windows-1252`. See documentation for the full list of supported encodings.
+
+### Changed
+
+- Improvements to performance.
+
+### Fixed
+
+- Markdown → HTML conversion: Handling of unclosed or mismatched Markdown tags (e.g., `**`, `*`, `~~`, `==`) and fixing them in the HTML output.
+
 ## [2.2.2] - 2025-08-06
 
 ### Added
 
-- ✅ MD → HTML conversion: Added support underlining headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2).
+- ✅ Markdown → HTML conversion: Added support underlining headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2).
 - ✅ CLI tool mdoc.exe: Added support for `--ignore-warnings` command-line option to ignore warnings during conversion.
-- 🧪 CLI tool mdoc.exe: Experimental `.txt` to HTML conversion support (based on MD -> HTML conversion) (e.g., `mdoc.exe input.txt output.html`).
 
 ## [2.2.1] - 2025-08-05
 
@@ -25,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 🆕 HTML → MD conversion:
+- 🆕 HTML → Markdown conversion:
   - Added method to close improperly closed tags (e.g., `**`, `*`, `==`, `~~`).
   - Added support for additional block elements (e.g., `<div>`).
 - 🆕 AmigaGuide → HTML conversion:
@@ -60,41 +83,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 🐞 HTML → MD conversion: Tags `<b>`, `<i>`, and `<a href...` are now correctly supported within `<pre>` blocks.
+- 🐞 HTML → Markdown conversion: Tags `<b>`, `<i>`, and `<a href...` are now correctly supported within `<pre>` blocks.
 
 ## [2.0.3] - 2025-07-28
 
 ### Changed
 
-- Improved MD → HTML conversion: Readability and formatting of the generated HTML code.
+- Improved Markdown → HTML conversion: Readability and formatting of the generated HTML code.
 
 ## [2.0.2] - 2025-07-27
 
 ### Fixed
 
-- MD → HTML conversion: TOC generation now supports documents with skipped heading levels (e.g., `#`, `###` without an intervening `##`).
-- MD → HTML conversion: Convert improperly started fenced code blocks (e.g., ````csharp`).
+- Markdown → HTML conversion: TOC generation now supports documents with skipped heading levels (e.g., `#`, `###` without an intervening `##`).
+- Markdown → HTML conversion: Convert improperly started fenced code blocks (e.g., ````csharp`).
 
 ## [2.0.1] - 2025-07-26
 
 ### Changed
 
-- Improved MD → HTML conversion: Enhanced detection of YAML front matter:
+- Improved Markdown → HTML conversion: Enhanced detection of YAML front matter:
   - Added support for meta tags: `version`, `description`, `keywords`, `license`.
   - Enhanced detection of empty front matter blocks and end-of-front-matter marker (`...`).
-- Improved MD → HTML conversion: Enhanced handling of fenced code blocks.
+- Improved Markdown → HTML conversion: Enhanced handling of fenced code blocks.
 
 ## [2.0.0] - 2025-07-25
 
 ### Added
 
-- 🚨 HTML → MD conversion: Added warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks). (2025-07-25)
-- 🆕 MD → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
-- 🆕 HTML → MD conversion:
+- 🚨 HTML → Markdown conversion: Added warnings for syntax issues (e.g., improperly closed tags, unknown HTML entities, unexpected characters inside `<pre>` blocks). (2025-07-25)
+- 🆕 Markdown → HTML conversion: Support for subscript and superscript (e.g., `H~2~O`, `E=mc^2^`).
+- 🆕 HTML → Markdown conversion:
   - Support for subscript and superscript (e.g., `<sub>`, `<sup>`).
   - Support for front matter (YAML metadata block).
-- 🆕 HTML → MD conversion: Support for task lists (e.g., `<li><input type="checkbox" checked>Done</li>`). (2025-07-24)
-- 🆕 HTML → MD conversion support: (2025-07-23)
+- 🆕 HTML → Markdown conversion: Support for task lists (e.g., `<li><input type="checkbox" checked>Done</li>`). (2025-07-24)
+- 🆕 HTML → Markdown conversion support: (2025-07-23)
   - Horizontal rules (e.g., `<hr>`, `<hr />`).
   - Links and email links (e.g., `<a href="https://example.com">`, `<a href="mailto:user@example.com">`).
   - Ordered lists.
@@ -102,11 +125,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Code blocks with language highlighting (e.g., `<pre><code class="csharp">...</code></pre>`).
   - Images with `alt` and `title` attributes (e.g., `<img src="..." alt="..." title="...">`).
   - Tables with alignment (e.g., `| --- | :---: | ---: |`).
-- HTML → MD conversion support: [2025-07-22]
+- HTML → Markdown conversion support: [2025-07-22]
   - Strikethrough text (~~strikethrough~~) and highlighted text (==highlighted==).
   - Span elements with class attributes (e.g., `<span class="mark">`).
   - Links (e.g., `<a href="https://example.com"`).
-- 💥 Initial HTML → MD converter (2025-07-21)
+- 💥 Initial HTML → Markdown converter (2025-07-21)
   - Supports most core HTML5 elements: headings, paragraphs, bold/italic, blockquotes, unordered lists.
   - Designed to produce clean, standardized Markdown — compatible with Markdown.ToHtml output.
   - Implements basic fallback logic and optional attribute handling.
@@ -116,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- HTML → MD conversion: (2025-07-24)
+- HTML → Markdown conversion: (2025-07-24)
   - Improved handling of improperly closed paragraph tags.
   - Enhanced handling of `<br>` tags to ensure proper line breaks in Markdown output.
   - Enhanced handling of double space characters in paragraphs to ensure proper line breaks in Markdown output.

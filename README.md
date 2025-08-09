@@ -4,7 +4,7 @@
 
 ## 🧩 About
 
-⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, and AmigaGuide to HTML/Markdown.
+⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, AmigaGuide to HTML/Markdown, and smart plain text to HTML.
 
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
@@ -14,7 +14,7 @@ MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for 
 - HTML5 → Markdown
 - AmigaGuide → HTML5
 - AmigaGuide → Markdown
-- Plain text → HTML5 (experimental)
+- Plain text → HTML5
 
 It’s designed to be:
 
@@ -27,7 +27,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-06
+> 🗓️ **Date:** 2025-08-09
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
@@ -59,6 +59,8 @@ I’ve always admired tools like Pandoc for their power. But I wanted:
 - **Task lists** (with checkbox states)
 - Blockquotes
 - Code blocks (**code fences**)
+  - fenced code blocks (e.g., ```csharp)
+  - indented code blocks (e.g., indented by 4 spaces or a tab)
 - **Inline code**
 - Horizontal rules
 - **Links**
@@ -130,6 +132,29 @@ For most real-world documents, the converter produces results very similar to Co
 If your project requires strict CommonMark compliance or identical output for all test cases, you might want to use a specialized library like CommonMark.NET.
 
 Otherwise, this converter aims to balance speed, HTML correctness, security, and practical features beyond the scope of the CommonMark specification.
+
+---
+
+## 📄 Smart Plain Text to HTML Converter
+
+This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
+
+- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
+- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Adds paragraph tags and basic inline formatting
+- Escapes unsafe characters (`<`, `>`, `&`) automatically
+- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
+- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
+### ⚙️ Usage (Plain Text to HTML)
+
+👉 This converter is implemented in a single C# file: [ConvMarkdownHtml.cs](./src/ConvMarkdownHtml.cs). You can simply copy this file into your project.
+
+Example usage for plain text:
+
+```csharp
+string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
+```
 
 ---
 
