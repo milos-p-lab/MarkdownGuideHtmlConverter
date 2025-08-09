@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.2.2</version>
-    /// <date>2025-08-06</date>
+    /// <version>2.3.0</version>
+    /// <date>2025-08-08</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -24,14 +24,16 @@ namespace m.format.conv
         /// <param name="md">The Markdown document as a string.</param>
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
+        /// <param name="convertTxt">Whether to convert plain text to HTML</param>
         /// <returns>HTML representation of the markdown document</returns>
-        public static string Convert(string md, string lang = "en", string head = null, bool ignoreWarnings = false)
+        public static string Convert(string md, string lang = "en", string head = null, bool ignoreWarnings = false, bool convertTxt = false)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
             // Convert Markdown to HTML body
             // This method will also extract metadata from the document, such as title, author, and date.
-            string body = new ConvMarkdownHtml().ToHtmlBody(md, out Dictionary<string, string> metadata, ignoreWarnings);
+            string body = new ConvMarkdownHtml().ToHtmlBody(md, out Dictionary<string, string> metadata, ignoreWarnings, convertTxt);
 
             // Generate html meta tags from metadata
             StringBuilder meta = new StringBuilder();
@@ -52,7 +54,7 @@ namespace m.format.conv
 
             sw.Stop();
             double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
-            Console.WriteLine($"Markdown -> HTML conv.: {seconds} sec.");
+            Console.WriteLine($"{(convertTxt ? "Plain text" : "Markdown")} -> HTML conv.: {seconds} sec.");
 
             // Generate the HTML document
             return
@@ -67,6 +69,25 @@ namespace m.format.conv
                 $"{body}\n" +
                 "</body>\n" +
                 "</html>\n";
+        }
+
+        /// <summary>
+        /// Flag indicating whether to use smart plain text conversion.
+        /// </summary>
+        private bool UseSmartTxtConv;
+
+        /// <summary>
+        /// Smart plain text to HTML conversion.
+        /// This method converts a plain text document to HTML by applying basic formatting rules,
+        /// such as detecting headings, lists, paragraphs, and code blocks.
+        /// </summary>
+        /// <param name="txt">The plain text document as a string.</param>
+        /// <param name="lang">Language code (e.g. "en", "cnr").</param>
+        /// <param name="head">Additional head elements (e.g. CSS links).</param>
+        /// <returns>HTML representation of the smart-parsed plain text document.</returns>
+        public static string SmartTxtConvert(string txt, string lang = "en", string head = null)
+        {
+            return Convert(txt, lang, head, convertTxt: true);
         }
 
         /// <summary>
@@ -146,17 +167,25 @@ namespace m.format.conv
         /// Converts Markdown document to HTML.
         /// </summary>
         /// <param name="doc">Markdown document</param>
-        /// <param name="metadata">Document metadata. This includes title, author, date,...</param>
+        /// <param name="metadata">Metadata extracted from the document</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
+        /// <param name="convertTxt">Whether to convert plain text to HTML</param>
         /// <returns>HTML representation of the markdown</returns>
-        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings)
+        private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings, bool convertTxt)
         {
-            IgnoreWarnings = ignoreWarnings;
+            UseSmartTxtConv = convertTxt;
+            if (convertTxt)
+            {
+                ignoreWarnings = true;
+            }
 
             Out = new StringBuilder(doc.Length * 2); // Pre-allocate space for the HTML output
             metadata = new Dictionary<string, string>();
 
             Lines = doc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             LinesCount = Lines.Length;
+
+            bool generateToc = false;
 
             int startLine = 0;
             int emptyCnt = 0;
@@ -278,10 +307,6 @@ namespace m.format.conv
                         inputBox = $"<input type=\"checkbox\" {(isChecked ? "checked" : "")}>";
                         content = content2;
                     }
-                    else
-                    {
-                        CurrState = State.UnorderedList;
-                    }
                     ListState = CurrState;
 
                     CloseBlock();
@@ -313,7 +338,6 @@ namespace m.format.conv
                 // Ordered list
                 else if (IsOrderedList(line, indentSpc, indentPos, out level, out _, out content))
                 {
-                    CurrState = State.OrderedList;
                     ListState = State.OrderedList;
 
                     CloseBlock();
@@ -374,7 +398,7 @@ namespace m.format.conv
                 }
 
                 // Code block
-                else if ((firstChar == '`' || firstChar == '~') && IsCodeFence(trimLine, out string fence, out string lang))
+                else if ((firstChar == '`' || firstChar == '~' || indentPos >= 4) && IsCodeFence(trimLine, indentPos, out string fence, out string lang))
                 {
                     CurrState = State.CodeBlock;
                     if (PrevState != State.CodeBlock)
@@ -382,17 +406,39 @@ namespace m.format.conv
                         CloseBlock();
                         Out.Append($"<pre><code class=\"{lang}\">\n");
                         bool endBlock = false;
-                        while (!endBlock && ++LineNum < LinesCount)
+                        if (indentPos >= 4)
                         {
-                            if (Lines[LineNum].Trim() == fence)
+                            ReportWarning("Code block style [Expected: fenced; Actual: indented]");
+                            string ind = new string(' ', indentPos);
+                            LineNum--;
+                            while (!endBlock && ++LineNum < LinesCount)
                             {
-                                Out.Append("</code></pre>\n");
-                                endBlock = true;
-                                CurrState = State.Empty;
+                                if (!Lines[LineNum].StartsWith(ind))
+                                {
+                                    Out.Append("</code></pre>\n");
+                                    endBlock = true;
+                                    CurrState = State.Empty;
+                                }
+                                else
+                                {
+                                    Out.Append($"{EscapeHtml(Lines[LineNum])}\n");
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            while (!endBlock && ++LineNum < LinesCount)
                             {
-                                Out.Append($"{EscapeHtml(Lines[LineNum])}\n");
+                                if (Lines[LineNum].Trim() == fence)
+                                {
+                                    Out.Append("</code></pre>\n");
+                                    endBlock = true;
+                                    CurrState = State.Empty;
+                                }
+                                else
+                                {
+                                    Out.Append($"{EscapeHtml(Lines[LineNum])}\n");
+                                }
                             }
                         }
                     }
@@ -421,6 +467,7 @@ namespace m.format.conv
                 // Table of Contents placeholder
                 else if (trimLine == "[TOC]")
                 {
+                    generateToc = true;
                     Out.Append("{{TOC_PLACEHOLDER}}");
                     continue;
                 }
@@ -429,10 +476,24 @@ namespace m.format.conv
                 else
                 {
                     CurrState = State.Paragraph;
-                    CloseBlock(false);
+                    CloseBlock(false, indentPos);
                     if (line.EndsWith("  ") || line.EndsWith("\\"))
                     {
                         Para.Append(line.TrimEnd(' ', '\\') + "\n");
+                    }
+                    else if (indentPos >= 2)
+                    {
+                        // Convert double spaces to non-breaking spaces
+                        string s = line;
+                        int k;
+                        do
+                        {
+                            string newS = s.Replace("  ", "&nbsp; ");
+                            if (newS == s) { break; } // nothing was replaced → break
+                            s = newS;
+                            k = s.IndexOf("  ");
+                        } while (k > -1);
+                        Para.Append((PrevState == State.Paragraph ? "<br>" : "") + s);
                     }
                     else
                     {
@@ -473,13 +534,19 @@ namespace m.format.conv
                 Out.Append("</ul>\n</div>\n");
             }
 
-            GenerateWarningsReport();
+            if (!ignoreWarnings)
+            {
+                GenerateWarningsReport();
+            }
 
             // Generate Table of Contents (TOC) and insert it into the body
-            string toc = GenerateToc(TocHeadings);
-            if (toc.Length > 0)
+            if (generateToc)
             {
-                Out.Replace("{{TOC_PLACEHOLDER}}", toc);
+                string toc = GenerateToc(TocHeadings);
+                if (toc.Length > 0)
+                {
+                    Out.Replace("{{TOC_PLACEHOLDER}}", toc);
+                }
             }
 
             return Out.ToString();
@@ -500,7 +567,7 @@ namespace m.format.conv
         /// <summary>
         /// Closes the current block in the HTML document.
         /// </summary>
-        private void CloseBlock(bool procPara = true)
+        private void CloseBlock(bool procPara = true, int indent = 0)
         {
             if (procPara) { ProcessParagraph(); }
 
@@ -524,7 +591,7 @@ namespace m.format.conv
             {
                 if (PrevState == State.Paragraph)
                 {
-                    Para.Append(" ");
+                    if (indent == 0) { Para.Append(" "); }
                 }
                 else
                 {
@@ -984,15 +1051,48 @@ namespace m.format.conv
                 }
             }
 
-            CloseUnclosedTags(Out);
-
             // Convert double spaces to non-breaking spaces
             string s = res.ToString();
             int k = s.IndexOf("  ");
             while (k > -1)
             {
-                s = s.Replace("  ", "&nbsp; ");
+                string newS = s.Replace("  ", "&nbsp; ");
+                if (newS == s) { break; } // nothing was replaced → break
+                s = newS;
                 k = s.IndexOf("  ");
+            }
+
+            // Check for unclosed tags.
+            // It appends the necessary closing tags to the fixClosingTags string and reports warnings for each unclosed tag.
+            string fixClosingTags = "";
+            while (CntItl > 0)
+            {
+                fixClosingTags = "</em>";
+                ReportWarning("Unclosed italic tag");
+                CntItl--;
+            }
+            while (CntBld > 0)
+            {
+                fixClosingTags += "</strong>";
+                ReportWarning("Unclosed bold tag");
+                CntBld--;
+            }
+            while (CntHl > 0)
+            {
+                fixClosingTags += "</mark>";
+                ReportWarning("Unclosed mark tag");
+                CntHl--;
+            }
+            while (CntDel > 0)
+            {
+                fixClosingTags += "</del>";
+                ReportWarning("Unclosed del tag");
+                CntDel--;
+            }
+
+            if (fixClosingTags.Length > 0)
+            {
+                return s + fixClosingTags;
             }
 
             return s;
@@ -1220,8 +1320,10 @@ namespace m.format.conv
             url = null;
             title = null;
             endIndex = startIndex;
+            cls = "";
 
             int len = input.Length;
+            string candidate;
 
             // --- 1. Autolink: <https://example.com>, <user@example.com> ---
             if (input[startIndex] == '<')
@@ -1229,7 +1331,8 @@ namespace m.format.conv
                 int close = input.IndexOf('>', startIndex + 1);
                 if (close != -1)
                 {
-                    string candidate = input.Substring(startIndex + 1, close - startIndex - 1).Trim();
+                    candidate = input.Substring(startIndex + 1, close - startIndex - 1).Trim();
+                    if (candidate.Length < 8) { return false; }
                     if (IsValidEmail(candidate))
                     {
                         linkText = candidate;
@@ -1250,45 +1353,32 @@ namespace m.format.conv
             }
 
             // --- 2. Plain URL: http://example.com, user@example.com ---
-            if (IsUrlPrefix(input, startIndex) || IsEmailPrefix(input, startIndex))
+            int i = startIndex;
+            while (i < len && !char.IsWhiteSpace(input[i]) && input[i] != ')')
             {
-                int i = startIndex;
-                while (i < len && !char.IsWhiteSpace(input[i]) && input[i] != ')')
-                {
-                    i++;
-                }
-
-                string candidate = input.Substring(startIndex, i - startIndex);
-                if (IsValidEmail(candidate))
-                {
-                    linkText = candidate;
-                    url = "mailto:" + candidate;
-                    cls = " class=\"email-link\"";
-                    endIndex = i - 1;
-                    return true;
-                }
-                if (IsValidUrl(candidate))
-                {
-                    linkText = candidate;
-                    url = candidate;
-                    cls = "";
-                    endIndex = i - 1;
-                    return true;
-                }
+                i++;
             }
 
-            cls = "";
-            return false;
-        }
+            candidate = input.Substring(startIndex, i - startIndex);
+            if (candidate.Length < 7) { return false; }
+            if (IsValidEmail(candidate))
+            {
+                linkText = candidate;
+                url = "mailto:" + candidate;
+                cls = " class=\"email-link\"";
+                endIndex = i - 1;
+                return true;
+            }
+            if (IsValidUrl(candidate))
+            {
+                linkText = candidate;
+                url = candidate;
+                cls = "";
+                endIndex = i - 1;
+                return true;
+            }
 
-        /// <summary>
-        /// Checks if the input string starts with a URL prefix.
-        /// </summary>
-        private static bool IsUrlPrefix(string input, int index)
-        {
-            return input.Substring(index).StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                || input.Substring(index).StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-                || input.Substring(index).StartsWith("ftp://", StringComparison.OrdinalIgnoreCase);
+            return false;
         }
 
         /// <summary>
@@ -1296,16 +1386,17 @@ namespace m.format.conv
         /// </summary>
         private static bool IsValidUrl(string candidate)
         {
-            return Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri)
-                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeFtp);
-        }
-
-        /// <summary>
-        /// Checks if the input string starts with an email prefix.
-        /// </summary>
-        private static bool IsEmailPrefix(string input, int index)
-        {
-            return input.Substring(index).Contains("@");
+            if (candidate.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || candidate.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                || candidate.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))
+            {
+                return Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri)
+                    && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeFtp);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -1313,6 +1404,7 @@ namespace m.format.conv
         /// </summary>
         private static bool IsValidEmail(string input)
         {
+            if (!input.Contains('@')) { return false; }
             try
             {
                 System.Net.Mail.MailAddress addr = new System.Net.Mail.MailAddress(input);
@@ -1437,60 +1529,9 @@ namespace m.format.conv
             return true;
         }
 
-        /// <summary>
-        /// Closes any unclosed tags in the HTML output, and reports warnings for each unclosed tag.
-        /// This method ensures that all opened tags are properly closed before the end of the document.
-        /// </summary>
-        private void CloseUnclosedTags(StringBuilder sb)
-        {
-            while (CntItl > 0)
-            {
-                sb.Append("</em>");
-                ReportWarning("Unclosed italic tag");
-                CntItl--;
-            }
-            while (CntBld > 0)
-            {
-                sb.Append("</strong>");
-                ReportWarning("Unclosed bold tag");
-                CntBld--;
-            }
-            while (CntHl > 0)
-            {
-                sb.Append("</mark>");
-                ReportWarning("Unclosed mark tag");
-                CntHl--;
-            }
-            while (CntDel > 0)
-            {
-                sb.Append("</del>");
-                ReportWarning("Unclosed del tag");
-                CntDel--;
-            }
-        }
-
         #endregion
 
         #region Block recognition
-
-        /// <summary>
-        /// Determines if the given line is a horizontal rule in markdown format.
-        /// </summary>
-        private static bool IsHorizontalRule(string line)
-        {
-            string trim = line.Replace(" ", "");
-            if (trim.Length < 3) { return false; }
-
-            char c = trim[0];
-            if (c != '-' && c != '*' && c != '_') { return false; }
-
-            foreach (char ch in trim)
-            {
-                if (ch != c) { return false; }
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// Determines if the given line is a heading in markdown format.
@@ -1512,11 +1553,12 @@ namespace m.format.conv
 
             // Check the next line for heading underlining
             int nextLineHead = 0;
-            if (CurrState == State.Empty && LineNum < LinesCount)
+            if (CurrState == State.Empty && LineNum < LinesCount - 1)
             {
-                string nextLine = Lines[LineNum + 1];
+                string nextLine = Lines[LineNum + 1].Trim();
                 if (nextLine.Length >= 3)
                 {
+                    // If the next line is a heading underlining, we treat this line as a heading
                     if (nextLine[0] == '=' && nextLine.StartsWith("===") && nextLine.TrimEnd('=').Length == 0)
                     {
                         nextLineHead = 1;
@@ -1525,6 +1567,28 @@ namespace m.format.conv
                     {
                         nextLineHead = 2;
                     }
+                    if (nextLineHead > 0) { LineNum++; }
+                }
+                if (UseSmartTxtConv && nextLineHead == 0)
+                {
+                    string nextNoEmptyLine = "";
+                    int ln = 1;
+                    while (LineNum + ++ln < LinesCount)
+                    {
+                        nextNoEmptyLine = Lines[LineNum + ln].Trim();
+                        if (nextNoEmptyLine.Length > 0) { break; }
+                    }
+                    if (line.ToUpper() == line && nextNoEmptyLine.ToUpper() != nextNoEmptyLine)
+                    {
+                        if (line.StartsWith("        "))
+                        {
+                            nextLineHead = 1;
+                        }
+                        else
+                        {
+                            nextLineHead = 2;
+                        }
+                    }
                 }
             }
 
@@ -1532,9 +1596,7 @@ namespace m.format.conv
 
             if (nextLineHead > 0)
             {
-                // If the next line is a heading underlining, we treat this line as a heading
                 level = nextLineHead;
-                LineNum++;
             }
             else if (line[0] == '#')
             {
@@ -1549,6 +1611,10 @@ namespace m.format.conv
                 {
                     return false;
                 }
+            }
+            else
+            {
+                return false;
             }
 
             if (level > 0 && level <= 6)
@@ -1569,6 +1635,25 @@ namespace m.format.conv
         }
 
         /// <summary>
+        /// Determines if the given line is a horizontal rule in markdown format.
+        /// </summary>
+        private static bool IsHorizontalRule(string line)
+        {
+            string trim = line.Replace(" ", "");
+            if (trim.Length < 3) { return false; }
+
+            char c = trim[0];
+            if (c != '-' && c != '*' && c != '_') { return false; }
+
+            foreach (char ch in trim)
+            {
+                if (ch != c) { return false; }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Unordered lists (lists that use '-', '*', or '+' as item markers).
         /// </summary>
         private bool IsUnorderedList(
@@ -1585,7 +1670,7 @@ namespace m.format.conv
 
             char firstChar = line[indentPos];
 
-            if (firstChar == '-' || firstChar == '*' || firstChar == '+')
+            if (firstChar == '-' || firstChar == '*' || firstChar == '+' || firstChar == '•')
             {
                 indentPos++;
 
@@ -1600,10 +1685,12 @@ namespace m.format.conv
                     // Get the item text
                     content = ParseInlineStyles(line.Substring(indentPos + 1).Trim());
 
+                    CurrState = State.UnorderedList;
                     return true;
                 }
             }
 
+            if (CurrState == State.UnorderedList || CurrState == State.TaskList) { CurrState = State.Empty; }
             return false;
         }
 
@@ -1646,6 +1733,8 @@ namespace m.format.conv
             number = 0;
             content = "";
 
+            if (CurrState == State.OrderedList) { CurrState = State.Empty; }
+
             if (!char.IsDigit(line[indentPos])) { return false; }
 
             // Read number
@@ -1670,23 +1759,27 @@ namespace m.format.conv
             // Recalculate level
             level = (indentSpc / 2) + 1;
 
+            CurrState = State.OrderedList;
             return true;
         }
 
         /// <summary>
         /// Determines if the given line is a code fence in markdown format.
         /// </summary>
-        private bool IsCodeFence(string trimLine, out string fence, out string language)
+        private bool IsCodeFence(string trimLine, int indent, out string fence, out string language)
         {
             fence = null;
             language = null;
-
-            if (string.IsNullOrWhiteSpace(trimLine)) { return false; }
 
             if (trimLine.StartsWith("```") || trimLine.StartsWith("~~~"))
             {
                 fence = trimLine.Substring(0, 3);
                 language = trimLine.Length > 3 ? trimLine.Substring(3).Trim() : "text";
+                return true;
+            }
+            else if (PrevState != State.Paragraph && indent >= 4)
+            {
+                language = "text";
                 return true;
             }
             return false;
@@ -2166,8 +2259,6 @@ namespace m.format.conv
 
         #region Warnings processing
 
-        private bool IgnoreWarnings;
-
         /// <summary>
         /// List of warnings encountered during Markdown parsing.
         /// This list is used to collect warnings about potential issues in the Markdown text,
@@ -2190,7 +2281,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (!IgnoreWarnings && Warnings.Count > 0)
+            if (Warnings.Count > 0)
             {
                 Out.Append(
                     "\n<hr>\n" +

@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.2.0</version>
-    /// <date>2025-08-04</date>
+    /// <version>2.3.0</version>
+    /// <date>2025-08-07</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -20,6 +20,8 @@ namespace m.format.conv
         /// Converts HTML document to Markdown.
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
+        /// <param name="markCodeBlock">Whether to mark code blocks</param>
         /// <returns>Markdown representation of the HTML document</returns>
         public static string Convert(string html, bool ignoreWarnings = false, bool markCodeBlock = true)
         {
@@ -49,10 +51,11 @@ namespace m.format.conv
         /// Converts HTML document to Markdown.
         /// </summary>
         /// <param name="html">The HTML document as a string.</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
+        /// <param name="markCodeBlock">Whether to mark code blocks</param>
         /// <returns>Markdown representation of the HTML document</returns>
         private string ToMarkdownBody(string html, bool ignoreWarnings, bool markCodeBlock)
         {
-            IgnoreWarnings = ignoreWarnings;
             MarkCodeBlock = markCodeBlock;
 
             Stopwatch sw = Stopwatch.StartNew();
@@ -158,7 +161,10 @@ namespace m.format.conv
             // This is necessary to ensure that any text accumulated in the TextBuffer is written to the output.
             if (TextBuffer.Length > 0) { Out.Append(EscapeMarkdownChars(TextBuffer.ToString().Trim())); }
 
-            GenerateWarningsReport();
+            if (!ignoreWarnings)
+            {
+                GenerateWarningsReport();
+            }
 
             sw.Stop();
             double seconds = (double)sw.ElapsedTicks / Stopwatch.Frequency;
@@ -1144,8 +1150,6 @@ namespace m.format.conv
 
         #region Warnings processing
 
-        private bool IgnoreWarnings;
-
         /// <summary>
         /// List of warnings encountered during HTML parsing.
         /// This list is used to collect warnings about potential issues in the HTML text,
@@ -1168,7 +1172,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (!IgnoreWarnings && Warnings.Count > 0)
+            if (Warnings.Count > 0)
             {
                 EnsureEmptyLine(Out.Length);
                 Out.Append(new string('-', 52) + "\n");

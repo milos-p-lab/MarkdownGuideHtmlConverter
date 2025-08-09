@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts AmigaGuide to HTML.
     /// </summary>
-    /// <version>2.2.1</version>
-    /// <date>2025-08-05</date>
+    /// <version>2.3.0</version>
+    /// <date>2025-08-07</date>
     /// <author>Miloš Perunović</author>
     public class ConvGuideHtml
     {
@@ -22,6 +22,7 @@ namespace m.format.conv
         /// <param name="guide">The AmigaGuide document as a string.</param>
         /// <param name="lang">Language code (e.g. "en", "cnr")</param>
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
         /// <returns>HTML representation of the AmigaGuide document</returns>
         public static string Convert(string guide, string lang = "en", string head = null, bool ignoreWarnings = false)
         {
@@ -100,12 +101,11 @@ namespace m.format.conv
         /// Converts an AmigaGuide document to HTML.
         /// </summary>
         /// <param name="doc">AmigaGuide document</param>
-        /// <param name="metadata">Document title.</param>
+        /// <param name="metadata">Metadata extracted from the document</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
         /// <returns>HTML representation of the AmigaGuide document</returns>
         private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings)
         {
-            IgnoreWarnings = ignoreWarnings;
-
             int len = doc.Length;
             Out = new StringBuilder(len * 2); // Pre-allocate space for the HTML output
             TextBuffer = new StringBuilder();
@@ -177,7 +177,10 @@ namespace m.format.conv
             // This is necessary to ensure that any text accumulated in the TextBuffer is written to the output.
             WriteBufferedText();
 
-            GenerateWarningsReport();
+            if (!ignoreWarnings)
+            {
+                GenerateWarningsReport();
+            }
 
             metadata = Metadata;
             return Out.ToString();
@@ -558,8 +561,6 @@ namespace m.format.conv
 
         #region Warnings processing
 
-        private bool IgnoreWarnings;
-
         /// <summary>
         /// List of warnings encountered during Markdown parsing.
         /// This list is used to collect warnings about potential issues in the Markdown text,
@@ -582,7 +583,7 @@ namespace m.format.conv
         private void GenerateWarningsReport()
         {
             // Generate a report of any warnings
-            if (!IgnoreWarnings && Warnings.Count > 0)
+            if (Warnings.Count > 0)
             {
                 Out.Append(
                     "\n<hr>\n" +
