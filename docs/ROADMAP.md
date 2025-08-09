@@ -66,7 +66,7 @@ These features are already implemented and functional:
 
 ### Plain Text to HTML Conversion
 
-- Recognizes simple headings (e.g. `Title\n------`)
+- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
 - Converts bulleted lists (lines starting with `-`, `*`, or `+`)
 - Adds paragraph tags and basic inline formatting
 - Escapes unsafe characters (`<`, `>`, `&`) automatically
