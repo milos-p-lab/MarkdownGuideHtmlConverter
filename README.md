@@ -139,7 +139,7 @@ Otherwise, this converter aims to balance speed, HTML correctness, security, and
 
 This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
 
-- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
+- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
 - Converts bulleted lists (lines starting with `-`, `*`, or `+`)
 - Adds paragraph tags and basic inline formatting
 - Escapes unsafe characters (`<`, `>`, `&`) automatically
