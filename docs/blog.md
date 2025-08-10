@@ -205,7 +205,7 @@ One C# file. One method.
 
 ## 📦 Try It or Fork It
 
-🔹 Just want to test it? Download the [mdoc.exe](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/bin) and run:
+🔹 Just want to test it? Download the [mdoc.exe](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/tree/main/bin) and run:
 
 ```cmd
 mdoc input.md output.html
