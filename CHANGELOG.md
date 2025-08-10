@@ -6,11 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [2.3.1] - 2025-08-10
+
+### Added
+
+- Added: 🆕 CLI tool mdoc.exe – Plain text `.txt` to Markdown conversion:
+  - Converts plain text files to Markdown with basic formatting.
+  - Automatic detection of file encoding (e.g., UTF-8, ASCII).
+  - Supports headings, paragraphs, lists, links, pipe tables, and code blocks.
+  - Support for indented code blocks (e.g., indented by 4 spaces or a tab).
+  - Usage: Run `mdoc.exe <input.txt> <output.md>`
+
+### Fixed
+
+- 🐞 HTML → Markdown conversion: Fixed handling character `\n` in paragraphs, headings, and lists.
+
 ## [2.3.0] - 2025-08-09
 
 ### Added
 
-- 🆕 Smart plain text `.txt` to HTML conversion (based on Markdown → HTML converter):
+- 🆕 Smart plain text `.txt` to HTML conversion:
   - Converts plain text files to HTML with basic formatting.
   - Automatic detection of file encoding (e.g., UTF-8, ASCII).
   - Added support uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
@@ -132,7 +147,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Implements basic fallback logic and optional attribute handling.
   - Reversible conversion supported for standard Markdown-generated HTML.
 - ✅ New CLI support in mdoc.exe:
-  - Example: mdoc input.html output.md.
+  - Example: `mdoc.exe <input.html> <output.md>`
 
 ### Changed
 
@@ -159,7 +174,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Resolved issue where an unclosed block at the end of a Markdown file could lead to improperly terminated HTML output.
-- 🐛 Resolved issue with basic styling across multiline paragraphs (e.g., `**bold**` or `*italic*` spanning multiple lines).
+- 🐞 Resolved issue with basic styling across multiline paragraphs (e.g., `**bold**` or `*italic*` spanning multiple lines).
 
 ## [1.2.3] – 2025-07-18
 

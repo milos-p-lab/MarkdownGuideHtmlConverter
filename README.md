@@ -4,7 +4,7 @@
 
 ## 🧩 About
 
-⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, AmigaGuide to HTML/Markdown, and smart plain text to HTML.
+⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, AmigaGuide to HTML/Markdown, and smart plain text to HTML/Markdown.
 
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
@@ -15,6 +15,7 @@ MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for 
 - AmigaGuide → HTML5
 - AmigaGuide → Markdown
 - Plain text → HTML5
+- Plain text → Markdown
 
 It’s designed to be:
 
@@ -27,7 +28,7 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-09
+> 🗓️ **Date:** 2025-08-10
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
@@ -266,6 +267,7 @@ mdoc input.html output.md
 mdoc input.guide output.html
 mdoc input.guide output.md
 mdoc input.txt output.html
+mdoc input.txt output.md
 ```
 
 📁 **Location**
@@ -292,7 +294,7 @@ Check the Test folder ([test](./test)) for examples of:
 - [Markdown-Example.md](./test/Markdown-Example.md)
 - [Markdown-XSS.md](./test/Markdown-XSS.md)
 - [AmigaGuide-Example.guide](./test/AmigaGuide-Example.guide)
-- ...
+- etc.
 
 ---
 
