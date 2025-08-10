@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.3.0</version>
-    /// <date>2025-08-07</date>
+    /// <version>2.3.1</version>
+    /// <date>2025-08-10</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -98,13 +98,6 @@ namespace m.format.conv
                     continue;
                 }
 
-                // Check for double space or tab characters
-                else if (c == ' ' || c == '\t')
-                {
-                    c = ' ';
-                    repeatSpc = prevChr == ' ';
-                }
-
                 // Check for HTML entities
                 else if (c == '&')
                 {
@@ -132,8 +125,15 @@ namespace m.format.conv
                     }
                     TextBuffer.Append(c);
                 }
-                else if (inTxt && c != '\n')
+                else if (inTxt)
                 {
+                    // Check for double space or tab characters
+                    if (c == ' ' || c == '\t' || c == '\n')
+                    {
+                        c = ' ';
+                        repeatSpc = prevChr == ' ';
+                    }
+
                     if (BuffSpc)
                     {
                         // Buffer space flag is set, add a space before the next text segment

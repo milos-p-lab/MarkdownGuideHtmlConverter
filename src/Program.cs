@@ -21,16 +21,16 @@ namespace mdoc
         /// If no output file path is provided, the output file will have the same name as the input file,
         /// but with the appropriate extension based on the conversion direction.
         /// </remarks>
-        /// <version>2.3.0</version>
-        /// <date>2025-08-09</date>
+        /// <version>2.3.1</version>
+        /// <date>2025-08-10</date>
         /// <author>Miloš Perunović</author>
         private static void Main(string[] args)
         {
 #if DEBUG
             args = new string[2];
             args[0] = @"R:\Temp\test.txt";
-            args[1] = @"R:\Temp\test.html";
-            args[1] = "--encoding=windows-1250";
+            args[1] = @"R:\Temp\test.md";
+            //args[1] = "--encoding=windows-1250";
 #endif
             // Parse switches
             bool ignoreWarnings = false;
@@ -79,7 +79,9 @@ namespace mdoc
                     "  .html  -> .md\n" +
                     "  .guide -> .html\n" +
                     "  .guide -> .md\n" +
-                    "  .txt   -> .html (smart)");
+                    "  .txt   -> .html (smart)\n" +
+                    "  .txt   -> .md (smart)"
+                    );
                 return;
             }
 
@@ -160,6 +162,9 @@ namespace mdoc
                         break;
                     case ".txt -> .html":
                         outContent = ConvMarkdownHtml.SmartTxtConvert(inContent);
+                        break;
+                    case ".txt -> .md":
+                        outContent = ConvHtmlMarkdown.Convert(ConvMarkdownHtml.SmartTxtConvert(inContent));
                         break;
                     default:
                         Console.WriteLine($"Error: Unsupported conversion direction: {$"{convDirection}"}");
