@@ -132,7 +132,7 @@ Read the full story here: 👉 [Why I Built This Converter](blog.md)
 
 ## ▶️ Try It Now
 
-No setup needed — just download [mdoc.exe](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/bin) and run:
+No setup needed — just download [mdoc.exe](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/tree/main/bin) and run:
 
 ```cmd
 mdoc input.md output.html
