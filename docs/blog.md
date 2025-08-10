@@ -205,13 +205,15 @@ One C# file. One method.
 
 ## 📦 Try It or Fork It
 
-🔹 Just want to test it? Download the `.exe` and run:
+🔹 Just want to test it? Download the [mdoc.exe](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/bin) and run:
 
 ```cmd
 mdoc input.md output.html
 mdoc input.html output.md
 mdoc input.guide output.html
 mdoc input.guide output.md
+mdoc input.txt output.html
+mdoc input.txt output.md
 ```
 
 🔹 Want to embed or extend it? Just copy the `.cs` file into your project and you're done.
