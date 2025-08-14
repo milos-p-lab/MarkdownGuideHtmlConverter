@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://milos-p-lab.github.io/MarkdownGuideHtmlConverter/sitemap.xml
