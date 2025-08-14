@@ -6,15 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [2.3.2] - 2025-08-14
+
+### Added
+
+- ✅ HTML to Markdown and Plain text to HTML conversion:
+  - Added support for multiline lists (lists with wrapped lines).
+- ✅ Markdown and Plain text to HTML conversion:
+  - Added support for multiline lists (lists with wrapped lines).
+  - Added support for basic styling (bold, italic, etc.) in link descriptions (e.g., `[**bold link**](url)`, `[link *italic*](url)`, `[link ~~strikethrough~~](url)`).
+- ✅ Added: HTML to plain text conversion.
+- ✅ CLI tool mdoc.exe: Added support for:
+  - Markdown to plain text conversion.
+  - HTML to plain text conversion.
+  - AmigaGuide to plain text conversion:
+    - Converts AmigaGuide files to readable plain text format (e.g., `mdoc.exe input.guide output.txt`).
+
+### Fixed
+
+- 🐞 Plain text `.txt` to HTML/Markdown conversion: Fixed handling of `/` character.
+
 ## [2.3.1] - 2025-08-10
 
 ### Added
 
-- Added: 🆕 CLI tool mdoc.exe – Plain text `.txt` to Markdown conversion:
-  - Converts plain text files to Markdown with basic formatting.
-  - Automatic detection of file encoding (e.g., UTF-8, ASCII).
-  - Supports headings, paragraphs, lists, links, pipe tables, and code blocks.
-  - Support for indented code blocks (e.g., indented by 4 spaces or a tab).
+- MD → HTML conversion: Support for indented code blocks (e.g., indented by 4 spaces or a tab).
+- Added: CLI tool mdoc.exe:
+  - Plain text `.txt` to Markdown conversion:
+  - Automatic detection of file encoding (e.g., UTF-8, ASCII) for `.txt` files.
+    - Supports basic formatting, headings, paragraphs, lists, links, pipe tables, and code blocks.
   - Usage: Run `mdoc.exe <input.txt> <output.md>`
 
 ### Fixed
@@ -28,7 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - 🆕 Smart plain text `.txt` to HTML conversion:
   - Converts plain text files to HTML with basic formatting.
   - Automatic detection of file encoding (e.g., UTF-8, ASCII).
-  - Added support uppercase headings (e.g., `      HEADING      ` for H1 or `HEADING` for H2).
+  - Added support uppercase headings (e.g., `       HEADING      ` for H1 or `HEADING` for H2).
   - Supports headings, paragraphs, lists, links, pipe tables, and code blocks.
   - Support for indented code blocks (e.g., indented by 4 spaces or a tab).
   - Usage: `string html = ConvHtmlMarkdown.SmartTxtConvert(txt);`.
