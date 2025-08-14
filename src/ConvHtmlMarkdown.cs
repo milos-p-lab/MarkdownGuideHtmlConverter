@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.3.1</version>
-    /// <date>2025-08-10</date>
+    /// <version>2.3.2</version>
+    /// <date>2025-08-14</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -25,7 +25,23 @@ namespace m.format.conv
         /// <returns>Markdown representation of the HTML document</returns>
         public static string Convert(string html, bool ignoreWarnings = false, bool markCodeBlock = true)
         {
-            return new ConvHtmlMarkdown().ToMarkdownBody(html, ignoreWarnings, markCodeBlock);
+            return new ConvHtmlMarkdown().ToMarkdownBody(html, ignoreWarnings, markCodeBlock, convertTxt: false);
+        }
+
+        /// <summary>
+        /// Flag indicating whether to use smart plain text conversion.
+        /// </summary>
+        private bool IsTxtFormat;
+
+        /// <summary>
+        /// Converts HTML document to plain text.
+        /// </summary>
+        /// <param name="html">The HTML document as a string.</param>
+        /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
+        /// <returns>Plain text representation of the HTML document</returns>
+        public static string ConvertToTxt(string html, bool ignoreWarnings = false)
+        {
+            return new ConvHtmlMarkdown().ToMarkdownBody(html, ignoreWarnings, markCodeBlock: true, convertTxt: true);
         }
 
         /// <summary>
@@ -45,6 +61,9 @@ namespace m.format.conv
         /// </summary>
         private readonly StringBuilder TextBuffer = new StringBuilder();
 
+        /// <summary>
+        /// Flag indicating whether to mark code blocks.
+        /// </summary>
         private bool MarkCodeBlock;
 
         /// <summary>
@@ -53,10 +72,12 @@ namespace m.format.conv
         /// <param name="html">The HTML document as a string.</param>
         /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
         /// <param name="markCodeBlock">Whether to mark code blocks</param>
+        /// <param name="convertTxt">Whether to convert to plain text format</param>
         /// <returns>Markdown representation of the HTML document</returns>
-        private string ToMarkdownBody(string html, bool ignoreWarnings, bool markCodeBlock)
+        private string ToMarkdownBody(string html, bool ignoreWarnings, bool markCodeBlock, bool convertTxt)
         {
             MarkCodeBlock = markCodeBlock;
+            IsTxtFormat = convertTxt;
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -254,7 +275,7 @@ namespace m.format.conv
                         c = decoded;
                     }
                 }
-                if (c == '\\' || c == '*' || c == '_' || c == '#' || c == '$' || c == '`' || c == '\'' || c == '^' || c == '|' || c == '[' || c == ']' || c == '<' || c == '>' || c == '~')
+                if (!IsTxtFormat && (c == '\\' || c == '*' || c == '_' || c == '#' || c == '$' || c == '`' || c == '\'' || c == '^' || c == '|' || c == '[' || c == ']' || c == '<' || c == '>' || c == '~'))
                 {
                     sb.Append('\\');
                 }
@@ -268,12 +289,12 @@ namespace m.format.conv
         /// Escapes special Markdown characters in the given text.
         /// This is necessary to prevent Markdown from interpreting them as formatting.
         /// </summary>
-        private static string EscapeMarkdownChars(string text)
+        private string EscapeMarkdownChars(string text)
         {
             StringBuilder sb = new StringBuilder(text.Length * 2); // Allocate more space for escaped characters
             foreach (char c in text)
             {
-                if (c == '\\' || c == '*' || c == '_' || c == '#' || c == '$' || c == '`' || c == '\'' || c == '^' || c == '|' || c == '[' || c == ']' || c == '<' || c == '>' || c == '~')
+                if (!IsTxtFormat && (c == '\\' || c == '*' || c == '_' || c == '#' || c == '$' || c == '`' || c == '\'' || c == '^' || c == '|' || c == '[' || c == ']' || c == '<' || c == '>' || c == '~'))
                 {
                     sb.Append('\\');
                 }
@@ -544,14 +565,15 @@ namespace m.format.conv
                 inHeading = true;
                 int level = tag[2] - '0';
                 EnsureEmptyLine(outLen);
-                Out.Append($"{new string('#', level)} ");
-
+                if (!IsTxtFormat)
+                {
+                    Out.Append($"{new string('#', level)} ");
+                }
                 //string id = GetAttribute(tag, "id");
                 //if (!string.IsNullOrEmpty(id))
                 //{
                 //    sb.Append($"<a id=\"{id}\"></a> ");
                 //}
-
             }
 
             // Links
@@ -745,6 +767,17 @@ namespace m.format.conv
                         inTxt = false;
                         inHeading = false;
                         BuffSpc = false;
+                        if (IsTxtFormat)
+                        {
+                            if (tag == "</h1>")
+                            {
+                                Out.Append("\n" + new string('=', content.Length));
+                            }
+                            else
+                            {
+                                Out.Append("\n" + new string('-', content.Length));
+                            }
+                        }
                         Out.Append("\n\n");
                         break;
 
@@ -787,12 +820,23 @@ namespace m.format.conv
                     case "<br />":
                         if (inTxt)
                         {
-                            if (lastChar != ' ') { Out.Append("  \n"); }
+                            if (lastChar != ' ')
+                            {
+                                if (inList)
+                                {
+                                    Out.Append("\n  ");
+                                }
+                                else
+                                {
+                                    Out.Append("  \n");
+                                }
+                            }
                         }
                         else
                         {
                             EnsureEmptyLine(outLen);
-                            Out.Append("\\");
+                            if (IsTxtFormat) { Out.Append('\n'); }
+                            else { Out.Append("\\"); }
                         }
                         break;
 

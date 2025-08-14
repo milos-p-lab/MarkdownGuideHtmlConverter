@@ -21,14 +21,14 @@ namespace mdoc
         /// If no output file path is provided, the output file will have the same name as the input file,
         /// but with the appropriate extension based on the conversion direction.
         /// </remarks>
-        /// <version>2.3.1</version>
-        /// <date>2025-08-10</date>
+        /// <version>2.3.2</version>
+        /// <date>2025-08-12</date>
         /// <author>Miloš Perunović</author>
         private static void Main(string[] args)
         {
 #if DEBUG
             args = new string[2];
-            args[0] = @"R:\Temp\test.txt";
+            args[0] = @"R:\Temp\test.html";
             args[1] = @"R:\Temp\test.md";
             //args[1] = "--encoding=windows-1250";
 #endif
@@ -76,11 +76,14 @@ namespace mdoc
                     "Usage: mdoc <input_file> [output_file]\n" +
                     "Supported conversions:\n" +
                     "  .md    -> .html\n" +
+                    "  .md    -> .txt\n" +
                     "  .html  -> .md\n" +
+                    "  .html  -> .txt\n" +
+                    "  .txt   -> .html (smart)\n" +
+                    "  .txt   -> .md (smart)\n" +
                     "  .guide -> .html\n" +
                     "  .guide -> .md\n" +
-                    "  .txt   -> .html (smart)\n" +
-                    "  .txt   -> .md (smart)"
+                    "  .guide -> .txt"
                     );
                 return;
             }
@@ -94,7 +97,7 @@ namespace mdoc
                 return;
             }
 
-            string inExt = Path.GetExtension(inPath).ToLowerInvariant();
+            string inExt = Path.GetExtension(inPath).ToLowerInvariant().TrimStart('.');
             string outContent;
             string outExt;
 
@@ -104,7 +107,7 @@ namespace mdoc
                 if (args.Length > 1)
                 {
                     outPath = args[1];
-                    outExt = Path.GetExtension(outPath).ToLowerInvariant();
+                    outExt = Path.GetExtension(outPath).ToLowerInvariant().TrimStart('.');
                     outPath = Path.ChangeExtension(outPath, outExt);
                 }
                 else
@@ -112,15 +115,15 @@ namespace mdoc
                     // No output file specified, determine based on input file extension
                     switch (inExt)
                     {
-                        case ".md":
-                            outExt = ".html";
+                        case "md":
+                            outExt = "html";
                             break;
-                        case ".html":
-                            outExt = ".md";
+                        case "html":
+                            outExt = "md";
                             break;
-                        case ".guide":
-                        case ".txt":
-                            outExt = ".html";
+                        case "guide":
+                        case "txt":
+                            outExt = "html";
                             break;
                         default:
                             outExt = "?";
@@ -145,26 +148,37 @@ namespace mdoc
                 string inContent = File.ReadAllText(inPath, enc);
 
                 // Perform conversion based on input and output extensions
-                string convDirection = $"{inExt} -> {outExt}";
+                string convDirection = $"{inExt} > {outExt}";
                 switch (convDirection)
                 {
-                    case ".md -> .html":
+                    case "md > html":
                         outContent = ConvMarkdownHtml.Convert(inContent, ignoreWarnings: ignoreWarnings);
                         break;
-                    case ".html -> .md":
+                    case "md > txt":
+                        outContent = ConvHtmlMarkdown.ConvertToTxt(ConvMarkdownHtml.Convert(inContent));
+                        break;
+                    case "html > md":
+                    case "htm > md":
                         outContent = ConvHtmlMarkdown.Convert(inContent, ignoreWarnings: ignoreWarnings);
                         break;
-                    case ".guide -> .html":
-                        outContent = ConvGuideHtml.Convert(inContent, ignoreWarnings: ignoreWarnings);
+                    case "html > txt":
+                    case "htm > txt":
+                        outContent = ConvHtmlMarkdown.ConvertToTxt(inContent);
                         break;
-                    case ".guide -> .md":
-                        outContent = ConvHtmlMarkdown.Convert(ConvGuideHtml.Convert(inContent), ignoreWarnings: true, markCodeBlock: false);
-                        break;
-                    case ".txt -> .html":
+                    case "txt > html":
                         outContent = ConvMarkdownHtml.SmartTxtConvert(inContent);
                         break;
-                    case ".txt -> .md":
+                    case "txt > md":
                         outContent = ConvHtmlMarkdown.Convert(ConvMarkdownHtml.SmartTxtConvert(inContent));
+                        break;
+                    case "guide > html":
+                        outContent = ConvGuideHtml.Convert(inContent, ignoreWarnings: ignoreWarnings);
+                        break;
+                    case "guide > md":
+                        outContent = ConvHtmlMarkdown.Convert(ConvGuideHtml.Convert(inContent), ignoreWarnings: true, markCodeBlock: false);
+                        break;
+                    case "guide > txt":
+                        outContent = ConvHtmlMarkdown.ConvertToTxt(ConvGuideHtml.Convert(inContent), ignoreWarnings: true);
                         break;
                     default:
                         Console.WriteLine($"Error: Unsupported conversion direction: {$"{convDirection}"}");
@@ -173,7 +187,7 @@ namespace mdoc
 
                 // Write the converted content to the output file
                 File.WriteAllText(outPath, outContent);
-                Console.WriteLine($"Conversion successful: {inPath} -> {outPath}");
+                Console.WriteLine($"Conversion successful: {convDirection}");
             }
             catch (Exception ex)
             {

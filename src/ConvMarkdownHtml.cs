@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.3.0</version>
-    /// <date>2025-08-08</date>
+    /// <version>2.3.2</version>
+    /// <date>2025-08-14</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -74,7 +74,7 @@ namespace m.format.conv
         /// <summary>
         /// Flag indicating whether to use smart plain text conversion.
         /// </summary>
-        private bool UseSmartTxtConv;
+        private bool IsTxtFormat;
 
         /// <summary>
         /// Smart plain text to HTML conversion.
@@ -173,8 +173,8 @@ namespace m.format.conv
         /// <returns>HTML representation of the markdown</returns>
         private string ToHtmlBody(string doc, out Dictionary<string, string> metadata, bool ignoreWarnings, bool convertTxt)
         {
-            UseSmartTxtConv = convertTxt;
-            if (convertTxt)
+            IsTxtFormat = convertTxt;
+            if (IsTxtFormat)
             {
                 ignoreWarnings = true;
             }
@@ -295,6 +295,12 @@ namespace m.format.conv
                     Out.Append("<br>\n");
                     emptyCnt = 1;
                     continue;
+                }
+
+                // List continuation
+                else if (indentSpc >= 2 && (CurrState == State.UnorderedList || CurrState == State.OrderedList || CurrState == State.TaskList))
+                {
+                    line = "<br>\n" + (new string(' ', ListLastLevel * 2 + 4)) + ParseInlineStyles(line.Trim());
                 }
 
                 // Unordered list, task lists
@@ -708,7 +714,7 @@ namespace m.format.conv
             {
                 char c = line[pos];
 
-                if (c == '\\')
+                if (c == '\\' && !IsTxtFormat)
                 {
                     if (pos + 1 < len)
                     {
@@ -1213,6 +1219,8 @@ namespace m.format.conv
 
             linkText = input.Substring(startIndex + 1, textEnd - startIndex - 1);
 
+            linkText = ParseInlineStyles(linkText);
+
             // 2. After ']' expect '('
             i = textEnd + 1;
             if (i >= len || input[i] != '(') { return false; }
@@ -1569,7 +1577,7 @@ namespace m.format.conv
                     }
                     if (nextLineHead > 0) { LineNum++; }
                 }
-                if (UseSmartTxtConv && nextLineHead == 0)
+                if (IsTxtFormat && nextLineHead == 0)
                 {
                     string nextNoEmptyLine = "";
                     int ln = 1;
