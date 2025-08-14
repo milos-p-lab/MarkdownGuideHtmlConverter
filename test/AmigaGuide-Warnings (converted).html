@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test.guide</title>
+  <meta name="version" content="Test">
+  <meta name="copyright" content="2025">
+  <meta name="author" content="Miloďż˝ Perunoviďż˝">
+  <style>
+    .btn {
+    display: inline-block;
+    padding: 3px 7px;
+    background: #eee;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    color: #333;
+    }
+    .btn:hover {
+      background: #2f8bc1;
+    }
+  </style>
+</head>
+<body>
+<pre>
+<!-- ignored-command: @Master Amigaguide.texinfo --><!-- ignored-command: @font phxmagyar.font 8 --><!-- ignored-command: @index Index --><!-- ignored-command: @wordwrap  --><!-- ignored-command: @Width 76 --><a id="main"></a></pre>
+<h2>Main node</h2>
+<pre>
+<strong>Bold <em>Italic <u>Underline </u></em></strong>Plain
+    
+<strong>Unclosed bold
+
+Repeated bold tag
+
+<em>Unclosed Italic tag
+
+Repeated Italic tag
+
+<u>Unclosed Underline tag
+
+Repeated Underline tag
+
+</u></em></strong></pre>
+<hr>
+<pre>
+</pre>
+
+<hr>
+<div class="warnings" style="background: #f5f78a; border:2px solid #c43f0f; padding:0.5em; color: #000333; font-family:monospace; font-size:0.95em;">
+  <h2>⚠️ WARNINGS</h2>
+  <ul>
+    <li>Line 17: Repeated bold tag</li>
+    <li>Line 21: Repeated italic tag</li>
+    <li>Line 25: Repeated underline tag</li>
+    <li>Line &lt;= 27: Unclosed underline tag</li>
+    <li>Line &lt;= 27: Unclosed italic tag</li>
+    <li>Line &lt;= 27: Unclosed bold tag</li>
+  </ul>
+</div>
+</body>
+</html>
