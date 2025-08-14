@@ -1,10 +1,10 @@
-# Markdown ⇄ HTML, AmigaGuide → HTML/MD, Smart Plain Text → HTML Converter
+# Markdown ⇄ HTML, AmigaGuide → HTML, and Smart Plain Text ⇄ HTML Converter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/)
 
-## 🧩 About
+## ℹ️ About
 
-⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, AmigaGuide to HTML/Markdown, and smart plain text to HTML/Markdown.
+⚡ Fast .NET converter for Markdown to HTML, HTML to Markdown, AmigaGuide to HTML, smart plain text to HTML, and HTML to plain text.
 
 > Note: The term *convertor* is also commonly used, though converter is the standard spelling in technical documentation.
 
@@ -13,9 +13,15 @@ MarkdownGuideHtmlConverter is a lightweight and high-performance C# library for 
 - Markdown → HTML5
 - HTML5 → Markdown
 - AmigaGuide → HTML5
-- AmigaGuide → Markdown
 - Plain text → HTML5
-- Plain text → Markdown
+- HTML5 → Plain text
+
+and derived conversions:
+
+- Markdown → Plain Text
+- Smart Plain Text → Markdown
+- AmigaGuide → Markdown
+- AmigaGuide → Plain Text
 
 It’s designed to be:
 
@@ -28,13 +34,13 @@ Unlike large tools like Pandoc, this converter is implemented as a single C# fil
 🧱 Whether you're building a static site generator, rendering Markdown documentation, importing legacy AmigaGuide manuals, or cleaning up HTML for Markdown publishing, this tool is optimized for clarity, speed, and portability.
 
 > ✍️ **Author:** Miloš Perunović  
-> 🗓️ **Date:** 2025-08-10
+> 🗓️ **Date:** 2025-08-14
 
 📘 [**Why I Built This Converter**](docs/blog.md) — background story and motivation
 
 ---
 
-## 📄 Markdown to HTML Converter
+## 🔄 Markdown to HTML Converter
 
 ### 🚀 Introducing the Markdown to HTML Converter You Didn’t Think Was Possible
 
@@ -136,30 +142,7 @@ Otherwise, this converter aims to balance speed, HTML correctness, security, and
 
 ---
 
-## 📄 Smart Plain Text to HTML Converter
-
-This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
-
-- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
-- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
-- Adds paragraph tags and basic inline formatting
-- Escapes unsafe characters (`<`, `>`, `&`) automatically
-- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
-- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
-
-### ⚙️ Usage (Plain Text to HTML)
-
-👉 This converter is implemented in a single C# file: [ConvMarkdownHtml.cs](./src/ConvMarkdownHtml.cs). You can simply copy this file into your project.
-
-Example usage for plain text:
-
-```csharp
-string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
-```
-
----
-
-## 📄 HTML to Markdown Converter
+## 🔄 HTML to Markdown Converter
 
 A fast reverse conversion engine — for turning HTML back into Markdown.
 
@@ -205,7 +188,54 @@ string markdown = ConvHtmlMarkdown.Convert(html);
 
 ---
 
-## 📄 AmigaGuide to HTML Converter
+## 🔄 Smart Plain Text to HTML Converter
+
+This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
+
+- Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
+- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Adds paragraph tags and basic inline formatting
+- Escapes unsafe characters (`<`, `>`, `&`) automatically
+- Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
+- 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
+### ⚙️ Usage (Plain Text to HTML)
+
+👉 This converter is implemented in a single C# file: [ConvMarkdownHtml.cs](./src/ConvMarkdownHtml.cs). You can simply copy this file into your project.
+
+Example usage for plain text:
+
+```csharp
+string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
+```
+
+---
+
+## 🔄 HTML to Plain Text Converter
+
+This converter can be used to transform HTML documents into plain text by applying basic formatting rules:
+
+- Headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
+- Blockquotes
+- Ordered lists, unordered lists and task lists
+- Links
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- 🚨 Warnings for syntax issues
+
+### ⚙️ Usage (HTML to Plain Text)
+
+👉 This converter is implemented in a single C# file: [ConvHtmlMarkdown.cs](./src/ConvHtmlMarkdown.cs). You can simply copy this file into your project.
+
+Example usage for HTML:
+
+```csharp
+string txt = ConvHtmlMarkdown.ConvertToTxt(html);
+```
+
+---
+
+## 🔄 AmigaGuide to HTML Converter
 
 This converter enables viewing **.guide documents** (AmigaGuide format) directly in Windows or web applications without requiring external tools. It’s perfect for retro projects or preserving old Amiga documentation in modern formats.
 
@@ -263,11 +293,14 @@ Although the primary goal of this project is to provide a lightweight, embeddabl
 
 ```cmd
 mdoc input.md output.html
+mdoc input.md output.txt
 mdoc input.html output.md
-mdoc input.guide output.html
-mdoc input.guide output.md
+mdoc input.html output.txt
 mdoc input.txt output.html
 mdoc input.txt output.md
+mdoc input.guide output.html
+mdoc input.guide output.md
+mdoc input.guide output.txt
 ```
 
 📁 **Location**
@@ -317,6 +350,6 @@ Check the Test folder ([test](./test)) for examples of:
 
 ---
 
-## 📜 License
+## ⚖️ License
 
 MIT License – © 2025 Miloš Perunović
