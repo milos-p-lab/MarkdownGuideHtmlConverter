@@ -1,12 +1,12 @@
 ---
-title: "Markdown ⇄ HTML and AmigaGuide → HTML/Markdown Converter"
+title: "Markdown ⇄ HTML, Smart Plain Text ⇄ HTML and AmigaGuide → HTML Converter"
 layout: default
-description: "Fast, safe and feature-complete Markdown ⇄ HTML and AmigaGuide → HTML/Markdown converter written in C#."
+description: "Fast, safe and feature-complete Markdown ⇄ HTML, Smart Plain Text ⇄ HTML and AmigaGuide → HTML converter written in C#."
 ---
 
-# Markdown ⇄ HTML and AmigaGuide → HTML/Markdown Converter
+# Markdown ⇄ HTML, Smart Plain Text ⇄ HTML and AmigaGuide → HTML Converter
 
-**A lightweight, reliable, and secure Markdown ⇄ HTML and AmigaGuide → HTML/Markdown converter built in C#.**
+**A lightweight, reliable, and secure Markdown ⇄ HTML, Smart Plain Text ⇄ HTML and AmigaGuide → HTML converter built in C#.**
 
 👉 GitHub repository: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
 
@@ -59,7 +59,7 @@ Supports:
   - Supports title and custom meta tags for HTML `<head>`
 - 🚨 Warnings for syntax issues
 
-### Converts AmigaGuide `.guide` files to HTML `.html` and Markdown `.md`
+### Converts AmigaGuide `.guide` files to HTML `.html`
 
 - Converts core AmigaGuide commands:
   - Nodes (`@NODE`, `@ENDNODE`, `@TOC`, `@NEXT`, `@PREV`)
@@ -73,12 +73,35 @@ Supports:
 
 ### Converts Plain Text `.txt` files to HTML `.html`
 
+Supports:
+
 - Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
-- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Converts bulleted lists (lines starting with `-`, `*`, `+`, or `•`)
 - Adds paragraph tags and basic inline formatting
 - Escapes unsafe characters (`<`, `>`, `&`) automatically
 - Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
 - 🔐 It scans the input for potential XSS and phishing vulnerabilities (e.g., embedded &lt;script&gt; tags or suspicious links).
+
+### Converts HTML `.html` to Plain Text `.txt`
+
+Supports:
+
+- Headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
+- Blockquotes
+- Ordered lists, unordered lists and task lists
+- Links
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- 🚨 Warnings for syntax issues
+
+---
+
+### Derived Conversions
+
+- Markdown to Plain Text
+- Smart Plain Text to Markdown
+- AmigaGuide to Markdown
+- AmigaGuide to Plain Text
 
 ---
 
@@ -112,6 +135,10 @@ string html = ConvGuideHtml.Convert(amigaGuide);
 string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
 ```
 
+```csharp
+string txt = ConvHtmlMarkdown.ConvertToTxt(html);
+```
+
 No runtime dependencies, no configuration, no surprises.
 
 ---
@@ -136,11 +163,14 @@ No setup needed — just download [mdoc.exe](https://github.com/milos-p-lab/Mark
 
 ```cmd
 mdoc input.md output.html
+mdoc input.md output.txt
 mdoc input.html output.md
-mdoc input.guide output.html
-mdoc input.guide output.md
+mdoc input.html output.txt
 mdoc input.txt output.html
 mdoc input.txt output.md
+mdoc input.guide output.html
+mdoc input.guide output.md
+mdoc input.guide output.txt
 ```
 
 Works on Windows with .NET Framework 4.0+
@@ -170,4 +200,4 @@ This helps others discover a safer and more powerful alternative to bloated or l
 
 ---
 
-Made with focus and precision by Miloš Perunović 😊
+✍️ **Author:** Miloš Perunović  

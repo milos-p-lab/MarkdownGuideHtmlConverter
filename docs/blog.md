@@ -1,6 +1,6 @@
-# Why I Built a C# Markdown to/from HTML, and AmigaGuide to HTML/Markdown Converter
+# Why I Built a C# Markdown to/from HTML, and AmigaGuide to HTML Converter
 
-> **Description:** "A lightweight, safe and complete `.md` to `.html`, `.html` to `.md`, and `.guide` to `.html` / `.md` converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
+> **Description:** "A lightweight, safe and complete `.md` to `.html`, `.html` to `.md`, `.txt` to `.html`, `.html` to `.txt`, and `.guide` to `.html` converter built in C#, and why existing tools like Pandoc and Typora didn't meet my needs."
 
 Markdown is great. HTML is everywhere. Turning one into the other *should* be easy, right?
 
@@ -128,7 +128,7 @@ It’s ideal for batch-processing Markdown or handling user-submitted content.
 
 ---
 
-## AmigaGuide to HTML/Markdown Converter
+## AmigaGuide to HTML Converter
 
 ### ✅ AmigaGuide Supported Features
 
@@ -145,12 +145,12 @@ It’s ideal for batch-processing Markdown or handling user-submitted content.
 
 ---
 
-## 📄 Smart Plain Text to HTML Converter
+## Smart Plain Text to HTML Converter
 
-This converter (MD to HTML) can also be used to transform plain `.txt` files into valid HTML5 by applying basic formatting rules:
+### ✅ Plain Text Supported Features
 
 - Recognizes simple headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2) or uppercase headings (e.g., `        HEADING` for H1 or `HEADING` for H2).
-- Converts bulleted lists (lines starting with `-`, `*`, or `+`)
+- Converts bulleted lists (lines starting with `-`, `*`, `+`, or `•`)
 - Adds paragraph tags and basic inline formatting
 - Escapes unsafe characters (`<`, `>`, `&`) automatically
 - Outputs valid, minimal, styled HTML — ideal for fast previewing or lightweight rendering of plain notes
@@ -158,24 +158,49 @@ This converter (MD to HTML) can also be used to transform plain `.txt` files int
 
 ---
 
+## HTML to Plain Text Converter
+
+- Headings (e.g., `Heading\n===` for H1 or `Heading\n---` for H2)
+- Blockquotes
+- Ordered lists, unordered lists and task lists
+- Links
+- Tables
+  - Pipe-style tables with alignment (e.g., `| --- | :---: | ---: |`)
+- 🚨 Warnings for syntax issues
+
+---
+
+## Other Derived Conversions
+
+- Markdown to Plain Text
+- Smart Plain Text to Markdown
+- AmigaGuide to Markdown
+- AmigaGuide to Plain Text
+
+---
+
 ## ⚡ One C# File. One Line to Use It
 
 Instead of building a framework, I created a **single-file class** you can just drop into your project and use like this:
 
-``` csharp
+```csharp
 string html = ConvMarkdownHtml.Convert(markdown);
 ```
 
-``` csharp
+```csharp
 string markdown = ConvHtmlMarkdown.Convert(html);
 ```
 
-``` csharp
+```csharp
 string html = ConvGuideHtml.Convert(amigaGuide);
 ```
 
-``` csharp
+```csharp
 string html = ConvHtmlMarkdown.SmartTxtConvert(txt);
+```
+
+```csharp
+string txt = ConvHtmlMarkdown.ConvertToTxt(html);
 ```
 
 Done. No NuGet packages. No third-party libs. No surprises.
@@ -209,11 +234,14 @@ One C# file. One method.
 
 ```cmd
 mdoc input.md output.html
+mdoc input.md output.txt
 mdoc input.html output.md
-mdoc input.guide output.html
-mdoc input.guide output.md
+mdoc input.html output.txt
 mdoc input.txt output.html
 mdoc input.txt output.md
+mdoc input.guide output.html
+mdoc input.guide output.md
+mdoc input.guide output.txt
 ```
 
 🔹 Want to embed or extend it? Just copy the `.cs` file into your project and you're done.
@@ -226,4 +254,4 @@ If you're tired of bloated or unsafe Markdown tools — try this minimalist appr
 
 ---
 
-✍️ **Author:** Miloš Perunović  
+Made with focus and precision by Miloš Perunović 😊
