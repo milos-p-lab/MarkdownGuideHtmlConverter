@@ -11,8 +11,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts Markdown to HTML.
     /// </summary>
-    /// <version>2.3.2</version>
-    /// <date>2025-08-14</date>
+    /// <version>2.3.3</version>
+    /// <date>2025-08-17</date>
     /// <author>Miloš Perunović</author>
     public class ConvMarkdownHtml
     {
@@ -272,19 +272,21 @@ namespace m.format.conv
                 {
                     CurrState = State.Empty;
                     emptyCnt++;
-                    if (PrevState == State.Paragraph)
+                    switch (PrevState)
                     {
-                        ProcessParagraph();
-                        Out.Append("</p>\n");
-                    }
-                    else if (PrevState == State.UnorderedList || PrevState == State.TaskList || PrevState == State.OrderedList || PrevState == State.Blockquote)
-                    {
-                        CurrState = PrevState;
-                    }
-                    else if (PrevState == State.Empty && emptyCnt == 3)
-                    {
-                        Out.Append("<br>\n");
-                        emptyCnt = 1;
+                        case State.Paragraph:
+                            AppendParagraph();
+                            Out.Append("</p>\n");
+                            break;
+                        case State.UnorderedList:
+                        case State.TaskList:
+                        case State.OrderedList:
+                            CurrState = PrevState;
+                            break;
+                        case State.Empty when emptyCnt == 3:
+                            Out.Append("<br>\n");
+                            emptyCnt = 1;
+                            break;
                     }
                 }
 
@@ -298,9 +300,13 @@ namespace m.format.conv
                 }
 
                 // List continuation
-                else if (indentSpc >= 2 && (CurrState == State.UnorderedList || CurrState == State.OrderedList || CurrState == State.TaskList))
+                else if (indentSpc >= 2
+                    && (CurrState == State.UnorderedList || CurrState == State.OrderedList || CurrState == State.TaskList)
+                    && !IsUnorderedList(line, indentSpc, indentPos, out _, out _, out _)
+                    && !IsOrderedList(line, indentSpc, indentPos, out _, out _, out _))
                 {
-                    line = "<br>\n" + (new string(' ', ListLastLevel * 2 + 4)) + ParseInlineStyles(line.Trim());
+                    Out.Append("<br>\n" + new string(' ', (ListLastLevel * 2) + 4) + ParseInlineStyles(line.Trim()));
+                    continue;
                 }
 
                 // Unordered list, task lists
@@ -394,13 +400,41 @@ namespace m.format.conv
                 else if (firstChar == '>')
                 {
                     CurrState = State.Blockquote;
-                    content = ParseInlineStyles(line.Substring(1).TrimStart());
-                    if (PrevState != State.Blockquote)
+                    CloseBlock();
+                    Out.Append("<blockquote>\n");
+                    bool addSpc = false;
+                    do
                     {
-                        CloseBlock();
-                        Out.Append("<blockquote>\n");
-                    }
-                    line = content.Length == 0 ? "" : $"<p>{content}</p>\n";
+                        content = Lines[LineNum].Substring(1).Trim();
+                        if (content.Length == 0)
+                        {
+                            AppendParagraph(includeTag: true);
+                        }
+                        else
+                        {
+                            if (addSpc) { Para.Append(' '); }
+                            Para.Append(content);
+                            if (Lines[LineNum].EndsWith("  ") || Lines[LineNum].EndsWith("\\"))
+                            {
+                                Para.Append("\n");
+                                addSpc = false;
+                            }
+                            else if (Para.Length > 0)
+                            {
+                                addSpc = true;
+                            }
+                        }
+                        LineNum++;
+                        firstChar = LineNum < LinesCount && Lines[LineNum].Length > 0 ? Lines[LineNum][0] : '\0';
+                        if (firstChar != '>')
+                        {
+                            CurrState = State.Empty;
+                            LineNum--;
+                            break;
+                        }
+                    } while (firstChar == '>');
+                    AppendParagraph(includeTag: true);
+                    Out.Append("</blockquote>\n");
                 }
 
                 // Code block
@@ -561,13 +595,15 @@ namespace m.format.conv
         /// <summary>
         /// Processes the current paragraph by converting inline styles and appending it to the HTML body.
         /// </summary>
-        private void ProcessParagraph()
+        private void AppendParagraph(bool includeTag = false)
         {
+            if (includeTag) { Out.Append("<p>"); }
             if (Para.Length > 0)
             {
                 Out.Append(ParseInlineStyles(Para.ToString()));
                 Para.Clear();
             }
+            if (includeTag) { Out.Append("</p>\n"); }
         }
 
         /// <summary>
@@ -575,18 +611,14 @@ namespace m.format.conv
         /// </summary>
         private void CloseBlock(bool procPara = true, int indent = 0)
         {
-            if (procPara) { ProcessParagraph(); }
+            if (procPara) { AppendParagraph(); }
 
             if (ListState != State.Empty && !(CurrState == State.UnorderedList || CurrState == State.TaskList || CurrState == State.OrderedList))
             {
                 ListLevelDown(0);
             }
 
-            if (PrevState == State.Blockquote)
-            {
-                Out.Append("</blockquote>\n");
-            }
-            else if (PrevState == State.CodeBlock)
+            if (PrevState == State.CodeBlock)
             {
                 Out.Append("</code></pre>\n");
             }
