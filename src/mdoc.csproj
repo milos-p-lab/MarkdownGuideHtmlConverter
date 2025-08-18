@@ -45,15 +45,9 @@
     <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\libs_cs\m.format.conv\ConvGuideHtml.cs">
-      <Link>ConvGuideHtml.cs</Link>
-    </Compile>
-    <Compile Include="..\..\libs_cs\m.format.conv\ConvHtmlMarkdown.cs">
-      <Link>ConvHtmlMarkdown.cs</Link>
-    </Compile>
-    <Compile Include="..\..\libs_cs\m.format.conv\ConvMarkdownHtml.cs">
-      <Link>ConvMarkdownHtml.cs</Link>
-    </Compile>
+    <Compile Include="ConvGuideHtml.cs" />
+    <Compile Include="ConvHtmlMarkdown.cs" />
+    <Compile Include="ConvMarkdownHtml.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
