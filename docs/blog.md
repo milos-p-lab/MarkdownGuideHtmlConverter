@@ -255,7 +255,7 @@ mdoc input.guide output.txt
 
 🔹 Want to embed or extend it? Just copy the `.cs` file into your project and you're done.
 
-> 👉 GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter)
+> 👉 GitHub: [milos-p-lab/MarkdownGuideHtmlConverter](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/tree/main/src)
 
 ---
 
