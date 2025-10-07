@@ -9,8 +9,8 @@ namespace m.format.conv
     /// <summary>
     /// Converts HTML to Markdown.
     /// </summary>
-    /// <version>2.3.2</version>
-    /// <date>2025-08-14</date>
+    /// <version>2.3.4</version>
+    /// <date>2025-10-07</date>
     /// <author>Miloš Perunović</author>
     public class ConvHtmlMarkdown
     {
@@ -146,7 +146,7 @@ namespace m.format.conv
                     }
                     TextBuffer.Append(c);
                 }
-                else if (inTxt)
+                else if (inTxt || inCode)
                 {
                     // Check for double space or tab characters
                     if (c == ' ' || c == '\t' || c == '\n')
@@ -605,7 +605,7 @@ namespace m.format.conv
             // Preformatted text
             else if (inPre && tag == "<pre>")
             {
-                EnsureEmptyLine(Out.Length);
+                EnsureEmptyLine(outLen);
                 if (MarkCodeBlock) { Out.Append("```"); }
             }
 
@@ -613,9 +613,8 @@ namespace m.format.conv
             else if (tagChr1 == 'c' && tag.StartsWith("<code"))
             {
                 inCode = true;
-                string atr = GetAttribute(tagA, "class");
-                codeAddLine = pos + 1 < len && html[pos + 1] != '\n';
-                if (MarkCodeBlock) { Out.Append(atr.Length > 0 ? " " + atr : ""); }
+                if (!inTxt) { EnsureEmptyLine(outLen); }
+                Out.Append("`");
             }
 
             // Images
@@ -796,7 +795,7 @@ namespace m.format.conv
                     // Code blocks
                     case "</code>":
                         inCode = false;
-                        EnsureNewline(lastChar);
+                        Out.Append("`");
                         break;
 
                     // Blockquotes

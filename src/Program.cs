@@ -28,8 +28,8 @@ namespace mdoc
         {
 #if DEBUG
             args = new string[2];
-            args[0] = @"R:\Temp\test.md";
-            args[1] = @"R:\Temp\test.html";
+            args[0] = @"R:\Temp\Html-Example.html";
+            args[1] = @"R:\Temp\Html-Example (converted).md";
             //args[1] = "--encoding=windows-1250";
 #endif
             // Parse switches
