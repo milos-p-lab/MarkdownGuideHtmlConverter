@@ -104,6 +104,10 @@ continues** normal
 
 Normal normal *italic continues* normal
 
+Inline `code` example
+
+`Inline code without paragraph tags`
+
 **ADIABATIC PROCESSES** – *Gr. adiabatos – which cannot be crossed*
 
 Normal \* *italic* **bold** ***bolditalic*** normal ~~strikethrough~~ ==highlighted== normal **==highlighted bold==** normal == nohighlighted== \~\~ nostrikethrough\~\~ normal
@@ -165,11 +169,11 @@ Unclosed paragraph: Unsclosed paragraph 2
 
 - Line 50: Unexpected character `<` inside `<pre>` block.
 - Line 51: Unexpected character `>` inside `<pre>` block.
-- Line 159: Unknown HTML entity.
-- Line 160: Unknown HTML entity: &wrong;.
-- Line 161: Improperly closed paragraph/heading tag
-- Line 162: Improperly closed paragraph/heading tag
-- Line 163: Improperly closed paragraph/heading tag
-- Line <= 164: Unclosed bold tag
-- Line 164: Improperly closed paragraph/heading tag
-- Line <= 165: Unclosed italic tag
+- Line 167: Unknown HTML entity.
+- Line 168: Unknown HTML entity: &wrong;.
+- Line 169: Improperly closed paragraph/heading tag
+- Line 170: Improperly closed paragraph/heading tag
+- Line 171: Improperly closed paragraph/heading tag
+- Line <= 172: Unclosed bold tag
+- Line 172: Improperly closed paragraph/heading tag
+- Line <= 173: Unclosed italic tag
