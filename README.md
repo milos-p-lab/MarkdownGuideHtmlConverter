@@ -1,6 +1,6 @@
 # Markdown ⇄ HTML, AmigaGuide → HTML, and Smart Plain Text ⇄ HTML Converter
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.0%2B-brightgreen)](https://learn.microsoft.com/en-us/dotnet/framework/) [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/) [![Github All Releases](https://img.shields.io/github/downloads/milos-p-lab/MarkdownGuideHtmlConverter/total.svg)](https://github.com/milos-p-lab/MarkdownGuideHtmlConverter/releases/)
 
 ## ℹ️ About
 
@@ -291,6 +291,7 @@ mdoc input.guide output.txt
 ```
 
 📁 **Location**
+
 You can find the compiled binary in the [bin](./bin) folder.
 
 ✅ No installation required — works out of the box on Windows 10/11 (uses built-in .NET Framework).
