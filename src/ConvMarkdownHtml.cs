@@ -26,8 +26,9 @@ namespace m.format.conv
         /// <param name="head">Additional head elements (e.g. CSS links)</param>
         /// <param name="ignoreWarnings">Whether to ignore warnings during conversion</param>
         /// <param name="convertTxt">Whether to convert plain text to HTML</param>
+        /// <param name="bodyOnly">To generate only the content of the body part</param>
         /// <returns>HTML representation of the markdown document</returns>
-        public static string Convert(string md, string lang = "en", string head = null, bool ignoreWarnings = false, bool convertTxt = false)
+        public static string Convert(string md, string lang = "en", string head = null, bool ignoreWarnings = false, bool convertTxt = false, bool bodyOnly = true)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -57,7 +58,7 @@ namespace m.format.conv
             Console.WriteLine($"{(convertTxt ? "Plain text" : "Markdown")} -> HTML conv.: {seconds} sec.");
 
             // Generate the HTML document
-            return
+            return bodyOnly ? body :
                 "<!DOCTYPE html>\n" +
                 $"<html lang=\"{lang}\">\n" +
                 "<head>\n" +
@@ -794,38 +795,6 @@ namespace m.format.conv
                     continue;
                 }
 
-                // Less-than sign
-                else if (c == '<')
-                {
-                    int tagStart = pos;
-                    int j = pos + 1;
-
-                    // Go to the end of the potential tag
-                    while (j < line.Length && line[j] != '>') { j++; }
-
-                    if (j < line.Length && line[j] == '>')
-                    {
-                        string tagCandidate = line.Substring(tagStart, j - tagStart + 1);
-
-                        // Check if the tag is allowed
-                        if (!IsDangerousTag(tagCandidate) && IsAllowedHtmlTag(tagCandidate))
-                        {
-                            res.Append(tagCandidate);
-                            pos = j;
-                            continue;
-                        }
-                    }
-                    res.Append("&lt;");
-                    continue;
-                }
-
-                // Greater-than sign
-                else if (c == '>')
-                {
-                    res.Append("&gt;");
-                    continue;
-                }
-
                 // Footnotes and links
                 else if (c == '[')
                 {
@@ -865,7 +834,7 @@ namespace m.format.conv
                     // Links. Example: [link](https://example.com)
                     else if (TryParseLink(line, pos, out string linkText, out string url, out string title, out int end))
                     {
-                        res.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
+                        res.Append($"<a href=\"{EscapeHtml(url)}{(string.IsNullOrEmpty(title) ? "" : $"\" title=\"{EscapeHtml(title)}")}\">{linkText}</a>");
                         pos = end; // skip the parsed part
                         continue;
                     }
@@ -874,8 +843,40 @@ namespace m.format.conv
                 // Autolinks. Example: https://example.com, <https://example.com>, user@example.com, <user@example.com>
                 else if (!skipCheckAutolink && TryParseAutoLink(line, pos, out string linkText2, out string url2, out string title2, out string cls, out int end2))
                 {
-                    res.Append($"<a href=\"{EscapeHtml(url2)}{(title2 == null ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
+                    res.Append($"<a href=\"{EscapeHtml(url2)}{(string.IsNullOrEmpty(title2) ? "" : $"\" title=\"{EscapeHtml(title2)}")}\"{cls}>{linkText2}</a>");
                     pos = end2; // skip the parsed part
+                    continue;
+                }
+
+                // Less-than sign
+                else if (c == '<')
+                {
+                    int tagStart = pos;
+                    int j = pos + 1;
+
+                    // Go to the end of the potential tag
+                    while (j < line.Length && line[j] != '>') { j++; }
+
+                    if (j < line.Length && line[j] == '>')
+                    {
+                        string tagCandidate = line.Substring(tagStart, j - tagStart + 1);
+
+                        // Check if the tag is allowed
+                        if (!IsDangerousTag(tagCandidate) && IsAllowedHtmlTag(tagCandidate))
+                        {
+                            res.Append(tagCandidate);
+                            pos = j;
+                            continue;
+                        }
+                    }
+                    res.Append("&lt;");
+                    continue;
+                }
+
+                // Greater-than sign
+                else if (c == '>')
+                {
+                    res.Append("&gt;");
                     continue;
                 }
 
@@ -884,7 +885,7 @@ namespace m.format.conv
                 {
                     if (TryParseImage(line, pos, out string altText, out string url, out string title, out int end))
                     {
-                        res.Append($"<img src=\"{url}\" alt=\"{altText}\"{(title == null ? "" : $" title=\"{title}\"")}>");
+                        res.Append($"<img src=\"{url}\" alt=\"{altText}\"{(string.IsNullOrEmpty(title) ? "" : $" title=\"{title}\"")}>");
                         pos = end; // skip the parsed part
                         continue;
                     }
@@ -934,7 +935,6 @@ namespace m.format.conv
                         }
                         continue;
                     }
-
                     // Bold
                     else if (c2 == '*')
                     {
@@ -953,7 +953,6 @@ namespace m.format.conv
                         }
                         continue;
                     }
-
                     // Italic
                     else
                     {
@@ -1016,7 +1015,7 @@ namespace m.format.conv
                 {
                     int j = pos + 2;
 
-                    if (CntHl == 0)
+                    if (CntDel == 0)
                     {
                         // Check that there are not more than 2 '~' characters
                         if (j < len && line[j] == '~')
@@ -1035,13 +1034,13 @@ namespace m.format.conv
                             continue;
                         }
 
-                        CntHl++;
+                        CntDel++;
                         res.Append("<del>");
                     }
                     else
                     {
                         // Closing strikethrough tag
-                        CntHl--;
+                        CntDel--;
                         res.Append("</del>");
                     }
 
@@ -1050,7 +1049,7 @@ namespace m.format.conv
                 }
 
                 // Subscript
-                else if (c == '~' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
+                else if (c == '~' && pos > 0 && line[pos - 1] != ' ' && (pos + 1 == len || line[pos + 1] != ' '))
                 {
                     if (CntSub == 0)
                     {
@@ -1067,7 +1066,7 @@ namespace m.format.conv
                 }
 
                 // Superscript
-                else if (c == '^' && pos > 0 && pos + 1 < len && line[pos - 1] != ' ' && line[pos + 1] != ' ')
+                else if (c == '^' && pos > 0 && line[pos - 1] != ' ' && (pos + 1 == len || line[pos + 1] != ' '))
                 {
                     if (CntSup == 0)
                     {
@@ -1170,13 +1169,13 @@ namespace m.format.conv
         /// <summary>
         /// Parses inline code segments wrapped in backticks.
         /// </summary>
-        private bool TryParseInlineCode(
+        private static bool TryParseInlineCode(
             string line,
             int startIndex,
             out int endIndex,
             out string codeContent)
         {
-            codeContent = null;
+            codeContent = "";
             endIndex = -1;
 
             if (line[startIndex] != '`') { return false; }
@@ -1223,9 +1222,9 @@ namespace m.format.conv
         /// </summary>
         private bool TryParseLink(string input, int startIndex, out string linkText, out string url, out string title, out int endIndex)
         {
-            linkText = null;
-            url = null;
-            title = null;
+            linkText = "";
+            url = "";
+            title = "";
             endIndex = startIndex;
 
             int i = startIndex + 1;
@@ -1356,9 +1355,9 @@ namespace m.format.conv
         /// </summary>
         private static bool TryParseAutoLink(string input, int startIndex, out string linkText, out string url, out string title, out string cls, out int endIndex)
         {
-            linkText = null;
-            url = null;
-            title = null;
+            linkText = "";
+            url = "";
+            title = "";
             endIndex = startIndex;
             cls = "";
 
@@ -1430,7 +1429,7 @@ namespace m.format.conv
                 || candidate.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
                 || candidate.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))
             {
-                return Uri.TryCreate(candidate, UriKind.Absolute, out Uri uri)
+                return Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri)
                     && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeFtp);
             }
             else
@@ -1461,9 +1460,9 @@ namespace m.format.conv
         /// </summary>
         private static bool TryParseImage(string input, int startIndex, out string altText, out string url, out string title, out int endIndex)
         {
-            altText = null;
-            url = null;
-            title = null;
+            altText = "";
+            url = "";
+            title = "";
             endIndex = startIndex;
 
             int len = input.Length;
@@ -1737,9 +1736,9 @@ namespace m.format.conv
         /// <summary>
         /// Task list (a special type of unordered list that uses "[ ]" or "[x]" as item markers).
         /// </summary>
-        private bool TryParseTaskList(string line, out string textWithoutCheckbox, out bool isChecked)
+        private static bool TryParseTaskList(string line, out string textWithoutCheckbox, out bool isChecked)
         {
-            textWithoutCheckbox = null;
+            textWithoutCheckbox = "";
             isChecked = false;
 
             // It is assumed that the first two characters are already "- " or "* "
@@ -1808,8 +1807,8 @@ namespace m.format.conv
         /// </summary>
         private bool IsCodeFence(string trimLine, int indent, out string fence, out string language)
         {
-            fence = null;
-            language = null;
+            fence = "";
+            language = "";
 
             if (trimLine.StartsWith("```") || trimLine.StartsWith("~~~"))
             {
@@ -1848,7 +1847,7 @@ namespace m.format.conv
                     {
                         if (TryParseAutoLink(tag, 0, out string linkText, out string url, out string title, out string cls, out int _))
                         {
-                            Out.Append($"<a href=\"{EscapeHtml(url)}{(title == null ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a>\n");
+                            Out.Append($"<a href=\"{EscapeHtml(url)}{(string.IsNullOrEmpty(title) ? "" : $"\" title=\"{EscapeHtml(title)}")}\"{cls}>{linkText}</a>\n");
                             state = State.Paragraph;
                             return true;
                         }
@@ -2064,8 +2063,8 @@ namespace m.format.conv
         private class HeadingInfo
         {
             public int Level;   // e.g. 1 for <h1>, 2 for <h2>...
-            public string Text; // text from the heading
-            public string Id;   // HTML id (anchor)
+            public string Text= ""; // text from the heading
+            public string Id = "";   // HTML id (anchor)
         }
 
         /// <summary>
@@ -2092,7 +2091,7 @@ namespace m.format.conv
         /// <summary>
         /// Generates a Table of Contents (TOC) from the collected headings.
         /// </summary>
-        private string GenerateToc(List<HeadingInfo> headings)
+        private static string GenerateToc(List<HeadingInfo> headings)
         {
             if (headings.Count == 0) { return ""; }
 
@@ -2160,7 +2159,7 @@ namespace m.format.conv
             return sb.ToString();
         }
 
-        private string Indent(int level)
+        private static string Indent(int level)
         {
             return new string(' ', level * 2); // 2 spaces per level
         }
